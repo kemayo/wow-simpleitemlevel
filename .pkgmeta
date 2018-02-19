@@ -1,0 +1,10 @@
+package-as: SimpleItemLevel
+
+ignore:
+    - lib/.gitkeep
+
+externals:
+    lib/LibStub:
+        url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+        tag: latest
+    lib/LibItemLevel-1.0: https://repos.wowace.com/wow/libitemlevel-1-0
