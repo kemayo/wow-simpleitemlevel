@@ -7,7 +7,7 @@
 
 #@no-lib-strip@
 lib/LibStub/LibStub.lua
-lib/LibItemLevel-1.0/LibItemLevel-1.0.xml
+lib/LibItemLevel-1.0/lib.xml
 #@end-no-lib-strip@
 
 addon.lua
