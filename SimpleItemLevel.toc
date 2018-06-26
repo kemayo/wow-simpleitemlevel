@@ -3,6 +3,7 @@
 ## Author: Kemayo
 ## Notes: Show item levels in the character frame
 ## OptionalDeps: LibItemLevel-1.0
+## SavedVariables: SimpleItemLevelDB
 ## Version: 1
 
 #@no-lib-strip@

@@ -1,4 +1,8 @@
 local myname, ns = ...
+local myfullname = GetAddOnMetadata(myname, "Title")
+local db
+
+function ns.Print(...) print("|cFF33FF99".. myfullname.. "|r:", ...) end
 
 -- events
 local f = CreateFrame("Frame")
@@ -7,6 +11,47 @@ function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((sele
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 
 local LIL = LibStub("LibItemLevel-1.0")
+
+function ns:ADDON_LOADED(event, addon)
+    if addon == "Blizzard_InspectUI" then
+        self:ModInspectUI()
+    end
+    if addon == myname then
+        if IsAddOnLoaded("Blizzard_InspectUI") then
+            self:ModInspectUI()
+        end
+
+        _G[myname.."DB"] = setmetatable(_G[myname.."DB"] or {}, {
+            __index = {
+                character = true,
+                inspect = true,
+                bags = true,
+            },
+        })
+        db = _G[myname.."DB"]
+    end
+end
+ns:RegisterEvent("ADDON_LOADED")
+
+local function AddLevelToButton(button, itemLevel, itemQuality)
+    if not itemLevel then
+        return button.simpleilvl and button.simpleilvl:Hide()
+    end
+
+    if not button.simpleilvl then
+        button.simpleilvl = button:CreateFontString('$parentItemLevel', 'ARTWORK')
+        button.simpleilvl:SetPoint('TOPRIGHT', -2, -2)
+        button.simpleilvl:SetFontObject(NumberFontNormal)
+        button.simpleilvl:SetJustifyH('RIGHT')
+    end
+
+    local r, g, b, hex = GetItemQualityColor(itemQuality)
+    button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
+    button.simpleilvl:Show()
+end
+
+-- Character frame:
+
 local function GetItemQualityAndLevel(unit, slotID)
     local itemID = GetInventoryItemID(unit, slotID)
 
@@ -18,30 +63,25 @@ local function GetItemQualityAndLevel(unit, slotID)
     end
 end
 local function UpdateItemSlotButton(button, unit)
+    local key = unit == "player" and "character" or "inspect"
+    if not db[key] then
+        return button.simpleilvl and button.simpleilvl:Hide()
+    end
     local slotID = button:GetID()
 
     if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) then
         local itemQuality, itemLevel = GetItemQualityAndLevel(unit, slotID)
-
-        if not button.simpleilvl then
-            button.simpleilvl = button:CreateFontString('$parentItemLevel', 'ARTWORK')
-            button.simpleilvl:SetPoint('TOPRIGHT', -2, -2)
-            button.simpleilvl:SetFontObject(NumberFontNormal)
-            button.simpleilvl:SetJustifyH('RIGHT')
+        if itemLevel then
+            return AddLevelToButton(button, itemLevel, itemQuality)
         end
-
-        if not itemLevel then
-            return button.simpleilvl:Hide()
-        end
-
-        local r, g, b, hex = GetItemQualityColor(itemQuality)
-        button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
-        button.simpleilvl:Show()
     end
+    return button.simpleilvl and button.simpleilvl:Hide()
 end
 hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
     UpdateItemSlotButton(button, "player")
 end)
+
+-- Inspect frame:
 
 function ns:GET_ITEM_INFO_RECEIVED()
     if InspectFrame and InspectFrame:IsShown() then
@@ -50,21 +90,59 @@ function ns:GET_ITEM_INFO_RECEIVED()
     end
 end
 ns:RegisterEvent("GET_ITEM_INFO_RECEIVED")
-
-function ns:ADDON_LOADED(event, addon)
-    if addon == "Blizzard_InspectUI" then
-        self:ModInspectUI()
-    end
-    if addon == myname then
-        if IsAddOnLoaded("Blizzard_InspectUI") then
-            self:ModInspectUI()
-        end
-    end
-end
-ns:RegisterEvent("ADDON_LOADED")
-
 function ns:ModInspectUI()
     hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "target")
     end)
+end
+
+-- Bags:
+
+local function UpdateContainerButton(button, bag)
+    if not db.bags then
+        return button.simpleilvl and button.simpleilvl:Hide()
+    end
+    local slot = button:GetID()
+    local _, _, _, quality, _, _, _, _, _, itemID = GetContainerItemInfo(bag, slot)
+    if not itemID then
+        return button.simpleilvl and button.simpleilvl:Hide()
+    end
+    local _, _, _, _, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
+    if
+        quality >= LE_ITEM_QUALITY_UNCOMMON and (
+            itemClass == LE_ITEM_CLASS_WEAPON or
+            itemClass == LE_ITEM_CLASS_ARMOR or
+            (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
+        )
+    then
+        local level = LIL.GetItemLevel(bag, slot)
+        AddLevelToButton(button, level, quality)
+    end
+end
+
+hooksecurefunc("ContainerFrame_Update", function(container)
+    local bag = container:GetID()
+    local name = container:GetName()
+    for i = 1, container.size, 1 do
+        local button = _G[name .. "Item" .. i]
+        UpdateContainerButton(button, bag)
+    end
+end)
+
+-- Quick config:
+
+_G["SLASH_".. myname:upper().."1"] = "/simpleilvl"
+SlashCmdList[myname:upper()] = function(msg)
+    msg = msg:trim()
+    if msg ~= "" and db[msg] ~= nil then
+        db[msg] = not db[msg]
+
+    end
+    if msg == "" then
+        ns.Print(SHOW_ITEM_LEVEL)
+        ns.Print('bags -', BAGSLOTTEXT, "-", db.bags and YES or NO)
+        ns.Print('character -', ORDER_HALL_EQUIPMENT_SLOTS, "-", db.character and YES or NO)
+        ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
+        ns.Print("To toggle: /simpleilvl [type]")
+    end
 end
