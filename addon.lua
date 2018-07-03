@@ -117,6 +117,8 @@ local function UpdateContainerButton(button, bag)
     then
         local level = LIL.GetItemLevel(bag, slot)
         AddLevelToButton(button, level, quality)
+    else
+        return button.simpleilvl and button.simpleilvl:Hide()
     end
 end
 
@@ -126,6 +128,12 @@ hooksecurefunc("ContainerFrame_Update", function(container)
     for i = 1, container.size, 1 do
         local button = _G[name .. "Item" .. i]
         UpdateContainerButton(button, bag)
+    end
+end)
+
+hooksecurefunc("BankFrameItemButton_Update", function(button)
+    if not button.isBag then
+        UpdateContainerButton(button, -1)
     end
 end)
 
