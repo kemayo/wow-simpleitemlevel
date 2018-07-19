@@ -70,9 +70,19 @@ local function UpdateItemSlotButton(button, unit)
     local slotID = button:GetID()
 
     if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) then
-        local itemQuality, itemLevel = GetItemQualityAndLevel(unit, slotID)
-        if itemLevel then
-            return AddLevelToButton(button, itemLevel, itemQuality)
+        if unit == "player" then
+            local item = Item:CreateFromEquipmentSlot(slotID)
+            if item:IsItemEmpty() then
+                return
+            end
+            return item:ContinueOnItemLoad(function()
+                AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
+            end)
+        else
+            local itemQuality, itemLevel = GetItemQualityAndLevel(unit, slotID)
+            if itemLevel then
+                return AddLevelToButton(button, itemLevel, itemQuality)
+            end
         end
     end
     return button.simpleilvl and button.simpleilvl:Hide()
@@ -99,27 +109,29 @@ end
 -- Bags:
 
 local function UpdateContainerButton(button, bag)
+    if button.simpleilvl then button.simpleilvl:Hide() end
     if not db.bags then
-        return button.simpleilvl and button.simpleilvl:Hide()
+        return
     end
     local slot = button:GetID()
-    local _, _, _, quality, _, _, _, _, _, itemID = GetContainerItemInfo(bag, slot)
-    if not itemID then
-        return button.simpleilvl and button.simpleilvl:Hide()
+    local item = Item:CreateFromBagAndSlot(bag, slot)
+    if item:IsItemEmpty() then
+        return
     end
-    local _, _, _, _, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
-    if
-        quality >= LE_ITEM_QUALITY_UNCOMMON and (
-            itemClass == LE_ITEM_CLASS_WEAPON or
-            itemClass == LE_ITEM_CLASS_ARMOR or
-            (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
-        )
-    then
-        local level = LIL.GetItemLevel(bag, slot)
-        AddLevelToButton(button, level, quality)
-    else
-        return button.simpleilvl and button.simpleilvl:Hide()
-    end
+    item:ContinueOnItemLoad(function()
+        local itemID = item:GetItemID()
+        local quality = item:GetItemQuality()
+        local _, _, _, _, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
+        if
+            quality >= LE_ITEM_QUALITY_UNCOMMON and (
+                itemClass == LE_ITEM_CLASS_WEAPON or
+                itemClass == LE_ITEM_CLASS_ARMOR or
+                (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
+            )
+        then
+            AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
+        end
+    end)
 end
 
 hooksecurefunc("ContainerFrame_Update", function(container)
