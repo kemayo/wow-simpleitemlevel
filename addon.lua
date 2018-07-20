@@ -63,9 +63,10 @@ local function GetItemQualityAndLevel(unit, slotID)
     end
 end
 local function UpdateItemSlotButton(button, unit)
+    if button.simpleilvl then button.simpleilvl:Hide() end
     local key = unit == "player" and "character" or "inspect"
     if not db[key] then
-        return button.simpleilvl and button.simpleilvl:Hide()
+        return
     end
     local slotID = button:GetID()
 
