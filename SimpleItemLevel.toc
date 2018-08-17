@@ -7,8 +7,7 @@
 ## Version: 1
 
 #@no-lib-strip@
-lib\LibStub\LibStub.lua
-lib\LibItemLevel-1.0\lib.xml
+embeds.xml
 #@end-no-lib-strip@
 
 addon.lua
