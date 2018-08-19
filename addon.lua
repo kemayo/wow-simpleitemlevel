@@ -10,6 +10,7 @@ f:SetScript("OnEvent", function(self, event, ...) if ns[event] then return ns[ev
 function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((select(i, ...))) end end
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 
+local LAI = LibStub("LibAppropriateItems-1.0")
 local LIL = LibStub("LibItemLevel-1.0")
 
 function ns:ADDON_LOADED(event, addon)
@@ -26,6 +27,7 @@ function ns:ADDON_LOADED(event, addon)
                 character = true,
                 inspect = true,
                 bags = true,
+                upgrades = true,
             },
         })
         db = _G[myname.."DB"]
@@ -48,6 +50,27 @@ local function AddLevelToButton(button, itemLevel, itemQuality)
     local r, g, b, hex = GetItemQualityColor(itemQuality)
     button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
     button.simpleilvl:Show()
+end
+local function AddUpgradeToButton(button, item, equipLoc)
+    if not (db.upgrades and LAI:IsAppropriate(item:GetItemID())) then
+        return button.simpleilvlup and button.simpleilvlup:Hide()
+    end
+    ns.ForEquippedItems(equipLoc, function(equippedItem)
+        if equippedItem:IsItemEmpty() or equippedItem:GetCurrentItemLevel() < item:GetCurrentItemLevel() then
+            if not button.simpleilvlup then
+                button.simpleilvlup = CreateFrame("FRAME", nil, button)
+                button.simpleilvlup:SetFrameLevel(4) -- Azerite overlay must be overlaid itself...
+                button.simpleilvlup:SetSize(8, 8)
+                button.simpleilvlup:SetPoint('TOPLEFT', 2, -2)
+
+                local texture = button.simpleilvlup:CreateTexture(nil, "OVERLAY")
+                -- MiniMap-PositionArrowUp?
+                texture:SetAtlas("poi-door-arrow-up")
+                texture:SetAllPoints()
+            end
+            button.simpleilvlup:Show()
+        end
+    end)
 end
 
 -- Character frame:
@@ -111,6 +134,7 @@ end
 
 local function UpdateContainerButton(button, bag)
     if button.simpleilvl then button.simpleilvl:Hide() end
+    if button.simpleilvlup then button.simpleilvlup:Hide() end
     if not db.bags then
         return
     end
@@ -122,7 +146,7 @@ local function UpdateContainerButton(button, bag)
     item:ContinueOnItemLoad(function()
         local itemID = item:GetItemID()
         local quality = item:GetItemQuality()
-        local _, _, _, _, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
+        local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         if
             quality >= LE_ITEM_QUALITY_UNCOMMON and (
                 itemClass == LE_ITEM_CLASS_WEAPON or
@@ -131,6 +155,7 @@ local function UpdateContainerButton(button, bag)
             )
         then
             AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
+            AddUpgradeToButton(button, item, equipLoc)
         end
     end)
 end
@@ -157,13 +182,62 @@ SlashCmdList[myname:upper()] = function(msg)
     msg = msg:trim()
     if msg ~= "" and db[msg] ~= nil then
         db[msg] = not db[msg]
-
     end
     if msg == "" then
         ns.Print(SHOW_ITEM_LEVEL)
         ns.Print('bags -', BAGSLOTTEXT, "-", db.bags and YES or NO)
         ns.Print('character -', ORDER_HALL_EQUIPMENT_SLOTS, "-", db.character and YES or NO)
         ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
+        ns.Print('upgrades - Upgrade arrows in bags', db.upgrades and YES or NO)
         ns.Print("To toggle: /simpleilvl [type]")
+    end
+end
+
+-- helper
+
+do
+    local EquipLocToSlot1 = {
+        INVTYPE_HEAD = 1,
+        INVTYPE_NECK = 2,
+        INVTYPE_SHOULDER = 3,
+        INVTYPE_BODY = 4,
+        INVTYPE_CHEST = 5,
+        INVTYPE_ROBE = 5,
+        INVTYPE_WAIST = 6,
+        INVTYPE_LEGS = 7,
+        INVTYPE_FEET = 8,
+        INVTYPE_WRIST = 9,
+        INVTYPE_HAND = 10,
+        INVTYPE_FINGER = 11,
+        INVTYPE_TRINKET = 13,
+        INVTYPE_CLOAK = 15,
+        INVTYPE_WEAPON = 16,
+        INVTYPE_SHIELD = 17,
+        INVTYPE_2HWEAPON = 16,
+        INVTYPE_WEAPONMAINHAND = 16,
+        INVTYPE_RANGED = 16,
+        INVTYPE_RANGEDRIGHT = 16,
+        INVTYPE_WEAPONOFFHAND = 17,
+        INVTYPE_HOLDABLE = 17,
+        INVTYPE_TABARD = 19,
+    }
+    local EquipLocToSlot2 = {
+        INVTYPE_FINGER = 12,
+        INVTYPE_TRINKET = 14,
+        INVTYPE_WEAPON = 17,
+    }
+    local ForEquippedItem = function(slot, callback)
+        if not slot then
+            return
+        end
+        local item = Item:CreateFromEquipmentSlot(slot)
+        if item:IsItemEmpty() then
+            return callback(item)
+        end
+        item:ContinueOnItemLoad(function() callback(item) end)
+    end
+    ns.ForEquippedItems = function(equipLoc, callback)
+        ForEquippedItem(EquipLocToSlot1[equipLoc], callback)
+        ForEquippedItem(EquipLocToSlot2[equipLoc], callback)
     end
 end
