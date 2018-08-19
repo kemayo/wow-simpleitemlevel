@@ -41,7 +41,7 @@ local function AddLevelToButton(button, itemLevel, itemQuality)
     end
 
     if not button.simpleilvl then
-        button.simpleilvl = button:CreateFontString('$parentItemLevel', 'ARTWORK')
+        button.simpleilvl = button:CreateFontString('$parentItemLevel', 'OVERLAY')
         button.simpleilvl:SetPoint('TOPRIGHT', -2, -2)
         button.simpleilvl:SetFontObject(NumberFontNormal)
         button.simpleilvl:SetJustifyH('RIGHT')
