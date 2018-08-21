@@ -35,18 +35,33 @@ function ns:ADDON_LOADED(event, addon)
 end
 ns:RegisterEvent("ADDON_LOADED")
 
+local function PrepareItemButton(button)
+    if button.simpleilvl then
+        return
+    end
+
+    local overlayFrame = CreateFrame("FRAME", nil, button)
+    overlayFrame:SetFrameLevel(4) -- Azerite overlay must be overlaid itself...
+    overlayFrame:SetAllPoints()
+
+    button.simpleilvl = overlayFrame:CreateFontString('$parentItemLevel', 'OVERLAY')
+    button.simpleilvl:SetPoint('TOPRIGHT', -2, -2)
+    button.simpleilvl:SetFontObject(NumberFontNormal)
+    button.simpleilvl:SetJustifyH('RIGHT')
+    button.simpleilvl:Hide()
+
+    button.simpleilvlup = overlayFrame:CreateTexture(nil, "OVERLAY")
+    button.simpleilvlup:SetSize(8, 8)
+    button.simpleilvlup:SetPoint('TOPLEFT', 2, -2)
+    -- MiniMap-PositionArrowUp?
+    button.simpleilvlup:SetAtlas("poi-door-arrow-up")
+    button.simpleilvlup:Hide()
+end
 local function AddLevelToButton(button, itemLevel, itemQuality)
     if not itemLevel then
         return button.simpleilvl and button.simpleilvl:Hide()
     end
-
-    if not button.simpleilvl then
-        button.simpleilvl = button:CreateFontString('$parentItemLevel', 'OVERLAY')
-        button.simpleilvl:SetPoint('TOPRIGHT', -2, -2)
-        button.simpleilvl:SetFontObject(NumberFontNormal)
-        button.simpleilvl:SetJustifyH('RIGHT')
-    end
-
+    PrepareItemButton(button)
     local r, g, b, hex = GetItemQualityColor(itemQuality)
     button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
     button.simpleilvl:Show()
@@ -57,17 +72,7 @@ local function AddUpgradeToButton(button, item, equipLoc)
     end
     ns.ForEquippedItems(equipLoc, function(equippedItem)
         if equippedItem:IsItemEmpty() or equippedItem:GetCurrentItemLevel() < item:GetCurrentItemLevel() then
-            if not button.simpleilvlup then
-                button.simpleilvlup = CreateFrame("FRAME", nil, button)
-                button.simpleilvlup:SetFrameLevel(4) -- Azerite overlay must be overlaid itself...
-                button.simpleilvlup:SetSize(8, 8)
-                button.simpleilvlup:SetPoint('TOPLEFT', 2, -2)
-
-                local texture = button.simpleilvlup:CreateTexture(nil, "OVERLAY")
-                -- MiniMap-PositionArrowUp?
-                texture:SetAtlas("poi-door-arrow-up")
-                texture:SetAllPoints()
-            end
+            PrepareItemButton(button)
             button.simpleilvlup:Show()
         end
     end)
