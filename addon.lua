@@ -28,6 +28,7 @@ function ns:ADDON_LOADED(event, addon)
                 inspect = true,
                 bags = true,
                 upgrades = true,
+                color = true,
             },
         })
         db = _G[myname.."DB"]
@@ -62,7 +63,7 @@ local function AddLevelToButton(button, itemLevel, itemQuality)
         return button.simpleilvl and button.simpleilvl:Hide()
     end
     PrepareItemButton(button)
-    local r, g, b, hex = GetItemQualityColor(itemQuality)
+    local _, _, _, hex = GetItemQualityColor(db.color and itemQuality or 1)
     button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
     button.simpleilvl:Show()
 end
@@ -194,6 +195,7 @@ SlashCmdList[myname:upper()] = function(msg)
         ns.Print('character -', ORDER_HALL_EQUIPMENT_SLOTS, "-", db.character and YES or NO)
         ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
         ns.Print('upgrades - Upgrade arrows in bags', db.upgrades and YES or NO)
+        ns.Print('color - Color item level by item quality', db.color and YES or NO)
         ns.Print("To toggle: /simpleilvl [type]")
     end
 end
