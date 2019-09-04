@@ -2,9 +2,13 @@
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
-## OptionalDeps: LibItemLevel-1.0
+## OptionalDeps: LibItemLevel-1.0, LibAppropriateItems-1.0
 ## SavedVariables: SimpleItemLevelDB
 ## Version: 1
+
+## X-Website: https://www.wowace.com/projects/simple-item-level
+## X-License: BSD
+## X-Curse-Project-ID: 287692
 
 #@no-lib-strip@
 embeds.xml
