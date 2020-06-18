@@ -181,6 +181,21 @@ hooksecurefunc("BankFrameItemButton_Update", function(button)
     end
 end)
 
+--Baggins:
+if Baggins ~= nil then
+    hooksecurefunc(Baggins, "UpdateItemButton", function(baggins, bagframe, button, bag, slot)
+        UpdateContainerButton(button, bag)
+    end)
+end
+
+--Bagnon:
+if Bagnon ~= nil then
+    hooksecurefunc(Bagnon.Item, "Update", function(frame)
+        local bag = frame:GetBag()
+        UpdateContainerButton(frame, bag)
+    end)
+end
+
 -- Quick config:
 
 _G["SLASH_".. myname:upper().."1"] = "/simpleilvl"
