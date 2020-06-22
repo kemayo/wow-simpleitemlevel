@@ -17,6 +17,8 @@ globals = {
     "SlashCmdList",
     "StaticPopupDialogs",
     "UpdateContainerFrameAnchors",
+    "Baggins",
+    "Bagnon",
 }
 
 read_globals = {

@@ -182,14 +182,14 @@ hooksecurefunc("BankFrameItemButton_Update", function(button)
 end)
 
 --Baggins:
-if Baggins ~= nil then
+if Baggins then
     hooksecurefunc(Baggins, "UpdateItemButton", function(baggins, bagframe, button, bag, slot)
         UpdateContainerButton(button, bag)
     end)
 end
 
 --Bagnon:
-if Bagnon ~= nil then
+if Bagnon then
     hooksecurefunc(Bagnon.Item, "Update", function(frame)
         local bag = frame:GetBag()
         UpdateContainerButton(frame, bag)
