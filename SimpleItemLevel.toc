@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 80300
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
