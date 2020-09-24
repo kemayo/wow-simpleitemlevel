@@ -181,6 +181,14 @@ hooksecurefunc("BankFrameItemButton_Update", function(button)
     end
 end)
 
+-- Inventorian
+local inv = LibStub("AceAddon-3.0"):GetAddon("Inventorian", true)
+if inv then
+    hooksecurefunc(inv.Item.prototype, "Update", function(self, ...)
+        UpdateContainerButton(self, self.bag)
+    end)
+end
+
 --Baggins:
 if Baggins then
     hooksecurefunc(Baggins, "UpdateItemButton", function(baggins, bagframe, button, bag, slot)
