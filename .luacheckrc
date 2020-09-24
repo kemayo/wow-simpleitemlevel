@@ -99,6 +99,7 @@ read_globals = {
     "NumberFontNormal",
 
     -- FrameXML API
+    "Enum",
     "CreateFrame",
     "InterfaceOptionsFrame_OpenToCategory",
     "ToggleDropDownMenu",

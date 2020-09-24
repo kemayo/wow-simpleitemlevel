@@ -147,7 +147,8 @@ local function UpdateContainerButton(button, bag)
         local quality = item:GetItemQuality()
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         if
-            quality >= LE_ITEM_QUALITY_UNCOMMON and (
+            -- 9.0.1: can remove Good
+            quality >= (Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon) and (
                 itemClass == LE_ITEM_CLASS_WEAPON or
                 itemClass == LE_ITEM_CLASS_ARMOR or
                 (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
