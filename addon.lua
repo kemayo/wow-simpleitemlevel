@@ -11,7 +11,6 @@ function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((sele
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
-local LIL = LibStub("LibItemLevel-1.0")
 
 function ns:ADDON_LOADED(event, addon)
     if addon == "Blizzard_InspectUI" then
@@ -82,11 +81,12 @@ end
 -- Character frame:
 
 local function GetItemQualityAndLevel(unit, slotID)
-    local itemID = GetInventoryItemID(unit, slotID)
+    -- link is more reliably fetched than ID, for whatever reason
+    local itemLink = GetInventoryItemLink(unit, slotID)
 
-    if itemID ~= nil then
+    if itemLink ~= nil then
         local quality = GetInventoryItemQuality(unit, slotID)
-        local level = LIL.GetItemLevel(slotID, unit)
+        local level = GetDetailedItemLevelInfo(itemLink)
 
         return quality, level
     end
@@ -123,13 +123,6 @@ end)
 
 -- Inspect frame:
 
-function ns:GET_ITEM_INFO_RECEIVED()
-    if InspectFrame and InspectFrame:IsShown() then
-        -- TODO: I think I need to schedule a flushed-cache a little while after the inspect happens. Artifact weapons are reliably not-quite-loaded.
-        InspectPaperDollFrame_OnShow()
-    end
-end
-ns:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 function ns:ModInspectUI()
     hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "target")

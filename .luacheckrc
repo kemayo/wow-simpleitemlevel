@@ -56,6 +56,7 @@ read_globals = {
     "GetContainerItemLink",
     "GetCurrentGuildBankTab",
     "GetCursorInfo",
+    "GetDetailedItemLevelInfo",
     "GetGuildBankItemInfo",
     "GetGuildBankItemLink",
     "GetGuildBankTabInfo",
