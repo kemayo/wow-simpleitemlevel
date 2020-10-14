@@ -2,7 +2,6 @@
 ..\FrameXML\UI.xsd">
 <!--@non-debug@
 <Script file="lib\LibStub\LibStub.lua"/>
-<Include file="lib\LibItemLevel-1.0\lib.xml"/>
 <Include file="lib\LibAppropriateItems-1.0\lib.xml"/>
 @end-non-debug@-->
 </Ui>
