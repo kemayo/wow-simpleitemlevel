@@ -66,7 +66,7 @@ local function AddLevelToButton(button, itemLevel, itemQuality)
     button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
     button.simpleilvl:Show()
 end
-local function AddUpgradeToButton(button, item, equipLoc)
+local function AddUpgradeToButton(button, item, equipLoc, minLevel)
     if not (db.upgrades and LAI:IsAppropriate(item:GetItemID())) then
         return button.simpleilvlup and button.simpleilvlup:Hide()
     end
@@ -74,6 +74,11 @@ local function AddUpgradeToButton(button, item, equipLoc)
         if equippedItem:IsItemEmpty() or equippedItem:GetCurrentItemLevel() < item:GetCurrentItemLevel() then
             PrepareItemButton(button)
             button.simpleilvlup:Show()
+            if minLevel and minLevel > UnitLevel("player") then
+                button.simpleilvlup:SetVertexColor(1, 0, 0)
+            else
+                button.simpleilvlup:SetVertexColor(1, 1, 1)
+            end
         end
     end)
 end
@@ -145,6 +150,7 @@ local function UpdateContainerButton(button, bag)
     item:ContinueOnItemLoad(function()
         local itemID = item:GetItemID()
         local quality = item:GetItemQuality()
+        local minLevel = select(4, GetItemInfo(itemID))
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         if
             quality >= Enum.ItemQuality.Uncommon and (
@@ -154,7 +160,7 @@ local function UpdateContainerButton(button, bag)
             )
         then
             AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
-            AddUpgradeToButton(button, item, equipLoc)
+            AddUpgradeToButton(button, item, equipLoc, minLevel)
         end
     end)
 end
