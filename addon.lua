@@ -149,8 +149,9 @@ local function UpdateContainerButton(button, bag)
     end
     item:ContinueOnItemLoad(function()
         local itemID = item:GetItemID()
+        local link = item:GetItemLink()
         local quality = item:GetItemQuality()
-        local minLevel = select(5, GetItemInfo(itemID))
+        local minLevel = link and select(5, GetItemInfo(link or itemID))
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         if
             quality >= Enum.ItemQuality.Uncommon and (
