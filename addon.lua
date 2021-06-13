@@ -28,7 +28,8 @@ function ns:ADDON_LOADED(event, addon)
                 bags = true,
                 upgrades = true,
                 color = true,
-                quality = Enum and Enum.ItemQuality.Uncommon or LE_ITEM_QUALITY_UNCOMMON
+                -- Shadowlands has Uncommon, BCC has Good, Classic has LE_
+                quality = Enum and (Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon) or LE_ITEM_QUALITY_UNCOMMON
             },
         })
         db = _G[myname.."DB"]
