@@ -28,6 +28,7 @@ function ns:ADDON_LOADED(event, addon)
                 bags = true,
                 upgrades = true,
                 color = true,
+                quality = Enum and Enum.ItemQuality.Uncommon or LE_ITEM_QUALITY_UNCOMMON
             },
         })
         db = _G[myname.."DB"]
@@ -154,7 +155,7 @@ local function UpdateContainerButton(button, bag)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         if
-            quality >= Enum.ItemQuality.Uncommon and (
+            quality >= db.quality and (
                 itemClass == LE_ITEM_CLASS_WEAPON or
                 itemClass == LE_ITEM_CLASS_ARMOR or
                 (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
