@@ -1,6 +1,7 @@
 local myname, ns = ...
 local myfullname = GetAddOnMetadata(myname, "Title")
 local db
+local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
 function ns.Print(...) print("|cFF33FF99".. myfullname.. "|r:", ...) end
 
@@ -28,6 +29,7 @@ function ns:ADDON_LOADED(event, addon)
                 bags = true,
                 upgrades = true,
                 color = true,
+                tooltip = isClassic,
                 -- Shadowlands has Uncommon, BCC has Good, Classic has LE_
                 quality = Enum and (Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon) or LE_ITEM_QUALITY_UNCOMMON
             },
@@ -183,6 +185,26 @@ hooksecurefunc("BankFrameItemButton_Update", function(button)
     end
 end)
 
+-- Tooltip
+
+local OnTooltipSetItem = function(self)
+    if not db.tooltip then return end
+    local _, itemLink = self:GetItem()
+    local item = Item:CreateFromItemLink(itemLink)
+    if item:IsItemEmpty() then
+        return
+    end
+    item:ContinueOnItemLoad(function()
+        self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
+    end)
+end
+GameTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+ItemRefTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+-- This is mostly world quest rewards:
+if GameTooltip.ItemTooltip then
+    GameTooltip.ItemTooltip.Tooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+end
+
 -- Inventorian
 local AA = LibStub("AceAddon-3.0", true)
 local inv = AA and AA:GetAddon("Inventorian", true)
@@ -223,6 +245,9 @@ SlashCmdList[myname:upper()] = function(msg)
         ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
         ns.Print('upgrades - Upgrade arrows in bags', db.upgrades and YES or NO)
         ns.Print('color - Color item level by item quality', db.color and YES or NO)
+        if isClassic then
+            ns.Print('tooltip - Add the item level to tooltips', db.tooltip and YES or NO)
+        end
         ns.Print("To toggle: /simpleilvl [type]")
     end
 end

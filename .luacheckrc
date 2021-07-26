@@ -92,6 +92,7 @@ read_globals = {
     "InspectFrame",
     "MerchantFrame",
     "GameTooltip",
+    "ItemRefTooltip",
     "UIParent",
     "WorldFrame",
     "DEFAULT_CHAT_FRAME",
@@ -128,6 +129,7 @@ read_globals = {
     "ITEM_BIND_QUEST",
     "ITEM_BNETACCOUNTBOUND",
     "ITEM_CONJURED",
+    "ITEM_LEVEL",
     "ITEM_SOULBOUND",
     "LE_BAG_FILTER_FLAG_EQUIPMENT",
     "LE_BAG_FILTER_FLAG_IGNORE_CLEANUP",
@@ -165,5 +167,7 @@ read_globals = {
     "TEXTURE_ITEM_QUEST_BANG",
     "TEXTURE_ITEM_QUEST_BORDER",
     "UIDROPDOWNMENU_MENU_VALUE",
+    "WOW_PROJECT_ID",
+    "WOW_PROJECT_MAINLINE",
     "YES",
 }
