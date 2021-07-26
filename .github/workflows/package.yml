@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: Install luarocks
         run: sudo apt-get install luarocks
       - name: Install luacheck
@@ -25,8 +23,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Create Retail Package
         uses: BigWigsMods/packager@master
