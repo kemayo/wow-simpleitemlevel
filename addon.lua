@@ -214,6 +214,7 @@ SlashCmdList[myname:upper()] = function(msg)
     msg = msg:trim()
     if msg ~= "" and db[msg] ~= nil then
         db[msg] = not db[msg]
+        ns.Print(msg, '=', db[msg] and YES or NO)
     end
     if msg == "" then
         ns.Print(SHOW_ITEM_LEVEL)
