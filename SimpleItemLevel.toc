@@ -4,7 +4,7 @@
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
-## OptionalDeps: LibItemLevel-1.0, LibAppropriateItems-1.0, Baggins, Bagnon, Inventorian
+## OptionalDeps: LibAppropriateItems-1.0
 ## SavedVariables: SimpleItemLevelDB
 ## Version: 1
 

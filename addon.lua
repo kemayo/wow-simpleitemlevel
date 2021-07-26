@@ -6,22 +6,27 @@ local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 function ns.Print(...) print("|cFF33FF99".. myfullname.. "|r:", ...) end
 
 -- events
+local hooks = {}
 local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function(self, event, ...) if ns[event] then return ns[event](ns, event, ...) end end)
 function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((select(i, ...))) end end
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
+function ns:RegisterAddonHook(addon, callback)
+    if IsAddOnLoaded(addon) then
+        callback()
+    else
+        hooks[addon] = callback
+    end
+end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
 
 function ns:ADDON_LOADED(event, addon)
-    if addon == "Blizzard_InspectUI" then
-        self:ModInspectUI()
+    if hooks[addon] then
+        hooks[addon]()
+        hooks[addon] = nil
     end
     if addon == myname then
-        if IsAddOnLoaded("Blizzard_InspectUI") then
-            self:ModInspectUI()
-        end
-
         _G[myname.."DB"] = setmetatable(_G[myname.."DB"] or {}, {
             __index = {
                 character = true,
@@ -132,11 +137,11 @@ end)
 
 -- Inspect frame:
 
-function ns:ModInspectUI()
+ns:RegisterAddonHook("Blizzard_InspectUI", function()
     hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "target")
     end)
-end
+end)
 
 -- Bags:
 
@@ -206,28 +211,27 @@ if GameTooltip.ItemTooltip then
 end
 
 -- Inventorian
-local AA = LibStub("AceAddon-3.0", true)
-local inv = AA and AA:GetAddon("Inventorian", true)
-if inv then
+ns:RegisterAddonHook("Inventorian", function()
+    local inv = LibStub("AceAddon-3.0", true):GetAddon("Inventorian", true)
     hooksecurefunc(inv.Item.prototype, "Update", function(self, ...)
         UpdateContainerButton(self, self.bag)
     end)
-end
+end)
 
 --Baggins:
-if Baggins then
+ns:RegisterAddonHook("Baggins", function()
     hooksecurefunc(Baggins, "UpdateItemButton", function(baggins, bagframe, button, bag, slot)
         UpdateContainerButton(button, bag)
     end)
-end
+end)
 
 --Bagnon:
-if Bagnon then
+ns:RegisterAddonHook("Bagnon", function()
     hooksecurefunc(Bagnon.Item, "Update", function(frame)
         local bag = frame:GetBag()
         UpdateContainerButton(frame, bag)
     end)
-end
+end)
 
 -- Quick config:
 
