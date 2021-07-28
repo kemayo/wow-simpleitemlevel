@@ -195,10 +195,9 @@ end)
 local OnTooltipSetItem = function(self)
     if not db.tooltip then return end
     local _, itemLink = self:GetItem()
+    if not itemLink then return end
     local item = Item:CreateFromItemLink(itemLink)
-    if item:IsItemEmpty() then
-        return
-    end
+    if item:IsItemEmpty() then return end
     item:ContinueOnItemLoad(function()
         self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
     end)
