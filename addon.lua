@@ -186,7 +186,7 @@ end)
 
 hooksecurefunc("BankFrameItemButton_Update", function(button)
     if not button.isBag then
-        UpdateContainerButton(button, -1)
+        UpdateContainerButton(button, button:GetParent():GetID())
     end
 end)
 
