@@ -35,8 +35,8 @@ function ns:ADDON_LOADED(event, addon)
                 upgrades = true,
                 color = true,
                 tooltip = isClassic,
-                -- Shadowlands has Uncommon, BCC has Good, Classic has LE_
-                quality = Enum and (Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon) or LE_ITEM_QUALITY_UNCOMMON
+                -- Shadowlands has Uncommon, BCC/Classic has Good
+                quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon
             },
         })
         db = _G[myname.."DB"]
@@ -237,21 +237,41 @@ end)
 _G["SLASH_".. myname:upper().."1"] = "/simpleilvl"
 SlashCmdList[myname:upper()] = function(msg)
     msg = msg:trim()
-    if msg ~= "" and db[msg] ~= nil then
+    if msg:match("^quality") then
+        local quality = msg:match("quality (.+)") or ""
+        if quality:match("^%d+$") then
+            quality = tonumber(quality)
+        else
+            quality = quality:lower()
+            for label, value in pairs(Enum.ItemQuality) do
+                if label:lower() == quality then
+                    quality = value
+                end
+            end
+        end
+        if type(quality) ~= "number" then
+            return ns.Print("Invalid item quality provided, should be a name or a number 0-8")
+        end
+        db.quality = quality
+        return ns.Print("quality = ", _G["ITEM_QUALITY" .. db.quality .. "_DESC"])
+    end
+    if db[msg] ~= nil then
         db[msg] = not db[msg]
-        ns.Print(msg, '=', db[msg] and YES or NO)
+        return ns.Print(msg, '=', db[msg] and YES or NO)
     end
     if msg == "" then
         ns.Print(SHOW_ITEM_LEVEL)
         ns.Print('bags -', BAGSLOTTEXT, "-", db.bags and YES or NO)
         ns.Print('character -', ORDER_HALL_EQUIPMENT_SLOTS, "-", db.character and YES or NO)
         ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
-        ns.Print('upgrades - Upgrade arrows in bags', db.upgrades and YES or NO)
-        ns.Print('color - Color item level by item quality', db.color and YES or NO)
+        ns.Print('upgrades - Upgrade arrows in bags', "-", db.upgrades and YES or NO)
+        ns.Print('color - Color item level by item quality', "-", db.color and YES or NO)
         if isClassic then
-            ns.Print('tooltip - Add the item level to tooltips', db.tooltip and YES or NO)
+            ns.Print('tooltip - Add the item level to tooltips', "-", db.tooltip and YES or NO)
         end
+        ns.Print('quality - Minimum item quality to show for', "-", _G["ITEM_QUALITY" .. db.quality .. "_DESC"])
         ns.Print("To toggle: /simpleilvl [type]")
+        ns.Print("To set a quality: /simpleilvl quality [quality]")
     end
 end
 
