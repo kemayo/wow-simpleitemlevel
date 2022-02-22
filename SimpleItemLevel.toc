@@ -11,6 +11,7 @@
 ## X-Website: https://www.wowace.com/projects/simple-item-level
 ## X-License: BSD
 ## X-Curse-Project-ID: 287692
+## X-Wago-ID: WYK9Da6L
 
 #@no-lib-strip@
 embeds.xml
