@@ -1,6 +1,6 @@
-## Interface: 90105
-## Interface-BCC: 20502
-## Interface-Classic: 11400
+## Interface: 90200
+## Interface-BCC: 20503
+## Interface-Classic: 11402
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
