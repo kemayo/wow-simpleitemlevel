@@ -232,6 +232,14 @@ ns:RegisterAddonHook("Bagnon", function()
     end)
 end)
 
+--Combuctor (exactly same internals as Bagnon):
+ns:RegisterAddonHook("Combuctor", function()
+    hooksecurefunc(Combuctor.Item, "Update", function(frame)
+        local bag = frame:GetBag()
+        UpdateContainerButton(frame, bag)
+    end)
+end)
+
 -- Quick config:
 
 _G["SLASH_".. myname:upper().."1"] = "/simpleilvl"

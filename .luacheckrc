@@ -19,6 +19,7 @@ globals = {
     "UpdateContainerFrameAnchors",
     "Baggins",
     "Bagnon",
+    "Combuctor",
 }
 
 read_globals = {
