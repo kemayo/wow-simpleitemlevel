@@ -91,6 +91,32 @@ local function AddUpgradeToButton(button, item, equipLoc, minLevel)
         end
     end)
 end
+local function UpdateButtonFromItem(button, item)
+    if item:IsItemEmpty() then
+        return
+    end
+    item:ContinueOnItemLoad(function()
+        local itemID = item:GetItemID()
+        local link = item:GetItemLink()
+        local quality = item:GetItemQuality()
+        local minLevel = link and select(5, GetItemInfo(link or itemID))
+        local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
+        if
+            quality >= db.quality and (
+                itemClass == LE_ITEM_CLASS_WEAPON or
+                itemClass == LE_ITEM_CLASS_ARMOR or
+                (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
+            )
+        then
+            AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
+            AddUpgradeToButton(button, item, equipLoc, minLevel)
+        end
+    end)
+end
+local function CleanButton(button)
+    if button.simpleilvl then button.simpleilvl:Hide() end
+    if button.simpleilvlup then button.simpleilvlup:Hide() end
+end
 
 -- Character frame:
 
@@ -106,7 +132,7 @@ local function GetItemQualityAndLevel(unit, slotID)
     end
 end
 local function UpdateItemSlotButton(button, unit)
-    if button.simpleilvl then button.simpleilvl:Hide() end
+    CleanButton(button)
     local key = unit == "player" and "character" or "inspect"
     if not db[key] then
         return
@@ -129,7 +155,7 @@ local function UpdateItemSlotButton(button, unit)
             end
         end
     end
-    return button.simpleilvl and button.simpleilvl:Hide()
+    return CleanButton(button)
 end
 hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
     UpdateItemSlotButton(button, "player")
@@ -146,33 +172,13 @@ end)
 -- Bags:
 
 local function UpdateContainerButton(button, bag)
-    if button.simpleilvl then button.simpleilvl:Hide() end
-    if button.simpleilvlup then button.simpleilvlup:Hide() end
+    CleanButton(button)
     if not db.bags then
         return
     end
     local slot = button:GetID()
     local item = Item:CreateFromBagAndSlot(bag, slot)
-    if item:IsItemEmpty() then
-        return
-    end
-    item:ContinueOnItemLoad(function()
-        local itemID = item:GetItemID()
-        local link = item:GetItemLink()
-        local quality = item:GetItemQuality()
-        local minLevel = link and select(5, GetItemInfo(link or itemID))
-        local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
-        if
-            quality >= db.quality and (
-                itemClass == LE_ITEM_CLASS_WEAPON or
-                itemClass == LE_ITEM_CLASS_ARMOR or
-                (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
-            )
-        then
-            AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
-            AddUpgradeToButton(button, item, equipLoc, minLevel)
-        end
-    end)
+    UpdateButtonFromItem(button, item)
 end
 
 hooksecurefunc("ContainerFrame_Update", function(container)
@@ -208,6 +214,27 @@ ItemRefTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
 if GameTooltip.ItemTooltip then
     GameTooltip.ItemTooltip.Tooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
 end
+
+-- Void Storage
+
+ns:RegisterAddonHook("Blizzard_VoidStorageUI", function()
+    local VOID_STORAGE_MAX = 80
+    hooksecurefunc("VoidStorage_ItemsUpdate", function(doStorage, doContents)
+        if not doContents then return end
+        for i = 1, VOID_STORAGE_MAX do
+            local itemID, textureName, locked, recentDeposit, isFiltered, quality = GetVoidItemInfo(VoidStorageFrame.page, i)
+            local button = _G["VoidStorageStorageButton"..i]
+            CleanButton(button)
+            if itemID and db.bags then
+                local link = GetVoidItemHyperlinkString(((VoidStorageFrame.page - 1) * VOID_STORAGE_MAX) + i)
+                if link then
+                    local item = Item:CreateFromItemLink(link)
+                    UpdateButtonFromItem(button, item)
+                end
+            end
+        end
+    end)
+end)
 
 -- Inventorian
 ns:RegisterAddonHook("Inventorian", function()

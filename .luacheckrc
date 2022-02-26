@@ -71,6 +71,8 @@ read_globals = {
     "GetItemInfoInstant",
     "GetItemQualityColor",
     "GetTime",
+    "GetVoidItemHyperlinkString",
+    "GetVoidItemInfo",
     "InCombatLockdown",
     "IsAddOnLoaded",
     "IsAltKeyDown",
@@ -99,6 +101,7 @@ read_globals = {
     "DEFAULT_CHAT_FRAME",
     "GameFontHighlightSmall",
     "NumberFontNormal",
+    "VoidStorageFrame",
 
     -- FrameXML API
     "Enum",
