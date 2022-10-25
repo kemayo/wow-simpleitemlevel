@@ -102,6 +102,7 @@ read_globals = {
     "GameFontHighlightSmall",
     "NumberFontNormal",
     "VoidStorageFrame",
+    "ContainerFrameCombinedBags",
 
     -- FrameXML API
     "Enum",

@@ -178,8 +178,7 @@ local function UpdateContainerButton(button, bag, slot)
     if not db.bags then
         return
     end
-    local slot = slot or button:GetID()
-    local item = Item:CreateFromBagAndSlot(bag, slot)
+    local item = Item:CreateFromBagAndSlot(bag, slot or button:GetID())
     UpdateButtonFromItem(button, item)
 end
 
