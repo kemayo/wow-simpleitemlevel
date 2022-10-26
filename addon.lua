@@ -253,9 +253,24 @@ end)
 -- Inventorian
 ns:RegisterAddonHook("Inventorian", function()
     local inv = LibStub("AceAddon-3.0", true):GetAddon("Inventorian", true)
-    hooksecurefunc(inv.Item.prototype, "Update", function(self, ...)
-        UpdateContainerButton(self, self.bag)
-    end)
+    local function ToIndex(bag, slot) -- copied from inside Inventorian
+        return (bag < 0 and bag * 100 - slot) or (bag * 100 + slot)
+    end
+    local function invContainerUpdateSlot(self, bag, slot)
+        if not self.items[ToIndex(bag, slot)] then return end
+        UpdateContainerButton(self.items[ToIndex(bag, slot)], bag, slot)
+    end
+    local function hookInventorian()
+        hooksecurefunc(inv.bag.itemContainer, "UpdateSlot", invContainerUpdateSlot)
+        hooksecurefunc(inv.bank.itemContainer, "UpdateSlot", invContainerUpdateSlot)
+    end
+    if inv.bag then
+        hookInventorian()
+    else
+        hooksecurefunc(inv, "OnEnable", function()
+            hookInventorian()
+        end)
+    end
 end)
 
 --Baggins:
