@@ -32,6 +32,7 @@ function ns:ADDON_LOADED(event, addon)
                 character = true,
                 inspect = true,
                 bags = true,
+                loot = true,
                 upgrades = true,
                 color = true,
                 tooltip = isClassic,
@@ -210,6 +211,41 @@ hooksecurefunc("BankFrameItemButton_Update", function(button)
     end
 end)
 
+-- Loot
+
+if _G.LootFrame_UpdateButton then
+    -- Classic
+    hooksecurefunc("LootFrame_UpdateButton", function(index)
+        local button = _G["LootButton"..index]
+        if not button then return end
+        CleanButton(button)
+        if not db.loot then return end
+        -- ns.Debug("LootFrame_UpdateButton", button:IsEnabled(), button.slot, button.slot and GetLootSlotLink(button.slot))
+        if button:IsEnabled() and button.slot then
+            local link = GetLootSlotLink(button.slot)
+            if link then
+                UpdateButtonFromItem(button, Item:CreateFromItemLink(link))
+            end
+        end
+    end)
+else
+    -- Dragonflight
+    local function handleSlot(frame)
+        if not frame.Item then return end
+        CleanButton(frame.Item)
+        if not db.loot then return end
+        local data = frame:GetElementData()
+        if not (data and data.slotIndex) then return end
+        local link = GetLootSlotLink(data.slotIndex)
+        if link then
+            UpdateButtonFromItem(frame.Item, Item:CreateFromItemLink(link))
+        end
+    end
+    LootFrame.ScrollBox:RegisterCallback("OnUpdate", function(...)
+        LootFrame.ScrollBox:ForEachFrame(handleSlot)
+    end)
+end
+
 -- Tooltip
 
 local OnTooltipSetItem = function(self)
@@ -328,6 +364,7 @@ SlashCmdList[myname:upper()] = function(msg)
         ns.Print('bags -', BAGSLOTTEXT, "-", db.bags and YES or NO)
         ns.Print('character -', ORDER_HALL_EQUIPMENT_SLOTS, "-", db.character and YES or NO)
         ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
+        ns.Print('loot -', LOOT, "-", db.loot and YES or NO)
         ns.Print('upgrades - Upgrade arrows in bags', "-", db.upgrades and YES or NO)
         ns.Print('color - Color item level by item quality', "-", db.color and YES or NO)
         if isClassic then
