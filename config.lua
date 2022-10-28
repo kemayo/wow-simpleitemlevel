@@ -71,11 +71,10 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
     frame.OnStepperClicked = function(self, forward)
         print("OnStepperClicked", forward)
         local value = self.Slider:GetValue()
-        local step = self.Slider:GetValueStep()
         if forward then
-            self.Slider:SetValue(value + step)
+            self.Slider:SetValue(value + self.Slider:GetValueStep())
         else
-            self.Slider:SetValue(value - step)
+            self.Slider:SetValue(value - self.Slider:GetValueStep())
         end
 
         PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
@@ -133,7 +132,7 @@ local function makeDropdown(parent, key, label, values)
     frame.Dropdown:SetPoint("LEFT", frame, "CENTER", -110, 3)
     frame.Dropdown:HookScript("OnShow", function()
         if frame.initialize then return end
-        UIDropDownMenu_Initialize(frame.Dropdown, function(self)
+        UIDropDownMenu_Initialize(frame.Dropdown, function()
             for k, v in pairs(values) do
                 local info = UIDropDownMenu_CreateInfo()
                 info.text = v .. " " .. CreateAtlasMarkup(k)
@@ -148,7 +147,6 @@ local function makeDropdown(parent, key, label, values)
         end)
     end)
     UIDropDownMenu_SetWidth(frame.Dropdown, 280)
-    UIDropDownMenu_SetFrameStrata(frame.Dropdown, "FULLSCREEN_DIALOG")
 
     frame.Text = makeFontString(frame, label, true)
 

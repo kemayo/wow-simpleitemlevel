@@ -107,11 +107,13 @@ read_globals = {
     "NumberFontNormal",
     "VoidStorageFrame",
     "ContainerFrameCombinedBags",
+    "InterfaceOptionsFramePanelContainer",
 
     -- FrameXML API
     "Enum",
     "CreateFrame",
     "InterfaceOptionsFrame_OpenToCategory",
+    "InterfaceOptions_AddCategory",
     "ToggleDropDownMenu",
     "UIDropDownMenu_AddButton",
     "UIDropDownMenu_CreateInfo",
@@ -137,6 +139,7 @@ read_globals = {
     "BANK_CONTAINER",
     "CONFIRM_BUY_BANK_SLOT",
     "DEFAULT",
+    "DISPLAY_HEADER",
     "EQUIP_CONTAINER",
     "INSPECT",
     "INVSLOT_FIRST_EQUIPPED",
