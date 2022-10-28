@@ -19,3 +19,4 @@ embeds.xml
 #@end-no-lib-strip@
 
 addon.lua
+config.lua

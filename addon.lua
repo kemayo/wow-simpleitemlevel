@@ -21,6 +21,20 @@ end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
 
+ns.defaults = {
+    character = true,
+    inspect = true,
+    bags = true,
+    loot = true,
+    upgrades = true,
+    color = true,
+    tooltip = isClassic,
+    -- Shadowlands has Uncommon, BCC/Classic has Good
+    quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
+    equipmentonly = true,
+    pointless = 5,
+}
+
 function ns:ADDON_LOADED(event, addon)
     if hooks[addon] then
         hooks[addon]()
@@ -28,20 +42,10 @@ function ns:ADDON_LOADED(event, addon)
     end
     if addon == myname then
         _G[myname.."DB"] = setmetatable(_G[myname.."DB"] or {}, {
-            __index = {
-                character = true,
-                inspect = true,
-                bags = true,
-                loot = true,
-                upgrades = true,
-                color = true,
-                tooltip = isClassic,
-                -- Shadowlands has Uncommon, BCC/Classic has Good
-                quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
-                equipmentonly = true,
-            },
+            __index = ns.defaults,
         })
         db = _G[myname.."DB"]
+        ns.db = db
     end
 end
 ns:RegisterEvent("ADDON_LOADED")
