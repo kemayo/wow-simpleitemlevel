@@ -37,7 +37,8 @@ function ns:ADDON_LOADED(event, addon)
                 color = true,
                 tooltip = isClassic,
                 -- Shadowlands has Uncommon, BCC/Classic has Good
-                quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon
+                quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
+                equipmentonly = true,
             },
         })
         db = _G[myname.."DB"]
@@ -94,26 +95,34 @@ local function AddUpgradeToButton(button, item, equipLoc, minLevel)
         end
     end)
 end
+local function ShouldShowOnItem(item)
+    local quality = item:GetItemQuality()
+    if quality < db.quality then
+        return false
+    end
+    if not db.equipmentonly then
+        return true
+    end
+    local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
+    return (
+        itemClass == LE_ITEM_CLASS_WEAPON or
+        itemClass == LE_ITEM_CLASS_ARMOR or
+        (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
+    )
+end
 local function UpdateButtonFromItem(button, item)
     if item:IsItemEmpty() then
         return
     end
     item:ContinueOnItemLoad(function()
+        if not ShouldShowOnItem(item) then return end
         local itemID = item:GetItemID()
         local link = item:GetItemLink()
         local quality = item:GetItemQuality()
-        local minLevel = link and select(5, GetItemInfo(link or itemID))
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
-        if
-            quality >= db.quality and (
-                itemClass == LE_ITEM_CLASS_WEAPON or
-                itemClass == LE_ITEM_CLASS_ARMOR or
-                (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
-            )
-        then
-            AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
-            AddUpgradeToButton(button, item, equipLoc, minLevel)
-        end
+        local minLevel = link and select(5, GetItemInfo(link or itemID))
+        AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
+        AddUpgradeToButton(button, item, equipLoc, minLevel)
     end)
 end
 local function CleanButton(button)
@@ -371,6 +380,7 @@ SlashCmdList[myname:upper()] = function(msg)
             ns.Print('tooltip - Add the item level to tooltips', "-", db.tooltip and YES or NO)
         end
         ns.Print('quality - Minimum item quality to show for', "-", _G["ITEM_QUALITY" .. db.quality .. "_DESC"])
+        ns.Print('equipmentonly - Only show on equippable items', "-", db.equipmentonly and YES or NO)
         ns.Print("To toggle: /simpleilvl [type]")
         ns.Print("To set a quality: /simpleilvl quality [quality]")
     end
