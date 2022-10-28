@@ -151,7 +151,7 @@ local function makeDropdown(parent, key, label, values)
     frame.Text = makeFontString(frame, label, true)
 
     frame:SetPoint("RIGHT", parent)
-    
+
     frame:SetSize(280, 26)
 
     return frame
