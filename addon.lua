@@ -349,6 +349,14 @@ ns:RegisterAddonHook("Combuctor", function()
     end)
 end)
 
+--LiteBag:
+ns:RegisterAddonHook("LiteBag", function()
+    _G.LiteBag_RegisterHook('LiteBagItemButton_Update', function(frame)
+        local bag = frame:GetParent():GetID()
+        UpdateContainerButton(frame, bag)
+    end)
+end)
+
 -- Quick config:
 
 _G["SLASH_".. myname:upper().."1"] = "/simpleilvl"
