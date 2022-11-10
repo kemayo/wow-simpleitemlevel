@@ -126,6 +126,7 @@ read_globals = {
     "ScrollingEdit_OnUpdate",
     "InspectPaperDollFrame_OnShow",
     "Settings",
+    "TooltipDataProcessor",
 
     -- FrameXML Constants
     "BACKPACK_CONTAINER",

@@ -271,11 +271,15 @@ local OnTooltipSetItem = function(self)
         self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
     end)
 end
-GameTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
-ItemRefTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
--- This is mostly world quest rewards:
-if GameTooltip.ItemTooltip then
-    GameTooltip.ItemTooltip.Tooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+if _G.TooltipDataProcessor then
+    TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, OnTooltipSetItem)
+else
+    GameTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+    ItemRefTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+    -- This is mostly world quest rewards:
+    if GameTooltip.ItemTooltip then
+        GameTooltip.ItemTooltip.Tooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
+    end
 end
 
 -- Void Storage
