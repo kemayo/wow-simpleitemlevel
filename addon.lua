@@ -109,9 +109,9 @@ local function ShouldShowOnItem(item)
     end
     local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
     return (
-        itemClass == LE_ITEM_CLASS_WEAPON or
-        itemClass == LE_ITEM_CLASS_ARMOR or
-        (itemClass == LE_ITEM_CLASS_GEM and itemSubClass == LE_ITEM_GEM_ARTIFACTRELIC)
+        itemClass == Enum.ItemClass.Weapon or
+        itemClass == Enum.ItemClass.Armor or
+        (itemClass == Enum.ItemClass.Gem and itemSubClass == Enum.ItemGemSubclass.Artifactrelic)
     )
 end
 local function UpdateButtonFromItem(button, item)
