@@ -125,6 +125,8 @@ read_globals = {
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
     "InspectPaperDollFrame_OnShow",
+    "EquipmentManager_UnpackLocation",
+    "EquipmentManager_GetItemInfoByLocation",
     "Settings",
     "TooltipDataProcessor",
 
@@ -142,6 +144,7 @@ read_globals = {
     "DEFAULT",
     "DISPLAY_HEADER",
     "EQUIP_CONTAINER",
+    "EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION",
     "INSPECT",
     "INVSLOT_FIRST_EQUIPPED",
     "INVSLOT_LAST_EQUIPPED",

@@ -177,6 +177,34 @@ hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
     UpdateItemSlotButton(button, "player")
 end)
 
+-- Equipment flyout in character frame
+
+if _G.EquipmentFlyout_DisplayButton then
+    hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
+        -- print("EquipmentFlyout_DisplayButton", button, paperDollItemSlot)
+        CleanButton(button)
+        if not db.character then return end
+        local location = button.location
+        if not location then return end
+        if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
+        local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
+        local item
+        if bags then
+            item = Item:CreateFromBagAndSlot(bag, slot)
+        elseif not voidStorage then -- player or bank
+            item = Item:CreateFromEquipmentSlot(slot)
+        else
+            local itemID = EquipmentManager_GetItemInfoByLocation(location)
+            if itemID then
+                item = Item:CreateFromItemID(itemID)
+            end
+        end
+        if item then
+            UpdateButtonFromItem(button, item)
+        end
+    end)
+end
+
 -- Inspect frame:
 
 ns:RegisterAddonHook("Blizzard_InspectUI", function()
