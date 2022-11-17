@@ -209,7 +209,7 @@ end
 
 ns:RegisterAddonHook("Blizzard_InspectUI", function()
     hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
-        UpdateItemSlotButton(button, "target")
+        UpdateItemSlotButton(button, InspectFrame.unit or "target")
     end)
 end)
 
