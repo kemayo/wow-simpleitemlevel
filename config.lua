@@ -196,7 +196,7 @@ end
 
 local frame
 
-if _G.Settings then
+if _G.Settings and type(_G.Settings) == "table" and _G.Settings.RegisterAddOnCategory then
     frame = CreateFrame("Frame")
     frame.OnCommit = function() end
     frame.OnDefault = function() end
