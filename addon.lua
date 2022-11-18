@@ -136,17 +136,6 @@ end
 
 -- Character frame:
 
-local function GetItemQualityAndLevel(unit, slotID)
-    -- link is more reliably fetched than ID, for whatever reason
-    local itemLink = GetInventoryItemLink(unit, slotID)
-
-    if itemLink ~= nil then
-        local quality = GetInventoryItemQuality(unit, slotID)
-        local level = GetDetailedItemLevelInfo(itemLink)
-
-        return quality, level
-    end
-end
 local function UpdateItemSlotButton(button, unit)
     CleanButton(button)
     local key = unit == "player" and "character" or "inspect"
@@ -156,20 +145,22 @@ local function UpdateItemSlotButton(button, unit)
     local slotID = button:GetID()
 
     if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) then
+        local item
         if unit == "player" then
-            local item = Item:CreateFromEquipmentSlot(slotID)
-            if item:IsItemEmpty() then
-                return
-            end
-            return item:ContinueOnItemLoad(function()
-                AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
-            end)
+            item = Item:CreateFromEquipmentSlot(slotID)
         else
-            local itemQuality, itemLevel = GetItemQualityAndLevel(unit, slotID)
-            if itemLevel then
-                return AddLevelToButton(button, itemLevel, itemQuality)
+            local itemID = GetInventoryItemID(unit, slotID)
+            local itemLink = GetInventoryItemLink(unit, slotID)
+            if itemLink or itemID then
+                item = itemLink and Item:CreateFromItemLink(itemLink) or Item:CreateFromItemID(itemID)
             end
         end
+        if not item or item:IsItemEmpty() then
+            return
+        end
+        return item:ContinueOnItemLoad(function()
+            AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
+        end)
     end
     return CleanButton(button)
 end
