@@ -17,7 +17,7 @@ local function makeFontString(frame, label, indented)
     return text
 end
 
-local function makeSlider(parent, key, label, minValue, maxValue, step, formatter)
+local function makeSlider(parent, key, label, minValue, maxValue, step, formatter, callback)
     local frame = CreateFrame("Frame", nil, parent)
     -- frame:EnableMouse(true)
     frame.Slider = CreateFrame("Slider", nil, frame)
@@ -62,6 +62,7 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
     frame.Slider:SetScript("OnValueChanged", function(slider, value)
         frame:FormatValue(value)
         ns.db[key] = value
+        if callback then callback(key, value) end
     end)
     frame.Slider:SetScript("OnMouseDown", function(slider)
         if slider:IsEnabled() then
@@ -126,7 +127,7 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
     return frame
 end
 
-local function makeDropdown(parent, key, label, values)
+local function makeDropdown(parent, key, label, values, callback)
     local frame = CreateFrame("Frame", nil, parent)
     frame.Dropdown = CreateFrame("Frame", myname .. "Options" .. key .. "Dropdown", frame, "UIDropDownMenuTemplate")
     frame.Dropdown:SetPoint("LEFT", frame, "CENTER", -110, 3)
@@ -135,11 +136,12 @@ local function makeDropdown(parent, key, label, values)
         UIDropDownMenu_Initialize(frame.Dropdown, function()
             for k, v in pairs(values) do
                 local info = UIDropDownMenu_CreateInfo()
-                info.text = v .. " " .. CreateAtlasMarkup(k)
+                info.text = v
                 info.value = k
                 info.func = function(self)
                     ns.db[key] = self.value
                     UIDropDownMenu_SetSelectedValue(frame.Dropdown, self.value)
+                    if callback then callback(key, self.value) end
                 end
                 UIDropDownMenu_AddButton(info)
             end
@@ -161,22 +163,24 @@ local makeCheckbox
 do
     local function checkboxGetValue(self) return ns.db[self.key] end
     local function checkboxSetChecked(self) self:SetChecked(self:GetValue()) end
-    local function checkboxSetValue(self, checked) ns.db[self.key] = checked end
+    local function checkboxSetValue(self, checked)
+        ns.db[self.key] = checked
+        if self.callback then self.callback(self.key, checked) end
+    end
     local function checkboxOnClick(self)
         local checked = self:GetChecked()
         PlaySound(checked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
         self:SetValue(checked)
     end
-    function makeCheckbox(parent, key, label, description, getValue, setValue)
+    function makeCheckbox(parent, key, label, description, callback)
         local frame = CreateFrame("Frame", nil, parent)
         local check = CreateFrame("CheckButton", nil, frame, "InterfaceOptionsCheckButtonTemplate")
         check.key = key
-        check.GetValue = getValue or checkboxGetValue
-        check.SetValue = setValue or checkboxSetValue
+        check.callback = callback
+        check.GetValue = checkboxGetValue
+        check.SetValue = checkboxSetValue
         check:SetScript('OnShow', checkboxSetChecked)
         check:SetScript("OnClick", checkboxOnClick)
-        -- check.label = _G[check:GetName() .. "Text"]
-        -- check.label:SetText(label)
         check.tooltipText = label
         check.tooltipRequirement = description
         check:SetPoint("LEFT", frame, "CENTER", -90, 3)
@@ -190,6 +194,50 @@ do
 
         return frame
     end
+end
+
+local function makeTitle(parent, text)
+    local title = CreateFrame("Frame", nil, parent)
+    title.Text = makeFontString(title, text)
+    title:SetSize(280, 26)
+    title:SetPoint("RIGHT", parent)
+    return title
+end
+
+local function button_onenter(self)
+    GameTooltip:SetOwner(self, "ANCHOR_NONE")
+    ContainerFrameItemButton_CalculateItemTooltipAnchors(self, GameTooltip)
+
+    local link = self:GetItemLink()
+    if link then
+        GameTooltip:SetHyperlink(self:GetItemLink())
+    else
+        GameTooltip:AddLine(RETRIEVING_ITEM_INFO, 1, 0, 0)
+    end
+
+    GameTooltip:Show()
+end
+local function makeItemButton(parent)
+    local button = CreateFrame(isClassic and "BUTTON" or "ItemButton", nil, parent, isClassic and "ItemButtonTemplate" or nil)
+    -- classic
+    if not button.SetItem then
+        function button:SetItem(item)
+            local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(item)
+            if itemID then
+                self.itemID = itemID
+                SetItemButtonTexture(button, icon)
+            end
+        end
+        function button:GetItemID()
+            return self.itemID
+        end
+        function button:GetItemLink()
+            return select(2, GetItemInfo(self.itemID))
+        end
+    end
+    button:SetScript("OnEnter", button_onenter)
+    button:SetScript("OnLeave", GameTooltip_Hide)
+    return button
 end
 
 -- actual config panel:
@@ -215,13 +263,59 @@ else
 end
 frame:Hide()
 
-local title = CreateFrame("Frame", nil, frame)
-title.Text = makeFontString(title, SHOW_ITEM_LEVEL)
-title:SetSize(280, 26)
-title:SetPoint("TOPLEFT", frame)
-title:SetPoint("RIGHT", frame)
+local demo = CreateFrame("Frame", nil, frame)
+demo:SetPoint("TOPLEFT", frame)
+demo:SetPoint("RIGHT", frame)
+demo:SetHeight(43)
+
+local demoButtons = {}
+demo:SetScript("OnShow", function()
+    local previousButton
+    for _, itemID in ipairs(isClassic and {19019, 19364, 10328, 11122, 23192, 7997, 14047} or {120978, 186414, 195527, 194065, 197957, 77256, 86079, 44168}) do
+        local button = makeItemButton(demo)
+        if not previousButton then
+            button:SetPoint("TOPLEFT", 112, -2)
+        else
+            button:SetPoint("TOPLEFT", previousButton, "TOPRIGHT", 2, 0)
+        end
+        button:SetItem(itemID)
+        ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID))
+        demoButtons[itemID] = button
+        previousButton = button
+    end
+    demo:SetScript("OnShow", nil)
+end)
+
+local function refresh(_, value)
+    ns.RefreshOverlayFrames()
+    for itemID, button in pairs(demoButtons) do
+        ns.CleanButton(button)
+        ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID))
+    end
+end
+
+local title = makeTitle(frame, APPEARANCE_LABEL)
+-- title:SetPoint("TOPLEFT", frame)
+title:SetPoint("TOPLEFT", demo, "BOTTOMLEFT", 0, -4)
+
+local fonts = {}
+for k,v in pairs(ns.Fonts) do
+    fonts[k] = k
+end
+local font = makeDropdown(frame, "font", "Font", fonts, refresh)
+font:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
+
+local positions = {}
+for _,v in ipairs{"TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT"} do
+    positions[v] = v
+end
+local position = makeDropdown(frame, "position", "Position of item level", positions, refresh)
+position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
+local positionup = makeDropdown(frame, "positionup", "Position of upgrade indicator", positions, refresh)
+positionup:SetPoint("TOPLEFT", position, "BOTTOMLEFT", 0, -4)
 
 local checkboxes = {
+    {false, SHOW_ITEM_LEVEL},
     {"bags", BAGSLOTTEXT},
     {"character", ORDER_HALL_EQUIPMENT_SLOTS},
     {"inspect", INSPECT},
@@ -235,27 +329,23 @@ if isClassic then
     table.insert(checkboxes, {"tooltip", "Add the item level to tooltips"})
 end
 
-local previous = title
+local previous = positionup
 for _, data in ipairs(checkboxes) do
+    local control
     if data[1] then
-        local control = makeCheckbox(frame, unpack(data))
-        control:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
-        previous = control
+        control = makeCheckbox(frame, data[1], data[2], nil, refresh)
     else
-        local heading = CreateFrame("Frame", nil, frame)
-        heading.Text = makeFontString(heading, data[2])
-        heading:SetSize(280, 26)
-        heading:SetPoint("RIGHT", frame)
-        heading:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
-        previous = heading
+        control = makeTitle(frame, data[2])
     end
+    control:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
+    previous = control
 end
 
 local values = {}
 for label, value in pairs(Enum.ItemQuality) do
     values[value] = label
 end
-local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values)
+local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
 quality:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
 
 -- local pointless = makeSlider(frame, "pointless", "Pointless slider", 1, 20, 1)

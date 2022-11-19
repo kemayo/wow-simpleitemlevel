@@ -21,6 +21,21 @@ end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
 
+ns.Fonts = {
+    HighlightSmall = GameFontHighlightSmall,
+    Normal = GameFontNormalOutline,
+    Large = GameFontNormalLargeOutline,
+    Huge = GameFontNormalHugeOutline,
+    NumberNormal = NumberFontNormal,
+    NumberNormalSmall = NumberFontNormalSmall,
+}
+ns.PositionOffsets = {
+    TOPLEFT = {2, -2},
+    TOPRIGHT = {-2, -2},
+    BOTTOMLEFT = {2, 2},
+    BOTTOMRIGHT = {-2, 2},
+}
+
 ns.defaults = {
     character = true,
     inspect = true,
@@ -32,7 +47,10 @@ ns.defaults = {
     -- Shadowlands has Uncommon, BCC/Classic has Good
     quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
     equipmentonly = true,
-    pointless = 5,
+    -- appearance config
+    font = "Normal",
+    position = "TOPRIGHT",
+    positionup = "TOPLEFT",
 }
 
 function ns:ADDON_LOADED(event, addon)
@@ -50,29 +68,40 @@ function ns:ADDON_LOADED(event, addon)
 end
 ns:RegisterEvent("ADDON_LOADED")
 
+ns.frames = {} -- TODO: should I make this a FramePool now?
 local function PrepareItemButton(button)
-    if button.simpleilvl then
-        button.simpleilvloverlay:SetFrameLevel(button:GetFrameLevel() + 1)
-        return
+    if not button.simpleilvl then
+        local overlayFrame = CreateFrame("FRAME", nil, button)
+        overlayFrame:SetAllPoints()
+        overlayFrame:SetFrameLevel(button:GetFrameLevel() + 1)
+        button.simpleilvloverlay = overlayFrame
+
+        button.simpleilvl = overlayFrame:CreateFontString('$parentItemLevel', 'OVERLAY')
+        button.simpleilvl:Hide()
+
+        button.simpleilvlup = overlayFrame:CreateTexture(nil, "OVERLAY")
+        button.simpleilvlup:SetSize(8, 8)
+        -- MiniMap-PositionArrowUp?
+        button.simpleilvlup:SetAtlas("poi-door-arrow-up")
+        button.simpleilvlup:Hide()
+
+        ns.frames[button] = overlayFrame
     end
+    button.simpleilvloverlay:SetFrameLevel(button:GetFrameLevel() + 1)
 
-    local overlayFrame = CreateFrame("FRAME", nil, button)
-    overlayFrame:SetAllPoints()
-    overlayFrame:SetFrameLevel(button:GetFrameLevel() + 1)
-    button.simpleilvloverlay = overlayFrame
-
-    button.simpleilvl = overlayFrame:CreateFontString('$parentItemLevel', 'OVERLAY')
-    button.simpleilvl:SetPoint('TOPRIGHT', -2, -2)
-    button.simpleilvl:SetFontObject(NumberFontNormal)
-    button.simpleilvl:SetJustifyH('RIGHT')
-    button.simpleilvl:Hide()
-
-    button.simpleilvlup = overlayFrame:CreateTexture(nil, "OVERLAY")
-    button.simpleilvlup:SetSize(8, 8)
-    button.simpleilvlup:SetPoint('TOPLEFT', 2, -2)
-    -- MiniMap-PositionArrowUp?
-    button.simpleilvlup:SetAtlas("poi-door-arrow-up")
-    button.simpleilvlup:Hide()
+    -- Apply appearance config:
+    button.simpleilvl:ClearAllPoints()
+    button.simpleilvl:SetPoint(db.position, unpack(ns.PositionOffsets[db.position]))
+    button.simpleilvl:SetFontObject(ns.Fonts[db.font] or NumberFontNormal)
+    -- button.simpleilvl:SetJustifyH('RIGHT')
+    button.simpleilvlup:ClearAllPoints()
+    button.simpleilvlup:SetPoint(db.positionup, unpack(ns.PositionOffsets[db.positionup]))
+end
+ns.PrepareItemButton = PrepareItemButton
+function ns.RefreshOverlayFrames()
+    for button in pairs(ns.frames) do
+        PrepareItemButton(button)
+    end
 end
 local function AddLevelToButton(button, itemLevel, itemQuality)
     if not itemLevel then
@@ -129,10 +158,12 @@ local function UpdateButtonFromItem(button, item)
         AddUpgradeToButton(button, item, equipLoc, minLevel)
     end)
 end
+ns.UpdateButtonFromItem = UpdateButtonFromItem
 local function CleanButton(button)
     if button.simpleilvl then button.simpleilvl:Hide() end
     if button.simpleilvlup then button.simpleilvlup:Hide() end
 end
+ns.CleanButton = CleanButton
 
 -- Character frame:
 
