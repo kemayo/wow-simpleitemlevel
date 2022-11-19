@@ -34,6 +34,11 @@ ns.PositionOffsets = {
     TOPRIGHT = {-2, -2},
     BOTTOMLEFT = {2, 2},
     BOTTOMRIGHT = {-2, 2},
+    BOTTOM = {0, 2},
+    TOP = {0, -2},
+    LEFT = {2, 0},
+    RIGHT = {-2, 0},
+    CENTER = {0, 0},
 }
 
 ns.defaults = {

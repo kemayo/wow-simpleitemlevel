@@ -310,8 +310,8 @@ local font = makeDropdown(frame, "font", "Font", fonts, refresh)
 font:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
 
 local positions = {}
-for _,v in ipairs{"TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT"} do
-    positions[v] = v
+for k,v in pairs(ns.PositionOffsets) do
+    positions[k] = k
 end
 local position = makeDropdown(frame, "position", "Position of item level", positions, refresh)
 position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
