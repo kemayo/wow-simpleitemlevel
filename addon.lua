@@ -48,7 +48,7 @@ ns.defaults = {
     quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
     equipmentonly = true,
     -- appearance config
-    font = "Normal",
+    font = "NumberNormal",
     position = "TOPRIGHT",
     positionup = "TOPLEFT",
 }

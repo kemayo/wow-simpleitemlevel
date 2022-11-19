@@ -264,7 +264,11 @@ end
 frame:Hide()
 
 local demo = CreateFrame("Frame", nil, frame)
-demo:SetPoint("TOPLEFT", frame)
+if isClassic then
+    demo:SetPoint("TOPLEFT", frame, 0, -8)
+else
+    demo:SetPoint("TOPLEFT", frame)
+end
 demo:SetPoint("RIGHT", frame)
 demo:SetHeight(43)
 
