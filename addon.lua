@@ -24,6 +24,9 @@ end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
 
+ns.upgradeString = CreateAtlasMarkup("poi-door-arrow-up")
+ns.gemString = CreateAtlasMarkup("jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
+ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
 ns.Fonts = {
     HighlightSmall = GameFontHighlightSmall,
     Normal = GameFontNormalOutline,
@@ -55,10 +58,13 @@ ns.defaults = {
     -- Shadowlands has Uncommon, BCC/Classic has Good
     quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
     equipmentonly = true,
+    missinggems = true,
+    missingenchants = true,
     -- appearance config
     font = "NumberNormal",
     position = "TOPRIGHT",
     positionup = "TOPLEFT",
+    positionmissing = "RIGHT",
 }
 
 function ns:ADDON_LOADED(event, addon)
@@ -84,7 +90,7 @@ local function PrepareItemButton(button)
         overlayFrame:SetFrameLevel(button:GetFrameLevel() + 1)
         button.simpleilvloverlay = overlayFrame
 
-        button.simpleilvl = overlayFrame:CreateFontString('$parentItemLevel', 'OVERLAY')
+        button.simpleilvl = overlayFrame:CreateFontString(nil, "OVERLAY")
         button.simpleilvl:Hide()
 
         button.simpleilvlup = overlayFrame:CreateTexture(nil, "OVERLAY")
@@ -92,6 +98,9 @@ local function PrepareItemButton(button)
         -- MiniMap-PositionArrowUp?
         button.simpleilvlup:SetAtlas("poi-door-arrow-up")
         button.simpleilvlup:Hide()
+
+        button.simpleilvlmissing = overlayFrame:CreateFontString(nil, "OVERLAY")
+        button.simpleilvlmissing:Hide()
 
         ns.frames[button] = overlayFrame
     end
@@ -104,13 +113,26 @@ local function PrepareItemButton(button)
     -- button.simpleilvl:SetJustifyH('RIGHT')
     button.simpleilvlup:ClearAllPoints()
     button.simpleilvlup:SetPoint(db.positionup, unpack(ns.PositionOffsets[db.positionup]))
+
+    button.simpleilvlmissing:ClearAllPoints()
+    button.simpleilvlmissing:SetPoint(db.positionmissing, unpack(ns.PositionOffsets[db.positionmissing]))
+    button.simpleilvlmissing:SetFontObject(NumberFontNormalSmall)
+    -- button.simpleilvlmissing:SetFontObject(ns.Fonts[db.font] or NumberFontNormal)
 end
 ns.PrepareItemButton = PrepareItemButton
+
+local function CleanButton(button)
+    if button.simpleilvl then button.simpleilvl:Hide() end
+    if button.simpleilvlup then button.simpleilvlup:Hide() end
+end
+ns.CleanButton = CleanButton
+
 function ns.RefreshOverlayFrames()
     for button in pairs(ns.frames) do
         PrepareItemButton(button)
     end
 end
+
 local function AddLevelToButton(button, itemLevel, itemQuality)
     if not itemLevel then
         return button.simpleilvl and button.simpleilvl:Hide()
@@ -151,6 +173,17 @@ local function AddUpgradeToButton(button, item, equipLoc, minLevel)
         end
     end)
 end
+local function AddMissingToButton(button, itemLink)
+    if not itemLink then
+        return button.simpleilvlmissing and button.simpleilvlmissing:Hide()
+    end
+    PrepareItemButton(button)
+    local missingGems = db.missinggems and ns.ItemHasEmptySlots(itemLink)
+    local missingEnchants =  db.missingenchants and ns.ItemIsMissingEnchants(itemLink)
+    -- print(itemLink, missingEnchants, missingGems)
+    button.simpleilvlmissing:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
+    button.simpleilvlmissing:Show()
+end
 local function ShouldShowOnItem(item)
     local quality = item:GetItemQuality()
     if quality < db.quality then
@@ -178,14 +211,10 @@ local function UpdateButtonFromItem(button, item)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
         AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
         AddUpgradeToButton(button, item, equipLoc, minLevel)
+        AddMissingToButton(button, link)
     end)
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
-local function CleanButton(button)
-    if button.simpleilvl then button.simpleilvl:Hide() end
-    if button.simpleilvlup then button.simpleilvlup:Hide() end
-end
-ns.CleanButton = CleanButton
 
 -- Character frame:
 
@@ -512,5 +541,69 @@ do
     ns.ForEquippedItems = function(equipLoc, callback)
         ForEquippedItem(EquipLocToSlot1[equipLoc], callback)
         ForEquippedItem(EquipLocToSlot2[equipLoc], callback)
+    end
+end
+
+do
+    -- could arguably also do TooltipDataProcessor.AddLinePostCall(Enum.TooltipDataLineType.GemSocket, ...)
+    local t = {}
+    function ns.ItemHasEmptySlots(itemLink)
+        wipe(t)
+        local stats = GetItemStats(itemLink, t)
+        local slots = 0
+        for label, stat in pairs(stats) do
+            if label:match("EMPTY_SOCKET_") then
+                slots = slots + 1
+            end
+        end
+        if slots == 0 then return false end
+        local gem1, gem2, gem3, gem4 = select(4, strsplit(":", itemLink))
+        local gems = (gem1 ~= "" and 1 or 0) + (gem2 ~= "" and 1 or 0) + (gem3 ~= "" and 1 or 0) + (gem4 ~= "" and 1 or 0)
+        return slots > gems
+    end
+    local enchantable = isClassic and {
+        INVTYPE_HEAD = true,
+        INVTYPE_SHOULDER = true,
+        INVTYPE_CHEST = true,
+        INVTYPE_ROBE = true,
+        INVTYPE_LEGS = true,
+        INVTYPE_FEET = true,
+        INVTYPE_WRIST = true,
+        INVTYPE_HAND = true,
+        INVTYPE_FINGER = true,
+        INVTYPE_CLOAK = true,
+        INVTYPE_WEAPON = true,
+        INVTYPE_SHIELD = true,
+        INVTYPE_2HWEAPON = true,
+        INVTYPE_WEAPONMAINHAND = true,
+        INVTYPE_RANGED = true,
+        INVTYPE_RANGEDRIGHT = true,
+        INVTYPE_WEAPONOFFHAND = true,
+        INVTYPE_HOLDABLE = true,
+    } or {
+        -- retail
+        INVTYPE_CHEST = true,
+        INVTYPE_ROBE = true,
+        INVTYPE_FEET = true,
+        INVTYPE_WRIST = true,
+        INVTYPE_HAND = true,
+        INVTYPE_FINGER = true,
+        INVTYPE_CLOAK = true,
+        INVTYPE_WEAPON = true,
+        -- INVTYPE_SHIELD = true, -- ...are there?
+        INVTYPE_2HWEAPON = true,
+        INVTYPE_WEAPONMAINHAND = true,
+        INVTYPE_RANGED = true,
+        INVTYPE_RANGEDRIGHT = true,
+        INVTYPE_WEAPONOFFHAND = true,
+        INVTYPE_HOLDABLE = true,
+    }
+    function ns.ItemIsMissingEnchants(itemLink)
+        if not itemLink then return false end
+        local equipLoc = select(4, GetItemInfoInstant(itemLink))
+        if not enchantable[equipLoc] then return false end
+        local enchantID = select(3, strsplit(":", itemLink))
+        if enchantID == "" then return true end
+        return false
     end
 end

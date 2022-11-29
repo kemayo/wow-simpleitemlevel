@@ -329,6 +329,8 @@ local position = makeDropdown(frame, "position", "Position of item level", posit
 position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
 local positionup = makeDropdown(frame, "positionup", "Position of upgrade indicator", positions, refresh)
 positionup:SetPoint("TOPLEFT", position, "BOTTOMLEFT", 0, -4)
+local positionmissing = makeDropdown(frame, "positionmissing", "Position of missing indicator", positions, refresh)
+positionmissing:SetPoint("TOPLEFT", positionup, "BOTTOMLEFT", 0, -4)
 
 local checkboxes = {
     {false, SHOW_ITEM_LEVEL},
@@ -337,7 +339,9 @@ local checkboxes = {
     {"inspect", INSPECT},
     {"loot", LOOT},
     {false, DISPLAY_HEADER},
-    {"upgrades", "Upgrade arrows in bags"},
+    {"upgrades", ("Flag upgrade items (%s)"):format(ns.upgradeString)},
+    {"missinggems", ("Flag items missing gems (%s)"):format(ns.gemString)},
+    {"missingenchants", ("Flag items missing enchants (%s)"):format(ns.enchantString)},
     {"color", "Color item level by item quality"},
     {"equipmentonly", "Only show on equippable items"},
 }
@@ -345,7 +349,7 @@ if isClassic then
     table.insert(checkboxes, {"tooltip", "Add the item level to tooltips"})
 end
 
-local previous = positionup
+local previous = positionmissing
 for _, data in ipairs(checkboxes) do
     local control
     if data[1] then
