@@ -64,7 +64,7 @@ ns.defaults = {
     font = "NumberNormal",
     position = "TOPRIGHT",
     positionup = "TOPLEFT",
-    positionmissing = "RIGHT",
+    positionmissing = "LEFT",
 }
 
 function ns:ADDON_LOADED(event, addon)
