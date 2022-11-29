@@ -28,7 +28,7 @@ read_globals = {
     "mod",
     "max",
     "table", "tinsert", "wipe", "copy",
-    "string", "tostringall", "strtrim", "strmatch",
+    "string", "tostringall", "strtrim", "strmatch", "strsplit",
 
     -- our own globals
 
@@ -66,6 +66,7 @@ read_globals = {
     "GetInventoryItemID",
     "GetInventoryItemLink",
     "GetInventoryItemQuality",
+    "GetInventorySlotInfo",
     "GetItemClassInfo",
     "GetItemFamily",
     "GetItemInfo",

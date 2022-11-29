@@ -3,6 +3,9 @@ local myfullname = GetAddOnMetadata(myname, "Title")
 local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
+local SLOT_MAINHAND = GetInventorySlotInfo("MainHandSlot")
+local SLOT_OFFHAND = GetInventorySlotInfo("SecondaryHandSlot")
+
 function ns.Print(...) print("|cFF33FF99".. myfullname.. "|r:", ...) end
 
 -- events
@@ -127,7 +130,16 @@ local function AddUpgradeToButton(button, item, equipLoc, minLevel)
         -- higher ilevel than your other ring/trinket
         return
     end
-    ns.ForEquippedItems(equipLoc, function(equippedItem)
+    ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
+        if equippedItem:IsItemEmpty() and slot == SLOT_OFFHAND then
+            local mainhand = GetInventoryItemID("player", SLOT_MAINHAND)
+            if mainhand then
+                local invtype = select(4, GetItemInfoInstant(mainhand))
+                if invtype == "INVTYPE_2HWEAPON" then
+                    return
+                end
+            end
+        end
         if equippedItem:IsItemEmpty() or equippedItem:GetCurrentItemLevel() < item:GetCurrentItemLevel() then
             PrepareItemButton(button)
             button.simpleilvlup:Show()
@@ -493,9 +505,9 @@ do
         end
         local item = Item:CreateFromEquipmentSlot(slot)
         if item:IsItemEmpty() then
-            return callback(item)
+            return callback(item, slot)
         end
-        item:ContinueOnItemLoad(function() callback(item) end)
+        item:ContinueOnItemLoad(function() callback(item, slot) end)
     end
     ns.ForEquippedItems = function(equipLoc, callback)
         ForEquippedItem(EquipLocToSlot1[equipLoc], callback)
