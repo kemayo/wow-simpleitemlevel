@@ -116,8 +116,7 @@ local function PrepareItemButton(button)
 
     button.simpleilvlmissing:ClearAllPoints()
     button.simpleilvlmissing:SetPoint(db.positionmissing, unpack(ns.PositionOffsets[db.positionmissing]))
-    button.simpleilvlmissing:SetFontObject(NumberFontNormalSmall)
-    -- button.simpleilvlmissing:SetFontObject(ns.Fonts[db.font] or NumberFontNormal)
+    button.simpleilvlmissing:SetFont([[Fonts\ARIALN.TTF]], 11, "OUTLINE,MONOCHROME")
 end
 ns.PrepareItemButton = PrepareItemButton
 
