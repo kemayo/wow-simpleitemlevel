@@ -120,6 +120,7 @@ read_globals = {
     "Enum",
     "CreateFrame",
     "InterfaceOptionsFrame_OpenToCategory",
+    "InterfaceOptionsFrame_Show",
     "InterfaceOptions_AddCategory",
     "ToggleDropDownMenu",
     "UIDropDownMenu_AddButton",

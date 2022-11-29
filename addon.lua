@@ -25,7 +25,7 @@ end
 local LAI = LibStub("LibAppropriateItems-1.0")
 
 ns.upgradeString = CreateAtlasMarkup("poi-door-arrow-up")
-ns.gemString = CreateAtlasMarkup("jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
+ns.gemString = CreateAtlasMarkup(isClassic and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
 ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
 ns.Fonts = {
     HighlightSmall = GameFontHighlightSmall,
