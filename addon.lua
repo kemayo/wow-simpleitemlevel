@@ -450,51 +450,6 @@ ns:RegisterAddonHook("LiteBag", function()
     end)
 end)
 
--- Quick config:
-
-_G["SLASH_".. myname:upper().."1"] = "/simpleilvl"
-SlashCmdList[myname:upper()] = function(msg)
-    msg = msg:trim()
-    if msg:match("^quality") then
-        local quality = msg:match("quality (.+)") or ""
-        if quality:match("^%d+$") then
-            quality = tonumber(quality)
-        else
-            quality = quality:lower()
-            for label, value in pairs(Enum.ItemQuality) do
-                if label:lower() == quality then
-                    quality = value
-                end
-            end
-        end
-        if type(quality) ~= "number" then
-            return ns.Print("Invalid item quality provided, should be a name or a number 0-8")
-        end
-        db.quality = quality
-        return ns.Print("quality = ", _G["ITEM_QUALITY" .. db.quality .. "_DESC"])
-    end
-    if db[msg] ~= nil then
-        db[msg] = not db[msg]
-        return ns.Print(msg, '=', db[msg] and YES or NO)
-    end
-    if msg == "" then
-        ns.Print(SHOW_ITEM_LEVEL)
-        ns.Print('bags -', BAGSLOTTEXT, "-", db.bags and YES or NO)
-        ns.Print('character -', ORDER_HALL_EQUIPMENT_SLOTS, "-", db.character and YES or NO)
-        ns.Print('inspect -', INSPECT, "-", db.inspect and YES or NO)
-        ns.Print('loot -', LOOT, "-", db.loot and YES or NO)
-        ns.Print('upgrades - Upgrade arrows in bags', "-", db.upgrades and YES or NO)
-        ns.Print('color - Color item level by item quality', "-", db.color and YES or NO)
-        if isClassic then
-            ns.Print('tooltip - Add the item level to tooltips', "-", db.tooltip and YES or NO)
-        end
-        ns.Print('quality - Minimum item quality to show for', "-", _G["ITEM_QUALITY" .. db.quality .. "_DESC"])
-        ns.Print('equipmentonly - Only show on equippable items', "-", db.equipmentonly and YES or NO)
-        ns.Print("To toggle: /simpleilvl [type]")
-        ns.Print("To set a quality: /simpleilvl quality [quality]")
-    end
-end
-
 -- helper
 
 do

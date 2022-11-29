@@ -372,3 +372,35 @@ quality:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
 -- pointless:SetPoint("TOPLEFT", quality, "BOTTOMLEFT", 0, -4)
 
 -- Settings.OpenToCategory(myname)
+
+-- Quick config:
+
+_G["SLASH_".. myname:upper().."1"] = "/simpleilvl"
+SlashCmdList[myname:upper()] = function(msg)
+    msg = msg:trim()
+    if msg:match("^quality") then
+        local quality = msg:match("quality (.+)") or ""
+        if quality:match("^%d+$") then
+            quality = tonumber(quality)
+        else
+            quality = quality:lower()
+            for label, value in pairs(Enum.ItemQuality) do
+                if label:lower() == quality then
+                    quality = value
+                end
+            end
+        end
+        if type(quality) ~= "number" then
+            return ns.Print("Invalid item quality provided, should be a name or a number 0-8")
+        end
+        db.quality = quality
+        return ns.Print("quality = ", _G["ITEM_QUALITY" .. db.quality .. "_DESC"])
+    end
+    if ns.db[msg] ~= nil then
+        ns.db[msg] = not ns.db[msg]
+        return ns.Print(msg, '=', ns.db[msg] and YES or NO)
+    end
+    if msg == "" then
+        Settings.OpenToCategory(myname)
+    end
+end
