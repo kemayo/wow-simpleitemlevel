@@ -121,6 +121,12 @@ local function AddUpgradeToButton(button, item, equipLoc, minLevel)
     if not (db.upgrades and LAI:IsAppropriate(item:GetItemID())) then
         return button.simpleilvlup and button.simpleilvlup:Hide()
     end
+    if item:GetItemLocation() and item:GetItemLocation():IsEquipmentSlot() then
+        -- This is meant to catch the character frame, to avoid rings/trinkets
+        -- you've already got equipped showing as an upgrade since they're
+        -- higher ilevel than your other ring/trinket
+        return
+    end
     ns.ForEquippedItems(equipLoc, function(equippedItem)
         if equippedItem:IsItemEmpty() or equippedItem:GetCurrentItemLevel() < item:GetCurrentItemLevel() then
             PrepareItemButton(button)
@@ -149,17 +155,16 @@ local function ShouldShowOnItem(item)
     )
 end
 local function UpdateButtonFromItem(button, item)
-    if item:IsItemEmpty() then
+    if not item or item:IsItemEmpty() then
         return
     end
     item:ContinueOnItemLoad(function()
         if not ShouldShowOnItem(item) then return end
         local itemID = item:GetItemID()
         local link = item:GetItemLink()
-        local quality = item:GetItemQuality()
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
-        AddLevelToButton(button, item:GetCurrentItemLevel(), quality)
+        AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
         AddUpgradeToButton(button, item, equipLoc, minLevel)
     end)
 end
@@ -191,17 +196,17 @@ local function UpdateItemSlotButton(button, unit)
                 item = itemLink and Item:CreateFromItemLink(itemLink) or Item:CreateFromItemID(itemID)
             end
         end
-        if not item or item:IsItemEmpty() then
-            return
-        end
-        return item:ContinueOnItemLoad(function()
-            AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
-        end)
+        UpdateButtonFromItem(button, item)
     end
-    return CleanButton(button)
 end
 hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
     UpdateItemSlotButton(button, "player")
+end)
+-- and the inspect frame
+ns:RegisterAddonHook("Blizzard_InspectUI", function()
+    hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
+        UpdateItemSlotButton(button, InspectFrame.unit or "target")
+    end)
 end)
 
 -- Equipment flyout in character frame
@@ -231,14 +236,6 @@ if _G.EquipmentFlyout_DisplayButton then
         end
     end)
 end
-
--- Inspect frame:
-
-ns:RegisterAddonHook("Blizzard_InspectUI", function()
-    hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
-        UpdateItemSlotButton(button, InspectFrame.unit or "target")
-    end)
-end)
 
 -- Bags:
 
