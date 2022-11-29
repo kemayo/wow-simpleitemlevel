@@ -402,8 +402,20 @@ ns:RegisterAddonHook("Inventorian", function()
         return (bag < 0 and bag * 100 - slot) or (bag * 100 + slot)
     end
     local function invContainerUpdateSlot(self, bag, slot)
-        if not self.items[ToIndex(bag, slot)] then return end
-        UpdateContainerButton(self.items[ToIndex(bag, slot)], bag, slot)
+        local button = self.items[ToIndex(bag, slot)]
+        if not button then return end
+        if button:IsCached() then
+            local item
+            local icon, count, locked, quality, readable, lootable, link, noValue, itemID, isBound = button:GetInfo()
+            if link then
+                item = Item:CreateFromItemLink(link)
+            elseif itemID then
+                item = Item:CreateFromItemID(itemID)
+            end
+            UpdateButtonFromItem(button, item)
+        else
+            UpdateContainerButton(button, bag, slot)
+        end
     end
     local function hookInventorian()
         hooksecurefunc(inv.bag.itemContainer, "UpdateSlot", invContainerUpdateSlot)
