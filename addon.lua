@@ -123,6 +123,7 @@ ns.PrepareItemButton = PrepareItemButton
 local function CleanButton(button)
     if button.simpleilvl then button.simpleilvl:Hide() end
     if button.simpleilvlup then button.simpleilvlup:Hide() end
+    if button.simpleilvlmissing then button.simpleilvlmissing:Hide() end
 end
 ns.CleanButton = CleanButton
 
