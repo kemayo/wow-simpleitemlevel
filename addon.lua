@@ -222,6 +222,10 @@ local function AddAverageLevelToFontString(unit, fontstring)
         continuableContainer = ContinuableContainer:Create()
     end
     fontstring:Hide()
+    local key = unit == "player" and "character" or "inspect"
+    if not db[key] then
+        return
+    end
     local mainhandEquipLoc, offhandEquipLoc
     local items = {}
     for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
@@ -297,7 +301,11 @@ do
         if not self.avglevel then
             self.avglevel = PaperDollFrame:CreateFontString(nil, "OVERLAY")
             self.avglevel:SetFontObject(NumberFontNormal)
-            self.avglevel:SetPoint("BOTTOMLEFT", 12, 12)
+            if isClassic then
+                self.avglevel:SetPoint("BOTTOMLEFT", 24, 88)
+            else
+                self.avglevel:SetPoint("BOTTOMLEFT", 12, 12)
+            end
         end
         AddAverageLevelToFontString("player", self.avglevel)
         self:Hide()
@@ -322,7 +330,11 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
         if not avglevel then
             avglevel = InspectFrame:CreateFontString(nil, "OVERLAY")
             avglevel:SetFontObject(NumberFontNormal)
-            avglevel:SetPoint("BOTTOMLEFT", 12, 12)
+            if isClassic then
+                avglevel:SetPoint("BOTTOMLEFT", 24, 88)
+            else
+                avglevel:SetPoint("BOTTOMLEFT", 12, 12)
+            end
         end
         AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
     end)
