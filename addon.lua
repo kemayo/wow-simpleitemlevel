@@ -248,7 +248,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
     if mainhandEquipLoc and offhandEquipLoc then
         numSlots = 16
     else
-        local isFuryWarrior = select(2, UnitClass(unit)) == "WARRIOR" and GetInspectSpecialization(unit) == 72
+        local isFuryWarrior = _G.GetInspectSpecialization and select(2, UnitClass(unit)) == "WARRIOR" and GetInspectSpecialization(unit) == 72
         -- unit is holding a one-handed weapon, a main-handed weapon, or a 2h weapon while Fury: 17 slots
         -- otherwise 16 slots
         local equippedLocation = mainhandEquipLoc or offhandEquipLoc
