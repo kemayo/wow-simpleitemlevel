@@ -216,6 +216,56 @@ local function UpdateButtonFromItem(button, item)
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
 
+local continuableContainer
+local function AddAverageLevelToFontString(unit, fontstring)
+    if not continuableContainer then
+        continuableContainer = ContinuableContainer:Create()
+    end
+    fontstring:Hide()
+    local mainhandEquipLoc, offhandEquipLoc
+    local items = {}
+    for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+        -- shirt and tabard don't count
+        if slot ~= INVSLOT_BODY and slot ~= INVSLOT_TABARD then
+            local itemID = GetInventoryItemID(unit, slot)
+            local itemLink = GetInventoryItemLink(unit, slot)
+            if itemLink or itemID then
+                local item = itemLink and Item:CreateFromItemLink(itemLink) or Item:CreateFromItemID(itemID)
+                continuableContainer:AddContinuable(item)
+                table.insert(items, item)
+                -- slot bookkeeping
+                local equipLoc = select(4, GetItemInfoInstant(itemLink or itemID))
+                if slot == INVSLOT_MAINHAND then mainhandEquipLoc = equipLoc end
+                if slot == INVSLOT_OFFHAND then offhandEquipLoc = equipLoc end
+            end
+        end
+    end
+    local numSlots
+    if mainhandEquipLoc and offhandEquipLoc then
+        numSlots = 16
+    else
+        local isFuryWarrior = select(2, UnitClass(unit)) == "WARRIOR" and GetInspectSpecialization(unit) == 72
+        -- unit is holding a one-handed weapon, a main-handed weapon, or a 2h weapon while Fury: 17 slots
+        -- otherwise 16 slots
+        local equippedLocation = mainhandEquipLoc or offhandEquipLoc
+        numSlots = (
+            equippedLocation == "INVTYPE_WEAPON" or
+            equippedLocation == "INVTYPE_WEAPONMAINHAND" or
+            (equippedLocation == "INVTYPE_2HWEAPON" and isFuryWarrior)
+        ) and 16 or 15
+    end
+    if isClassic then numSlots = numSlots + 1 end -- ranged slot
+    continuableContainer:ContinueOnLoad(function()
+        local totalLevel = 0
+        for _, item in ipairs(items) do
+            totalLevel = totalLevel + item:GetCurrentItemLevel()
+        end
+        fontstring:SetFormattedText(ITEM_LEVEL, totalLevel / numSlots)
+        fontstring:Show()
+        continuableContainer = nil
+    end)
+end
+
 -- Character frame:
 
 local function UpdateItemSlotButton(button, unit)
@@ -240,13 +290,41 @@ local function UpdateItemSlotButton(button, unit)
         UpdateButtonFromItem(button, item)
     end
 end
-hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
-    UpdateItemSlotButton(button, "player")
-end)
+
+do
+    local levelUpdater = CreateFrame("Frame")
+    levelUpdater:SetScript("OnUpdate", function(self)
+        if not self.avglevel then
+            self.avglevel = PaperDollFrame:CreateFontString(nil, "OVERLAY")
+            self.avglevel:SetFontObject(NumberFontNormal)
+            self.avglevel:SetPoint("BOTTOMLEFT", 12, 12)
+        end
+        AddAverageLevelToFontString("player", self.avglevel)
+        self:Hide()
+    end)
+    levelUpdater:Hide()
+
+    hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
+        UpdateItemSlotButton(button, "player")
+        if isClassic then
+            levelUpdater:Show()
+        end
+    end)
+end
+
 -- and the inspect frame
 ns:RegisterAddonHook("Blizzard_InspectUI", function()
     hooksecurefunc("InspectPaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, InspectFrame.unit or "target")
+    end)
+    local avglevel
+    hooksecurefunc("InspectPaperDollFrame_UpdateButtons", function()
+        if not avglevel then
+            avglevel = InspectFrame:CreateFontString(nil, "OVERLAY")
+            avglevel:SetFontObject(NumberFontNormal)
+            avglevel:SetPoint("BOTTOMLEFT", 12, 12)
+        end
+        AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
     end)
 end)
 

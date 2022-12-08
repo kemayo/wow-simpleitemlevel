@@ -63,6 +63,7 @@ read_globals = {
     "GetGuildBankItemLink",
     "GetGuildBankTabInfo",
     "GetGuildBankNumSlots",
+    "GetInspectSpecialization",
     "GetInventoryItemID",
     "GetInventoryItemLink",
     "GetInventoryItemQuality",
@@ -91,6 +92,7 @@ read_globals = {
     "SetItemButtonTexture",
     "SplitContainerItem",
     "SplitGuildBankItem",
+    "UnitClass",
     "UnitIsAFK",
     "UnitLevel",
     "UnitName",
@@ -99,6 +101,7 @@ read_globals = {
     -- FrameXML frames
     "BankFrame",
     "InspectFrame",
+    "PaperDollFrame",
     "MerchantFrame",
     "GameTooltip",
     "ItemRefTooltip",
@@ -139,6 +142,7 @@ read_globals = {
     "GameTooltip_Hide",
     "Settings",
     "TooltipDataProcessor",
+    "ContinuableContainer",
 
     -- FrameXML Constants
     "APPEARANCE_LABEL",
@@ -159,6 +163,10 @@ read_globals = {
     "INSPECT",
     "INVSLOT_FIRST_EQUIPPED",
     "INVSLOT_LAST_EQUIPPED",
+    "INVSLOT_BODY",
+    "INVSLOT_TABARD",
+    "INVSLOT_MAINHAND",
+    "INVSLOT_OFFHAND",
     "ITEM_BIND_QUEST",
     "ITEM_BNETACCOUNTBOUND",
     "ITEM_CONJURED",
