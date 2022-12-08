@@ -83,6 +83,7 @@ read_globals = {
     "IsAltKeyDown",
     "IsControlKeyDown",
     "IsShiftKeyDown",
+    "IsSpellKnown",
     "IsReagentBankUnlocked",
     "Item",
     "PlaySound",

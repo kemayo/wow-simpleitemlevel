@@ -248,9 +248,14 @@ local function AddAverageLevelToFontString(unit, fontstring)
     if mainhandEquipLoc and offhandEquipLoc then
         numSlots = 16
     else
-        local isFuryWarrior = _G.GetInspectSpecialization and select(2, UnitClass(unit)) == "WARRIOR" and GetInspectSpecialization(unit) == 72
-        -- unit is holding a one-handed weapon, a main-handed weapon, or a 2h weapon while Fury: 17 slots
-        -- otherwise 16 slots
+        local isFuryWarrior = select(2, UnitClass(unit)) == "WARRIOR"
+        if unit == "player" then
+            isFuryWarrior = isFuryWarrior and IsSpellKnown(46917) -- knows titan's grip
+        else
+            isFuryWarrior = isFuryWarrior and _G.GetInspectSpecialization and GetInspectSpecialization(unit) == 72
+        end
+        -- unit is holding a one-handed weapon, a main-handed weapon, or a 2h weapon while Fury: 16 slots
+        -- otherwise 15 slots
         local equippedLocation = mainhandEquipLoc or offhandEquipLoc
         numSlots = (
             equippedLocation == "INVTYPE_WEAPON" or
@@ -258,7 +263,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
             (equippedLocation == "INVTYPE_2HWEAPON" and isFuryWarrior)
         ) and 16 or 15
     end
-    if isClassic then numSlots = numSlots + 1 end -- ranged slot
+    if isClassic then numSlots = numSlots + 1 end -- ranged slot exists in classic
     continuableContainer:ContinueOnLoad(function()
         local totalLevel = 0
         for _, item in ipairs(items) do
@@ -266,7 +271,6 @@ local function AddAverageLevelToFontString(unit, fontstring)
         end
         fontstring:SetFormattedText(ITEM_LEVEL, totalLevel / numSlots)
         fontstring:Show()
-        continuableContainer = nil
     end)
 end
 
