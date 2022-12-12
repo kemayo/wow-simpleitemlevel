@@ -17,7 +17,7 @@ local function makeFontString(frame, label, indented)
     return text
 end
 
-local function makeSlider(parent, key, label, minValue, maxValue, step, formatter, callback)
+local function makeSlider(parent, key, label, minValue, maxValue, step, formatter, callback, indented)
     local frame = CreateFrame("Frame", nil, parent)
     -- frame:EnableMouse(true)
     frame.Slider = CreateFrame("Slider", nil, frame)
@@ -108,7 +108,7 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
 
     frame.Slider:SetWidth(250)
     frame.Slider:SetPoint("LEFT", frame, "CENTER", -80, 3)
-    frame.Text = makeFontString(frame, label)
+    frame.Text = makeFontString(frame, label, indented)
     frame:SetSize(280, 26)
 
     frame:SetScript("OnShow", function(self)
@@ -333,6 +333,9 @@ do
     local positionmissing = makeDropdown(frame, "positionmissing", "Position of missing indicator", positions, refresh)
     positionmissing:SetPoint("TOPLEFT", positionup, "BOTTOMLEFT", 0, -4)
 
+    local scaleup = makeSlider(frame, "scaleup", "Size of upgrade indicator", 0.5, 3, 0.1, nil, refresh, true)
+    scaleup:SetPoint("TOPLEFT", positionmissing, "BOTTOMLEFT", 0, -4)
+
     local checkboxes = {
         {false, SHOW_ITEM_LEVEL},
         {"bags", BAGSLOTTEXT},
@@ -350,7 +353,7 @@ do
         table.insert(checkboxes, {"tooltip", "Add the item level to tooltips"})
     end
 
-    local previous = positionmissing
+    local previous = scaleup
     for _, data in ipairs(checkboxes) do
         local control
         if data[1] then
@@ -368,9 +371,6 @@ do
     end
     local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
     quality:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
-
-    -- local pointless = makeSlider(frame, "pointless", "Pointless slider", 1, 20, 1)
-    -- pointless:SetPoint("TOPLEFT", quality, "BOTTOMLEFT", 0, -4)
 
     -- Settings.OpenToCategory(myname)
 end

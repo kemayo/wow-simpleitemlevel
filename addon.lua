@@ -65,6 +65,7 @@ ns.defaults = {
     position = "TOPRIGHT",
     positionup = "TOPLEFT",
     positionmissing = "LEFT",
+    scaleup = 1,
 }
 
 function ns:ADDON_LOADED(event, addon)
@@ -94,7 +95,7 @@ local function PrepareItemButton(button)
         button.simpleilvl:Hide()
 
         button.simpleilvlup = overlayFrame:CreateTexture(nil, "OVERLAY")
-        button.simpleilvlup:SetSize(8, 8)
+        button.simpleilvlup:SetSize(10, 10)
         -- MiniMap-PositionArrowUp?
         button.simpleilvlup:SetAtlas("poi-door-arrow-up")
         button.simpleilvlup:Hide()
@@ -111,8 +112,10 @@ local function PrepareItemButton(button)
     button.simpleilvl:SetPoint(db.position, unpack(ns.PositionOffsets[db.position]))
     button.simpleilvl:SetFontObject(ns.Fonts[db.font] or NumberFontNormal)
     -- button.simpleilvl:SetJustifyH('RIGHT')
+
     button.simpleilvlup:ClearAllPoints()
     button.simpleilvlup:SetPoint(db.positionup, unpack(ns.PositionOffsets[db.positionup]))
+    button.simpleilvlup:SetScale(db.scaleup)
 
     button.simpleilvlmissing:ClearAllPoints()
     button.simpleilvlmissing:SetPoint(db.positionmissing, unpack(ns.PositionOffsets[db.positionmissing]))
