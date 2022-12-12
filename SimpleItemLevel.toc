@@ -7,7 +7,7 @@
 ## Notes: Show item levels in useful places
 ## OptionalDeps: LibAppropriateItems-1.0
 ## SavedVariables: SimpleItemLevelDB
-## Version: 1
+## Version: @project-version@
 
 ## X-Website: https://www.wowace.com/projects/simple-item-level
 ## X-License: BSD

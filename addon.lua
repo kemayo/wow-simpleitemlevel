@@ -2,6 +2,7 @@ local myname, ns = ...
 local myfullname = GetAddOnMetadata(myname, "Title")
 local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
+ns.DEBUG = GetAddOnMetadata(myname, "Version") == "@project-version@"
 
 local SLOT_MAINHAND = GetInventorySlotInfo("MainHandSlot")
 local SLOT_OFFHAND = GetInventorySlotInfo("SecondaryHandSlot")
@@ -325,7 +326,7 @@ do
 
     hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "player")
-        if isClassic then
+        if isClassic or ns.DEBUG then
             levelUpdater:Show()
         end
     end)
