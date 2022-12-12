@@ -325,7 +325,7 @@ do
 
     hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "player")
-        if true or isClassic then
+        if isClassic then
             levelUpdater:Show()
         end
     end)

@@ -266,6 +266,7 @@ local function makeItemButton(parent)
 end
 
 local function makeConfigPanel(id, name, parent)
+    local frame
     if _G.Settings and type(_G.Settings) == "table" and _G.Settings.RegisterAddOnCategory then
         frame = CreateFrame("Frame")
         frame.OnCommit = function() end
@@ -293,6 +294,15 @@ local function makeConfigPanel(id, name, parent)
 end
 
 -- actual config panel:
+
+local demoButtons = {}
+local function refresh(_, value)
+    ns.RefreshOverlayFrames()
+    for itemID, button in pairs(demoButtons) do
+        ns.CleanButton(button)
+        ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID))
+    end
+end
 
 do
     local frame = makeConfigPanel(myname, myfullname)
@@ -337,7 +347,6 @@ do
     demo:SetPoint("RIGHT", frame)
     demo:SetHeight(43)
 
-    local demoButtons = {}
     demo:SetScript("OnShow", function()
         local previousButton
         for _, itemID in ipairs(isClassic and {19019, 19364, 10328, 11122, 23192, 7997, 14047} or {120978, 186414, 195527, 194065, 197957, 77256, 86079, 44168}) do
@@ -354,14 +363,6 @@ do
         end
         demo:SetScript("OnShow", nil)
     end)
-
-    local function refresh(_, value)
-        ns.RefreshOverlayFrames()
-        for itemID, button in pairs(demoButtons) do
-            ns.CleanButton(button)
-            ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID))
-        end
-    end
 
     local title = makeTitle(frame, APPEARANCE_LABEL)
     -- title:SetPoint("TOPLEFT", frame)
