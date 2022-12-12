@@ -17,6 +17,14 @@ local function makeFontString(frame, label, indented)
     return text
 end
 
+local function makeTitle(parent, text)
+    local title = CreateFrame("Frame", nil, parent)
+    title.Text = makeFontString(title, text)
+    title:SetSize(280, 26)
+    title:SetPoint("RIGHT", parent)
+    return title
+end
+
 local function makeSlider(parent, key, label, minValue, maxValue, step, formatter, callback, indented)
     local frame = CreateFrame("Frame", nil, parent)
     -- frame:EnableMouse(true)
@@ -207,13 +215,18 @@ do
         return frame
     end
 end
-
-local function makeTitle(parent, text)
-    local title = CreateFrame("Frame", nil, parent)
-    title.Text = makeFontString(title, text)
-    title:SetSize(280, 26)
-    title:SetPoint("RIGHT", parent)
-    return title
+local function makeCheckboxList(parent, checkboxes, previous, callback)
+    for _, data in ipairs(checkboxes) do
+        local control
+        if data[1] then
+            control = makeCheckbox(parent, data[1], data[2], data[3], callback)
+        else
+            control = makeTitle(parent, data[2])
+        end
+        control:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
+        previous = control
+    end
+    return previous
 end
 
 local function button_onenter(self)
@@ -252,30 +265,69 @@ local function makeItemButton(parent)
     return button
 end
 
+local function makeConfigPanel(id, name, parent)
+    if _G.Settings and type(_G.Settings) == "table" and _G.Settings.RegisterAddOnCategory then
+        frame = CreateFrame("Frame")
+        frame.OnCommit = function() end
+        frame.OnDefault = function() end
+        frame.OnRefresh = function() end
+
+        local category, layout
+        if parent then
+            local parentcategory = Settings.GetCategory(parent)
+            category, layout = Settings.RegisterCanvasLayoutSubcategory(parentcategory, frame, name)
+        else
+            category, layout = Settings.RegisterCanvasLayoutCategory(frame, name)
+            Settings.RegisterAddOnCategory(category)
+        end
+        category.ID = id
+        layout:AddAnchorPoint("TOPLEFT", 10, -10)
+        layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
+    else
+        frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
+        frame.name = id
+        InterfaceOptions_AddCategory(frame)
+    end
+    frame:Hide()
+    return frame
+end
+
 -- actual config panel:
 
-local frame
+do
+    local frame = makeConfigPanel(myname, myfullname)
+    local title = makeTitle(frame, SHOW_ITEM_LEVEL)
+    title:SetPoint("TOPLEFT", frame)
 
-if _G.Settings and type(_G.Settings) == "table" and _G.Settings.RegisterAddOnCategory then
-    frame = CreateFrame("Frame")
-    frame.OnCommit = function() end
-    frame.OnDefault = function() end
-    frame.OnRefresh = function() end
+    local checkboxes = {
+        {"bags", BAGSLOTTEXT},
+        {"character", ORDER_HALL_EQUIPMENT_SLOTS},
+        {"inspect", INSPECT},
+        {"loot", LOOT},
+    }
+    if isClassic then
+        table.insert(checkboxes, {"tooltip", "Item tooltips", "Add the item level to tooltips"})
+    end
 
-    local category, layout = Settings.RegisterCanvasLayoutCategory(frame, myfullname)
-    category.ID = myname
-    layout:AddAnchorPoint("TOPLEFT", 10, -10)
-    layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
+    local last = makeCheckboxList(frame, checkboxes, title, refresh)
 
-    Settings.RegisterAddOnCategory(category)
-else
-    frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
-    frame.name = myname
-    InterfaceOptions_AddCategory(frame)
+    last = makeCheckboxList(frame, {
+        {false, "Selectiveness"},
+        {"equipmentonly", "Only show on equippable items"},
+    }, last, refresh)
+
+    local values = {}
+    for label, value in pairs(Enum.ItemQuality) do
+        values[value] = label
+    end
+    local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
+    quality:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -4)
+
+    -- Settings.OpenToCategory(myname)
 end
-frame:Hide()
 
 do
+    local frame = makeConfigPanel(myname.."_appearance", APPEARANCE_LABEL, myname)
     local demo = CreateFrame("Frame", nil, frame)
     if isClassic then
         demo:SetPoint("TOPLEFT", frame, 0, -8)
@@ -336,43 +388,13 @@ do
     local scaleup = makeSlider(frame, "scaleup", "Size of upgrade indicator", 0.5, 3, 0.1, nil, refresh, true)
     scaleup:SetPoint("TOPLEFT", positionmissing, "BOTTOMLEFT", 0, -4)
 
-    local checkboxes = {
-        {false, SHOW_ITEM_LEVEL},
-        {"bags", BAGSLOTTEXT},
-        {"character", ORDER_HALL_EQUIPMENT_SLOTS},
-        {"inspect", INSPECT},
-        {"loot", LOOT},
+    makeCheckboxList(frame, {
         {false, DISPLAY_HEADER},
         {"upgrades", ("Flag upgrade items (%s)"):format(ns.upgradeString)},
         {"missinggems", ("Flag items missing gems (%s)"):format(ns.gemString)},
         {"missingenchants", ("Flag items missing enchants (%s)"):format(ns.enchantString)},
         {"color", "Color item level by item quality"},
-        {"equipmentonly", "Only show on equippable items"},
-    }
-    if isClassic then
-        table.insert(checkboxes, {"tooltip", "Add the item level to tooltips"})
-    end
-
-    local previous = scaleup
-    for _, data in ipairs(checkboxes) do
-        local control
-        if data[1] then
-            control = makeCheckbox(frame, data[1], data[2], data[3], refresh)
-        else
-            control = makeTitle(frame, data[2])
-        end
-        control:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
-        previous = control
-    end
-
-    local values = {}
-    for label, value in pairs(Enum.ItemQuality) do
-        values[value] = label
-    end
-    local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
-    quality:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
-
-    -- Settings.OpenToCategory(myname)
+    }, scaleup, refresh)
 end
 
 -- Quick config:
