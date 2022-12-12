@@ -390,6 +390,7 @@ do
 
     makeCheckboxList(frame, {
         {false, DISPLAY_HEADER},
+        {"itemlevel", SHOW_ITEM_LEVEL, "Do you want to disable the core feature of this addon?"},
         {"upgrades", ("Flag upgrade items (%s)"):format(ns.upgradeString)},
         {"missinggems", ("Flag items missing gems (%s)"):format(ns.gemString)},
         {"missingenchants", ("Flag items missing enchants (%s)"):format(ns.enchantString)},

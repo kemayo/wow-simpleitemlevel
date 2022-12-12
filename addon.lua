@@ -48,18 +48,22 @@ ns.PositionOffsets = {
 }
 
 ns.defaults = {
+    -- places
     character = true,
     inspect = true,
     bags = true,
     loot = true,
-    upgrades = true,
-    color = true,
     tooltip = isClassic,
-    -- Shadowlands has Uncommon, BCC/Classic has Good
-    quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
     equipmentonly = true,
+    -- things
+    itemlevel = true,
+    upgrades = true,
     missinggems = true,
     missingenchants = true,
+    -- display
+    color = true,
+    -- Shadowlands has Uncommon, BCC/Classic has Good
+    quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
     -- appearance config
     font = "NumberNormal",
     position = "TOPRIGHT",
@@ -137,7 +141,7 @@ function ns.RefreshOverlayFrames()
 end
 
 local function AddLevelToButton(button, itemLevel, itemQuality)
-    if not itemLevel then
+    if not (db.itemlevel and itemLevel) then
         return button.simpleilvl and button.simpleilvl:Hide()
     end
     PrepareItemButton(button)
@@ -321,7 +325,7 @@ do
 
     hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "player")
-        if isClassic then
+        if true or isClassic then
             levelUpdater:Show()
         end
     end)
