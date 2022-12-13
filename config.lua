@@ -383,11 +383,16 @@ do
     position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
     local positionup = makeDropdown(frame, "positionup", "Position of upgrade indicator", positions, refresh)
     positionup:SetPoint("TOPLEFT", position, "BOTTOMLEFT", 0, -4)
+
     local positionmissing = makeDropdown(frame, "positionmissing", "Position of missing indicator", positions, refresh)
     positionmissing:SetPoint("TOPLEFT", positionup, "BOTTOMLEFT", 0, -4)
-
     local scaleup = makeSlider(frame, "scaleup", "Size of upgrade indicator", 0.5, 3, 0.1, nil, refresh, true)
     scaleup:SetPoint("TOPLEFT", positionmissing, "BOTTOMLEFT", 0, -4)
+
+    local positionbound = makeDropdown(frame, "positionbound", "Position of soulbound indicator", positions, refresh)
+    positionbound:SetPoint("TOPLEFT", scaleup, "BOTTOMLEFT", 0, -4)
+    local scalebound = makeSlider(frame, "scalebound", "Size of soulbound indicator", 0.5, 3, 0.1, nil, refresh, true)
+    scalebound:SetPoint("TOPLEFT", positionbound, "BOTTOMLEFT", 0, -4)
 
     makeCheckboxList(frame, {
         {false, DISPLAY_HEADER},
@@ -397,7 +402,7 @@ do
         {"missingenchants", ("Flag items missing enchants (%s)"):format(ns.enchantString)},
         {"bound", ("Flag items that are %s (%s)"):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), "Only on items you control; bags and character"},
         {"color", "Color item level by item quality"},
-    }, scaleup, refresh)
+    }, scalebound, refresh)
 end
 
 -- Quick config:
