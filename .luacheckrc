@@ -37,6 +37,7 @@ read_globals = {
     "GetAuctionBuyout",
 
     -- API functions
+    "C_Item",
     "hooksecurefunc",
     "BankButtonIDToInvSlotID",
     "ContainerIDToInventoryID",

@@ -25,6 +25,7 @@ end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
 
+ns.soulboundAtlas = isClassic and "AzeriteReady" or "Soulbind-32x32" -- UF-SoulShard-Icon-2x
 ns.upgradeString = CreateAtlasMarkup("poi-door-arrow-up")
 ns.gemString = CreateAtlasMarkup(isClassic and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
 ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
@@ -61,6 +62,7 @@ ns.defaults = {
     upgrades = true,
     missinggems = true,
     missingenchants = true,
+    bound = true,
     -- display
     color = true,
     -- Shadowlands has Uncommon, BCC/Classic has Good
@@ -70,7 +72,9 @@ ns.defaults = {
     position = "TOPRIGHT",
     positionup = "TOPLEFT",
     positionmissing = "LEFT",
+    positionbound = "BOTTOMLEFT",
     scaleup = 1,
+    scalebound = 1,
 }
 
 function ns:ADDON_LOADED(event, addon)
@@ -108,6 +112,11 @@ local function PrepareItemButton(button)
         button.simpleilvlmissing = overlayFrame:CreateFontString(nil, "OVERLAY")
         button.simpleilvlmissing:Hide()
 
+        button.simpleilvlbound = overlayFrame:CreateTexture(nil, "OVERLAY")
+        button.simpleilvlbound:SetSize(10, 10)
+        button.simpleilvlbound:SetAtlas(ns.soulboundAtlas) -- Soulbind-32x32
+        button.simpleilvlbound:Hide()
+
         ns.frames[button] = overlayFrame
     end
     button.simpleilvloverlay:SetFrameLevel(button:GetFrameLevel() + 1)
@@ -125,6 +134,10 @@ local function PrepareItemButton(button)
     button.simpleilvlmissing:ClearAllPoints()
     button.simpleilvlmissing:SetPoint(db.positionmissing, unpack(ns.PositionOffsets[db.positionmissing]))
     button.simpleilvlmissing:SetFont([[Fonts\ARIALN.TTF]], 11, "OUTLINE,MONOCHROME")
+
+    button.simpleilvlbound:ClearAllPoints()
+    button.simpleilvlbound:SetPoint(db.positionbound, unpack(ns.PositionOffsets[db.positionbound]))
+    button.simpleilvlbound:SetScale(db.scalebound)
 end
 ns.PrepareItemButton = PrepareItemButton
 
@@ -132,6 +145,7 @@ local function CleanButton(button)
     if button.simpleilvl then button.simpleilvl:Hide() end
     if button.simpleilvlup then button.simpleilvlup:Hide() end
     if button.simpleilvlmissing then button.simpleilvlmissing:Hide() end
+    if button.simpleilvlbound then button.simpleilvlbound:Hide() end
 end
 ns.CleanButton = CleanButton
 
@@ -192,6 +206,17 @@ local function AddMissingToButton(button, itemLink)
     button.simpleilvlmissing:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
     button.simpleilvlmissing:Show()
 end
+local function AddBoundToButton(button, item)
+    if not db.bound then
+        return button.simpleilvlbound and button.simpleilvlbound:Hide()
+    end
+    if item and item:IsItemInPlayersControl() then
+        local itemLocation = item:GetItemLocation()
+        if itemLocation and C_Item.IsBound(itemLocation) then
+            button.simpleilvlbound:Show()
+        end
+    end
+end
 local function ShouldShowOnItem(item)
     local quality = item:GetItemQuality()
     if quality < db.quality then
@@ -220,6 +245,7 @@ local function UpdateButtonFromItem(button, item)
         AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
         AddUpgradeToButton(button, item, equipLoc, minLevel)
         AddMissingToButton(button, link)
+        AddBoundToButton(button, item)
     end)
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
