@@ -679,19 +679,17 @@ do
         -- retail
         INVTYPE_CHEST = true,
         INVTYPE_ROBE = true,
+        INVTYPE_LEGS = true,
         INVTYPE_FEET = true,
         INVTYPE_WRIST = true,
-        INVTYPE_HAND = true,
         INVTYPE_FINGER = true,
         INVTYPE_CLOAK = true,
         INVTYPE_WEAPON = true,
-        -- INVTYPE_SHIELD = true, -- ...are there?
         INVTYPE_2HWEAPON = true,
         INVTYPE_WEAPONMAINHAND = true,
         INVTYPE_RANGED = true,
         INVTYPE_RANGEDRIGHT = true,
         INVTYPE_WEAPONOFFHAND = true,
-        INVTYPE_HOLDABLE = true,
     }
     function ns.ItemIsMissingEnchants(itemLink)
         if not itemLink then return false end
