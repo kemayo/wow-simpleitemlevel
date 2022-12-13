@@ -56,6 +56,8 @@ ns.defaults = {
     bags = true,
     loot = true,
     tooltip = isClassic,
+    characteravg = isClassic,
+    inspectavg = true,
     equipmentonly = true,
     -- things
     itemlevel = true,
@@ -257,7 +259,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
     end
     fontstring:Hide()
     local key = unit == "player" and "character" or "inspect"
-    if not db[key] then
+    if not db[key .. "avg"] then
         return
     end
     local mainhandEquipLoc, offhandEquipLoc
@@ -348,9 +350,7 @@ do
 
     hooksecurefunc("PaperDollItemSlotButton_Update", function(button)
         UpdateItemSlotButton(button, "player")
-        if isClassic or ns.DEBUG then
-            levelUpdater:Show()
-        end
+        levelUpdater:Show()
     end)
 end
 

@@ -315,6 +315,8 @@ do
         {"character", ORDER_HALL_EQUIPMENT_SLOTS},
         {"inspect", INSPECT},
         {"loot", LOOT},
+        {"characteravg", "Character average item level"},
+        {"inspectavg", "Inspect average item level"},
     }
     if isClassic then
         table.insert(checkboxes, {"tooltip", "Item tooltips", "Add the item level to tooltips"})
