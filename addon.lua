@@ -337,13 +337,9 @@ do
     local levelUpdater = CreateFrame("Frame")
     levelUpdater:SetScript("OnUpdate", function(self)
         if not self.avglevel then
-            self.avglevel = PaperDollFrame:CreateFontString(nil, "OVERLAY")
+            self.avglevel = CharacterModelScene:CreateFontString(nil, "OVERLAY")
             self.avglevel:SetFontObject(NumberFontNormal) -- GameFontHighlightSmall isn't bad
-            if isClassic then
-                self.avglevel:SetPoint("TOP", CharacterLevelText, "BOTTOM", 0, -5)
-            else
-                self.avglevel:SetPoint("BOTTOMLEFT", 12, 12)
-            end
+            self.avglevel:SetPoint("BOTTOM", 0, 20)
         end
         AddAverageLevelToFontString("player", self.avglevel)
         self:Hide()
@@ -366,13 +362,9 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
     local avglevel
     hooksecurefunc("InspectPaperDollFrame_UpdateButtons", function()
         if not avglevel then
-            avglevel = InspectFrame:CreateFontString(nil, "OVERLAY")
+            avglevel = InspectModelFrame:CreateFontString(nil, "OVERLAY")
             avglevel:SetFontObject(NumberFontNormal)
-            if isClassic then
-                avglevel:SetPoint("TOP", InspectLevelText, "BOTTOM", 0, -5)
-            else
-                avglevel:SetPoint("BOTTOMLEFT", 12, 12)
-            end
+            avglevel:SetPoint("BOTTOM", 0, 20)
         end
         AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
     end)
