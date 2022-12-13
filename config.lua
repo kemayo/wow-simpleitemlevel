@@ -203,7 +203,7 @@ do
         check:SetScript("OnLeave", GameTooltip_Hide)
         check.tooltipText = label
         check.tooltipRequirement = description
-        check:SetPoint("LEFT", frame, "CENTER", -90, 3)
+        check:SetPoint("LEFT", frame, "CENTER", -90, 0)
         frame.Check = check
 
         frame.Text = makeFontString(frame, label, true)
