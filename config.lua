@@ -265,7 +265,7 @@ local function makeItemButton(parent)
     return button
 end
 
-local function makeConfigPanel(id, name, parent)
+local function makeConfigPanel(id, name, parent, parentname)
     local frame
     if _G.Settings and type(_G.Settings) == "table" and _G.Settings.RegisterAddOnCategory then
         frame = CreateFrame("Frame")
@@ -286,7 +286,8 @@ local function makeConfigPanel(id, name, parent)
         layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
     else
         frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
-        frame.name = id
+        frame.name = name
+        frame.parent = parentname
         InterfaceOptions_AddCategory(frame)
     end
     frame:Hide()
@@ -337,7 +338,7 @@ do
 end
 
 do
-    local frame = makeConfigPanel(myname.."_appearance", APPEARANCE_LABEL, myname)
+    local frame = makeConfigPanel(myname.."_appearance", APPEARANCE_LABEL, myname, myfullname)
     local demo = CreateFrame("Frame", nil, frame)
     if isClassic then
         demo:SetPoint("TOPLEFT", frame, 0, -8)
@@ -435,7 +436,7 @@ SlashCmdList[myname:upper()] = function(msg)
     if msg == "" then
         if InterfaceOptionsFrame_Show then
             InterfaceOptionsFrame_Show()
-            InterfaceOptionsFrame_OpenToCategory(myname)
+            InterfaceOptionsFrame_OpenToCategory(myfullname)
         else
             Settings.OpenToCategory(myname)
         end
