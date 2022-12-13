@@ -104,6 +104,8 @@ read_globals = {
     "BankFrame",
     "InspectFrame",
     "PaperDollFrame",
+    "CharacterLevelText",
+    "InspectLevelText",
     "MerchantFrame",
     "GameTooltip",
     "ItemRefTooltip",
