@@ -575,20 +575,27 @@ ns:RegisterAddonHook("Baggins", function()
 end)
 
 --Bagnon:
-ns:RegisterAddonHook("Bagnon", function()
-    hooksecurefunc(Bagnon.Item, "Update", function(frame)
-        local bag = frame:GetBag()
-        UpdateContainerButton(frame, bag)
+do
+    local function bagbrother_button(button)
+        CleanButton(button)
+        if not db.bags then
+            return
+        end
+        local itemLink = button:GetItem()
+        if itemLink then
+            local item = Item:CreateFromItemLink(itemLink)
+            UpdateButtonFromItem(button, item)
+        end
+    end
+    ns:RegisterAddonHook("Bagnon", function()
+        hooksecurefunc(Bagnon.Item, "Update", bagbrother_button)
     end)
-end)
 
---Combuctor (exactly same internals as Bagnon):
-ns:RegisterAddonHook("Combuctor", function()
-    hooksecurefunc(Combuctor.Item, "Update", function(frame)
-        local bag = frame:GetBag()
-        UpdateContainerButton(frame, bag)
+    --Combuctor (exactly same internals as Bagnon):
+    ns:RegisterAddonHook("Combuctor", function()
+        hooksecurefunc(Combuctor.Item, "Update", bagbrother_button)
     end)
-end)
+end
 
 --LiteBag:
 ns:RegisterAddonHook("LiteBag", function()
