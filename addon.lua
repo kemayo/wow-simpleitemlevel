@@ -157,12 +157,23 @@ function ns.RefreshOverlayFrames()
     end
 end
 
-local function AddLevelToButton(button, itemLevel, itemQuality)
-    if not (db.itemlevel and itemLevel) then
+local function AddLevelToButton(button, item)
+    if not (db.itemlevel and item) then
         return button.simpleilvl and button.simpleilvl:Hide()
     end
     PrepareItemButton(button)
-    local _, _, _, hex = GetItemQualityColor(db.color and itemQuality or 1)
+    local itemLevel = item:GetCurrentItemLevel()
+    local quality = item:GetItemQuality()
+    local itemLink = item:GetItemLink()
+    if itemLink and itemLink:match("battlepet:") then
+        -- special case for caged battle pets
+        local _, speciesID, level, breedQuality = strsplit(":", itemLink)
+        if speciesID and level and breedQuality then
+            itemLevel = tonumber(level)
+            quality = tonumber(breedQuality)
+        end
+    end
+    local _, _, _, hex = GetItemQualityColor(db.color and quality or 1)
     button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
     button.simpleilvl:Show()
 end
@@ -244,7 +255,7 @@ local function UpdateButtonFromItem(button, item)
         local link = item:GetItemLink()
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
-        AddLevelToButton(button, item:GetCurrentItemLevel(), item:GetItemQuality())
+        AddLevelToButton(button, item)
         AddUpgradeToButton(button, item, equipLoc, minLevel)
         AddMissingToButton(button, link)
         AddBoundToButton(button, item)
@@ -642,6 +653,7 @@ do
     function ns.ItemHasEmptySlots(itemLink)
         wipe(t)
         local stats = GetItemStats(itemLink, t)
+        if not stats then return false end -- caged battle pets, mostly
         local slots = 0
         for label, stat in pairs(stats) do
             if label:match("EMPTY_SOCKET_") then
