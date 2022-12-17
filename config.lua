@@ -301,7 +301,7 @@ local function refresh(_, value)
     ns.RefreshOverlayFrames()
     for itemID, button in pairs(demoButtons) do
         ns.CleanButton(button)
-        ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID))
+        ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID), "character")
     end
 end
 
@@ -326,7 +326,10 @@ do
 
     last = makeCheckboxList(frame, {
         {false, "Selectiveness"},
-        {"equipmentonly", "Only show on equippable items"},
+        {"equipment", "Show on equippable items"},
+        {"battlepets", "Show on battle pets"},
+        {"reagents", "Show on crafting reagents"},
+        {"misc", "Show on anything else"},
     }, last, refresh)
 
     local values = {}
@@ -360,7 +363,7 @@ do
                 button:SetPoint("TOPLEFT", previousButton, "TOPRIGHT", 2, 0)
             end
             button:SetItem(itemID)
-            ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID))
+            ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID), "character")
             demoButtons[itemID] = button
             previousButton = button
         end
@@ -403,6 +406,7 @@ do
         {"upgrades", ("Flag upgrade items (%s)"):format(ns.upgradeString)},
         {"missinggems", ("Flag items missing gems (%s)"):format(ns.gemString)},
         {"missingenchants", ("Flag items missing enchants (%s)"):format(ns.enchantString)},
+        {"missingcharacter", "...missing gems/enchants on the character frame only?"},
         {"bound", ("Flag items that are %s (%s)"):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), "Only on items you control; bags and character"},
         {"color", "Color item level by item quality"},
     }, scalebound, refresh)

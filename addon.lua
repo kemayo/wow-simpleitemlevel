@@ -58,17 +58,22 @@ ns.defaults = {
     tooltip = isClassic,
     characteravg = isClassic,
     inspectavg = true,
-    equipmentonly = true,
-    -- things
+    -- equipmentonly = true,
+    equipment = true,
+    battlepets = true,
+    reagents = false,
+    misc = false,
+    -- data points
     itemlevel = true,
     upgrades = true,
     missinggems = true,
     missingenchants = true,
+    missingcharacter = true, -- missing on character-frame only
     bound = true,
     -- display
     color = true,
-    -- Shadowlands has Uncommon, BCC/Classic has Good
-    quality = Enum.ItemQuality.Good or Enum.ItemQuality.Uncommon,
+    -- Retail has Uncommon, BCC/Classic has Good
+    quality = Enum.ItemQuality.Common or Enum.ItemQuality.Standard,
     -- appearance config
     font = "NumberNormal",
     position = "TOPRIGHT",
@@ -235,17 +240,24 @@ local function ShouldShowOnItem(item)
     if quality < db.quality then
         return false
     end
-    if not db.equipmentonly then
-        return true
-    end
     local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
-    return (
+    if (
         itemClass == Enum.ItemClass.Weapon or
         itemClass == Enum.ItemClass.Armor or
         (itemClass == Enum.ItemClass.Gem and itemSubClass == Enum.ItemGemSubclass.Artifactrelic)
-    )
+    ) then
+        return db.equipment
+    end
+    if item:GetItemID() == 82800 then
+        -- Pet Cage
+        return db.battlepets
+    end
+    if select(17, GetItemInfo(item:GetItemID())) then
+        return db.reagents
+    end
+    return db.misc
 end
-local function UpdateButtonFromItem(button, item)
+local function UpdateButtonFromItem(button, item, variant)
     if not item or item:IsItemEmpty() then
         return
     end
@@ -257,8 +269,10 @@ local function UpdateButtonFromItem(button, item)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
         AddLevelToButton(button, item)
         AddUpgradeToButton(button, item, equipLoc, minLevel)
-        AddMissingToButton(button, link)
         AddBoundToButton(button, item)
+        if (variant == "character" or variant == "inspect" or not db.missingcharacter) then
+            AddMissingToButton(button, link)
+        end
     end)
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
@@ -342,7 +356,7 @@ local function UpdateItemSlotButton(button, unit)
                 item = itemLink and Item:CreateFromItemLink(itemLink) or Item:CreateFromItemID(itemID)
             end
         end
-        UpdateButtonFromItem(button, item)
+        UpdateButtonFromItem(button, item, key)
     end
 end
 
@@ -409,7 +423,7 @@ if _G.EquipmentFlyout_DisplayButton then
             end
         end
         if item then
-            UpdateButtonFromItem(button, item)
+            UpdateButtonFromItem(button, item, "character")
         end
     end)
 end
@@ -422,7 +436,7 @@ local function UpdateContainerButton(button, bag, slot)
         return
     end
     local item = Item:CreateFromBagAndSlot(bag, slot or button:GetID())
-    UpdateButtonFromItem(button, item)
+    UpdateButtonFromItem(button, item, "bags")
 end
 
 if _G.ContainerFrame_Update then
@@ -466,7 +480,7 @@ if _G.LootFrame_UpdateButton then
         if button:IsEnabled() and button.slot then
             local link = GetLootSlotLink(button.slot)
             if link then
-                UpdateButtonFromItem(button, Item:CreateFromItemLink(link))
+                UpdateButtonFromItem(button, Item:CreateFromItemLink(link), "loot")
             end
         end
     end)
@@ -480,7 +494,7 @@ else
         if not (data and data.slotIndex) then return end
         local link = GetLootSlotLink(data.slotIndex)
         if link then
-            UpdateButtonFromItem(frame.Item, Item:CreateFromItemLink(link))
+            UpdateButtonFromItem(frame.Item, Item:CreateFromItemLink(link), "loot")
         end
     end
     LootFrame.ScrollBox:RegisterCallback("OnUpdate", function(...)
@@ -525,7 +539,7 @@ ns:RegisterAddonHook("Blizzard_VoidStorageUI", function()
                 local link = GetVoidItemHyperlinkString(((VoidStorageFrame.page - 1) * VOID_STORAGE_MAX) + i)
                 if link then
                     local item = Item:CreateFromItemLink(link)
-                    UpdateButtonFromItem(button, item)
+                    UpdateButtonFromItem(button, item, "bags")
                 end
             end
         end
@@ -549,7 +563,7 @@ ns:RegisterAddonHook("Inventorian", function()
             elseif itemID then
                 item = Item:CreateFromItemID(itemID)
             end
-            UpdateButtonFromItem(button, item)
+            UpdateButtonFromItem(button, item, "bags")
         else
             UpdateContainerButton(button, bag, slot)
         end
@@ -584,7 +598,7 @@ do
         local itemLink = button:GetItem()
         if itemLink then
             local item = Item:CreateFromItemLink(itemLink)
-            UpdateButtonFromItem(button, item)
+            UpdateButtonFromItem(button, item, "bags")
         end
     end
     ns:RegisterAddonHook("Bagnon", function()
