@@ -595,11 +595,17 @@ do
         if not db.bags then
             return
         end
-        local itemLink = button:GetItem()
-        if itemLink then
-            local item = Item:CreateFromItemLink(itemLink)
-            UpdateButtonFromItem(button, item, "bags")
+        local bag = button:GetBag()
+        if type(bag) ~= "number" then
+            -- try to fall back on item links, mostly for void storage which would be "vault" here
+            local itemLink = button:GetItem()
+            if itemLink then
+                local item = Item:CreateFromItemLink(itemLink)
+                UpdateButtonFromItem(button, item, "bags")
+            end
+            return
         end
+        UpdateContainerButton(button, bag)
     end
     ns:RegisterAddonHook("Bagnon", function()
         hooksecurefunc(Bagnon.Item, "Update", bagbrother_button)
