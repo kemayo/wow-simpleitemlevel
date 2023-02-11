@@ -202,7 +202,10 @@ local function AddUpgradeToButton(button, item, equipLoc, minLevel)
                 end
             end
         end
-        if equippedItem:IsItemEmpty() or equippedItem:GetCurrentItemLevel() < item:GetCurrentItemLevel() then
+        -- fallbacks for the item levels; saw complaints of this erroring during initial login for people using Bagnon and AdiBags
+        local equippedItemLevel = equippedItem:GetCurrentItemLevel() or 0
+        local itemLevel = item:GetCurrentItemLevel() or 0
+        if equippedItem:IsItemEmpty() or equippedItemLevel < itemLevel then
             PrepareItemButton(button)
             button.simpleilvlup:Show()
             if minLevel and minLevel > UnitLevel("player") then
