@@ -20,6 +20,9 @@ globals = {
     "Baggins",
     "Bagnon",
     "Combuctor",
+    "Baganator",
+    "Baganator_MainViewFrame",
+    "Baganator_BankOnlyViewFrame",
 }
 
 read_globals = {

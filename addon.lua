@@ -260,21 +260,23 @@ local function ShouldShowOnItem(item)
     end
     return db.misc
 end
-local function UpdateButtonFromItem(button, item, variant)
+local blank = {}
+local function UpdateButtonFromItem(button, item, variant, suppress)
     if not item or item:IsItemEmpty() then
         return
     end
+    suppress = suppress or blank
     item:ContinueOnItemLoad(function()
         if not ShouldShowOnItem(item) then return end
         local itemID = item:GetItemID()
         local link = item:GetItemLink()
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
-        AddLevelToButton(button, item)
-        AddUpgradeToButton(button, item, equipLoc, minLevel)
-        AddBoundToButton(button, item)
+        if not suppress.level then AddLevelToButton(button, item) end
+        if not suppress.upgrade then AddUpgradeToButton(button, item, equipLoc, minLevel) end
+        if not suppress.bound then AddBoundToButton(button, item) end
         if (variant == "character" or variant == "inspect" or not db.missingcharacter) then
-            AddMissingToButton(button, link)
+            if not suppress.missing then AddMissingToButton(button, link) end
         end
     end)
 end
@@ -626,6 +628,37 @@ ns:RegisterAddonHook("LiteBag", function()
         local bag = frame:GetParent():GetID()
         UpdateContainerButton(frame, bag)
     end)
+end)
+
+-- Baganator
+ns:RegisterAddonHook("Baganator", function()
+    local suppress = {}
+    local function check_baginator_config(value)
+        return Baganator.Config.Get("icon_top_left_corner") == value or
+            Baganator.Config.Get("icon_top_right_corner") == value or
+            Baganator.Config.Get("icon_bottom_left_corner") == value or
+            Baganator.Config.Get("icon_bottom_right_corner") == value
+    end
+    local function baganator_setitemdetails(button, details)
+        CleanButton(button)
+        if not db.bags then return end
+        if not details.itemLink then return end
+        suppress.level = check_baginator_config("item_level")
+        local item = Item:CreateFromItemLink(details.itemLink)
+        UpdateButtonFromItem(button, item, "bags", suppress)
+    end
+    local function baganator_rebuildlayout(frame)
+        for _, button in ipairs(frame.buttons) do
+            if not button.____SimpleItemLevelHooked then
+                hooksecurefunc(button, "SetItemDetails", baganator_setitemdetails)
+            end
+        end
+    end
+    hooksecurefunc(Baganator_MainViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
+    hooksecurefunc(Baganator_MainViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
+    hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+    -- Doesn't currently show cached bank contents:
+    -- hooksecurefunc(Baganator_BankOnlyViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
 end)
 
 -- helper
