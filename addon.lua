@@ -650,6 +650,7 @@ ns:RegisterAddonHook("Baganator", function()
     local function baganator_rebuildlayout(frame)
         for _, button in ipairs(frame.buttons) do
             if not button.____SimpleItemLevelHooked then
+                button.____SimpleItemLevelHooked = true
                 hooksecurefunc(button, "SetItemDetails", baganator_setitemdetails)
             end
         end
