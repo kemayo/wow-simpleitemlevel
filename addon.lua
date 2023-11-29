@@ -664,16 +664,24 @@ ns:RegisterAddonHook("Baganator", function()
             end
         end
     end
-    hooksecurefunc(Baganator_MainViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.ReagentBagLive, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.ReagentBagCached, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_MainViewFrame.ReagentBankCached, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
-    hooksecurefunc(Baganator_BankOnlyViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
+    local function baganator_hookmain()
+        hooksecurefunc(Baganator_MainViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.ReagentBagLive, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.ReagentBagCached, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_MainViewFrame.ReagentBankCached, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+        hooksecurefunc(Baganator_BankOnlyViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
+    end
+    -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...
+    if Baganator_MainViewFrame then
+        baganator_hookmain()
+    elseif Baganator and Baganator.UnifiedBags.Initialize then
+        hooksecurefunc(Baganator.UnifiedBags, "Initialize", baganator_hookmain)
+    end
 end)
 
 -- helper
