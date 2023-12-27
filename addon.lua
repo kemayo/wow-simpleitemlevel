@@ -647,7 +647,7 @@ ns:RegisterAddonHook("Baganator", function()
         local bag = button.GetBagID and button:GetBagID() or button:GetParent():GetID()
         local slot = button:GetID()
         -- print("SetItemDetails", details.itemLink, bag, slot)
-        if bag and slot and bag ~= 0 and slot ~= 0 then
+        if bag and slot and slot ~= 0 then
             item = Item:CreateFromBagAndSlot(bag, slot)
         elseif details.itemLink then
             item = Item:CreateFromItemLink(details.itemLink)
