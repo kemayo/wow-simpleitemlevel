@@ -127,6 +127,7 @@ read_globals = {
     "NumberFontNormalSmall",
     "VoidStorageFrame",
     "ContainerFrameCombinedBags",
+    "ContainerFrameContainer",
     "InterfaceOptionsFramePanelContainer",
 
     -- FrameXML API

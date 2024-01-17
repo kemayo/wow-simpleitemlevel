@@ -461,7 +461,7 @@ else
     end
     -- can't use ContainerFrameUtil_EnumerateContainerFrames because it depends on the combined bags setting
     hooksecurefunc(ContainerFrameCombinedBags, "UpdateItems", update)
-    for _, frame in ipairs(UIParent.ContainerFrames) do
+    for _, frame in ipairs((ContainerFrameContainer or UIParent).ContainerFrames) do
         hooksecurefunc(frame, "UpdateItems", update)
     end
 end
