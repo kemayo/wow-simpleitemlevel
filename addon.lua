@@ -665,19 +665,23 @@ ns:RegisterAddonHook("Baganator", function()
         end
     end
     local function baganator_hookmain()
-        hooksecurefunc(Baganator_MainViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
-        hooksecurefunc(Baganator_MainViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
-        hooksecurefunc(Baganator_MainViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
-        hooksecurefunc(Baganator_MainViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
-        hooksecurefunc(Baganator_MainViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
-        hooksecurefunc(Baganator_MainViewFrame.ReagentBankCached, "RebuildLayout", baganator_rebuildlayout)
-        hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+        if Baganator_BackpackViewFrame then
+            hooksecurefunc(Baganator_BackpackViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BackpackViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BackpackViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BackpackViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BackpackViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BackpackViewFrame.ReagentBankCached, "RebuildLayout", baganator_rebuildlayout)
+        end
+        if Baganator_BankOnlyViewFrame then
+            hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+        end
     end
     -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...
-    if Baganator_MainViewFrame then
+    if Baganator_BackpackViewFrame then
         baganator_hookmain()
-    elseif Baganator and Baganator.UnifiedBags.Initialize then
-        hooksecurefunc(Baganator.UnifiedBags, "Initialize", baganator_hookmain)
+    elseif Baganator and Baganator.UnifiedViews and Baganator.UnifiedViews.Initialize then
+        hooksecurefunc(Baganator.UnifiedViews, "Initialize", baganator_hookmain)
     end
 end)
 
