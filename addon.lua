@@ -166,7 +166,6 @@ local function AddLevelToButton(button, item)
     if not (db.itemlevel and item) then
         return button.simpleilvl and button.simpleilvl:Hide()
     end
-    PrepareItemButton(button)
     local itemLevel = item:GetCurrentItemLevel()
     local quality = item:GetItemQuality()
     local itemLink = item:GetItemLink()
@@ -272,6 +271,7 @@ local function UpdateButtonFromItem(button, item, variant, suppress)
         local link = item:GetItemLink()
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
+        PrepareItemButton(button)
         if not suppress.level then AddLevelToButton(button, item) end
         if not suppress.upgrade then AddUpgradeToButton(button, item, equipLoc, minLevel) end
         if not suppress.bound then AddBoundToButton(button, item) end
