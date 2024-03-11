@@ -634,10 +634,10 @@ end)
 ns:RegisterAddonHook("Baganator", function()
     local suppress = {}
     local function check_baginator_config(value)
-        return Baganator.Config.Get("icon_top_left_corner") == value or
-            Baganator.Config.Get("icon_top_right_corner") == value or
-            Baganator.Config.Get("icon_bottom_left_corner") == value or
-            Baganator.Config.Get("icon_bottom_right_corner") == value
+        return tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY), value) or
+            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY), value) or
+            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY), value) or
+            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY), value)
     end
     local function baganator_setitemdetails(button, details)
         CleanButton(button)
