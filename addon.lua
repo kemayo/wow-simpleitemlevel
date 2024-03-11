@@ -667,14 +667,11 @@ ns:RegisterAddonHook("Baganator", function()
     local function baganator_hookmain()
         if Baganator_BackpackViewFrame then
             hooksecurefunc(Baganator_BackpackViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
             hooksecurefunc(Baganator_BackpackViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.ReagentBankCached, "RebuildLayout", baganator_rebuildlayout)
         end
-        if Baganator_BankOnlyViewFrame then
-            hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+        if Baganator_BankViewFrame then
+            hooksecurefunc(Baganator_BankViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BankViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
         end
     end
     -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...

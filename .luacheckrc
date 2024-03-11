@@ -22,7 +22,7 @@ globals = {
     "Combuctor",
     "Baganator",
     "Baganator_BackpackViewFrame",
-    "Baganator_BankOnlyViewFrame",
+    "Baganator_BankViewFrame",
 }
 
 read_globals = {
@@ -30,7 +30,7 @@ read_globals = {
     "ceil", "floor",
     "mod",
     "max",
-    "table", "tinsert", "wipe", "copy",
+    "table", "tinsert", "wipe", "copy", "tContains",
     "string", "tostringall", "strtrim", "strmatch", "strsplit",
 
     -- our own globals
