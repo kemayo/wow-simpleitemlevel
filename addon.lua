@@ -284,6 +284,7 @@ ns.UpdateButtonFromItem = UpdateButtonFromItem
 
 local continuableContainer
 local function AddAverageLevelToFontString(unit, fontstring)
+    if not fontstring then return end
     if not continuableContainer then
         continuableContainer = ContinuableContainer:Create()
     end
@@ -369,14 +370,16 @@ do
     local levelUpdater = CreateFrame("Frame")
     levelUpdater:SetScript("OnUpdate", function(self)
         if not self.avglevel then
-            if isClassic then
+            if _G.CharacterModelFrame then
                 self.avglevel = CharacterModelFrame:CreateFontString(nil, "OVERLAY")
                 self.avglevel:SetPoint("BOTTOMLEFT", 5, 35)
-            else
+            elseif _G.CharacterModelScene then
                 self.avglevel = CharacterModelScene:CreateFontString(nil, "OVERLAY")
                 self.avglevel:SetPoint("BOTTOM", 0, 20)
             end
-            self.avglevel:SetFontObject(NumberFontNormal) -- GameFontHighlightSmall isn't bad
+            if self.avglevel then
+                self.avglevel:SetFontObject(NumberFontNormal) -- GameFontHighlightSmall isn't bad
+            end
         end
         AddAverageLevelToFontString("player", self.avglevel)
         self:Hide()
@@ -519,7 +522,8 @@ local OnTooltipSetItem = function(self)
         self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
     end)
 end
-if _G.TooltipDataProcessor then
+if _G.C_TooltipInfo then
+    -- Cata-classic has TooltipDataProcessor, but doesn't actually use the new tooltips
     TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, OnTooltipSetItem)
 else
     GameTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
