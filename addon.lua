@@ -669,20 +669,22 @@ ns:RegisterAddonHook("Baganator", function()
         end
     end
     local function baganator_hookmain()
-        if Baganator_BackpackViewFrame then
-            hooksecurefunc(Baganator_BackpackViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
+        local backpack = Baganator_SingleViewBackpackViewFrame or Baganator_BackpackViewFrame
+        local bank = Baganator_SingleViewBankViewFrame or Baganator_BankViewFrame
+        if Baganator_SingleViewBackpackViewFrame then
+            hooksecurefunc(Baganator_SingleViewBackpackViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_SingleViewBackpackViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
         end
-        if Baganator_BankViewFrame then
-            hooksecurefunc(Baganator_BankViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BankViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
+        if Baganator_SingleViewBankViewFrame then
+            hooksecurefunc(Baganator_SingleViewBankViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_SingleViewBankViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
         end
     end
     -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...
-    if Baganator_BackpackViewFrame then
+    if Baganator_SingleViewBackpackViewFrame or Baganator_BackpackViewFrame then
         baganator_hookmain()
-    elseif Baganator and Baganator.UnifiedViews and Baganator.UnifiedViews.Initialize then
-        hooksecurefunc(Baganator.UnifiedViews, "Initialize", baganator_hookmain)
+    elseif Baganator and (Baganator.SingleViews and Baganator.SingleViews.Initialize) or (Baganator.UnifiedViews and Baganator.UnifiedViews.Initialize) then
+        hooksecurefunc(Baganator.SingleViews or Baganator.UnifiedViews, "Initialize", baganator_hookmain)
     end
 end)
 
