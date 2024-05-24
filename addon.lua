@@ -279,6 +279,7 @@ local function UpdateButtonFromItem(button, item, variant, suppress)
             if not suppress.missing then AddMissingToButton(button, link) end
         end
     end)
+    return true
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
 
@@ -636,56 +637,44 @@ end)
 
 -- Baganator
 ns:RegisterAddonHook("Baganator", function()
-    local suppress = {}
-    local function check_baginator_config(value)
-        return tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY), value) or
-            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY), value) or
-            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY), value) or
-            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY), value)
+    local function onInit(itemButton)
+        local frame = CreateFrame("Frame", nil, itemButton)
+        frame:SetSize(6, 6)
+        frame.itemButton = itemButton
+        PrepareItemButton(frame, "CENTER", 0, 0)
+        return frame
     end
-    local function baganator_setitemdetails(button, details)
-        CleanButton(button)
-        if not db.bags then return end
-        local item
-        -- If we have a container-item, we should use that because it's needed for soulbound detection
-        local bag = button.GetBagID and button:GetBagID() or button:GetParent():GetID()
-        local slot = button:GetID()
-        -- print("SetItemDetails", details.itemLink, bag, slot)
-        if bag and slot and slot ~= 0 then
-            item = Item:CreateFromBagAndSlot(bag, slot)
-        elseif details.itemLink then
-            item = Item:CreateFromItemLink(details.itemLink)
-        end
-        if not item then return end
-        suppress.level = check_baginator_config("item_level")
-        UpdateButtonFromItem(button, item, "bags", suppress)
-    end
-    local function baganator_rebuildlayout(frame)
-        for _, button in ipairs(frame.buttons) do
-            if not button.____SimpleItemLevelHooked then
-                button.____SimpleItemLevelHooked = true
-                hooksecurefunc(button, "SetItemDetails", baganator_setitemdetails)
+    local function onUpdate(suppress)
+        return function(cornerFrame, details)
+            if not details.itemLink then return end
+            local item
+            local button = cornerFrame.itemButton
+            -- If we have a container-item, we should use that because it's needed for soulbound detection
+            local bag = button.GetBagID and button:GetBagID() or button:GetParent():GetID()
+            local slot = button:GetID()
+            -- print("SetItemDetails", details.itemLink, bag, slot)
+            if bag and slot and slot ~= 0 then
+                item = Item:CreateFromBagAndSlot(bag, slot)
+            elseif details.itemLink then
+                item = Item:CreateFromItemLink(details.itemLink)
             end
+            if not item then return end
+            -- TODO: this return isn't accurate because it's slightly async
+            return UpdateButtonFromItem(button, item, "bags", suppress)
         end
     end
-    local function baganator_hookmain()
-        local backpack = Baganator_SingleViewBackpackViewFrame or Baganator_BackpackViewFrame
-        local bank = Baganator_SingleViewBankViewFrame or Baganator_BankViewFrame
-        if backpack then
-            hooksecurefunc(backpack.BagLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(backpack.BagCached, "RebuildLayout", baganator_rebuildlayout)
-        end
-        if bank then
-            hooksecurefunc(bank.Character.BankLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(bank.Character.BankCached, "RebuildLayout", baganator_rebuildlayout)
-        end
-    end
-    -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...
-    if Baganator_SingleViewBackpackViewFrame or Baganator_BackpackViewFrame then
-        baganator_hookmain()
-    elseif Baganator and (Baganator.SingleViews and Baganator.SingleViews.Initialize) or (Baganator.UnifiedViews and Baganator.UnifiedViews.Initialize) then
-        hooksecurefunc(Baganator.SingleViews or Baganator.UnifiedViews, "Initialize", baganator_hookmain)
-    end
+    Baganator.API.RegisterCornerWidget("sIlvl: Item Level", "simpleitemlevel-ilvl",
+        onUpdate({level = false, upgrade = true, bound = true, missing = true}),
+        onInit, {default_position = "top_right", priority = 1}
+    )
+    Baganator.API.RegisterCornerWidget("sIlvl: Upgrade", "simpleitemlevel-upgrade",
+        onUpdate({level = true, upgrade = false, bound = true, missing = true}),
+        onInit, {default_position = "top_left", priority = 1}
+    )
+    Baganator.API.RegisterCornerWidget("sIlvl: Soulbound", "simpleitemlevel-bound",
+        onUpdate({level = true, upgrade = true, bound = false, missing = true}),
+        onInit, {default_position = "bottom_left", priority = 1}
+    )
 end)
 
 -- helper
