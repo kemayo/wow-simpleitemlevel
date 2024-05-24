@@ -230,79 +230,39 @@ function ns.RefreshOverlayFrames()
     end
 end
 
-local function AddLevelToButton(button, item)
-    if not (db.itemlevel and item) then
-        return button.simpleilvl and button.simpleilvl:Hide()
+local function AddLevelToButton(button, details)
+    if not (db.itemlevel and details.level) then
+        return button.simpleilvl:Hide()
     end
-    local itemLevel = item:GetCurrentItemLevel()
-    local quality = item:GetItemQuality()
-    local itemLink = item:GetItemLink()
-    if itemLink and itemLink:match("battlepet:") then
-        -- special case for caged battle pets
-        local _, speciesID, level, breedQuality = strsplit(":", itemLink)
-        if speciesID and level and breedQuality then
-            itemLevel = tonumber(level)
-            quality = tonumber(breedQuality)
-        end
-    end
-    local _, _, _, hex = GetItemQualityColor(db.color and quality or 1)
-    button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
+    local r, g, b = GetItemQualityColor(db.color and details.quality or 1)
+    button.simpleilvl:SetText(details.level or '?')
+    button.simpleilvl:SetTextColor(r, g, b)
     button.simpleilvl:Show()
 end
-local function AddUpgradeToButton(button, item, equipLoc, minLevel)
-    if not (db.upgrades and LAI:IsAppropriate(item:GetItemID())) then
-        return button.simpleilvlup and button.simpleilvlup:Hide()
+local function AddUpgradeToButton(button, details)
+    if not (db.upgrades and details.upgrade) then
+        return button.simpleilvlup:Hide()
     end
-    if item:GetItemLocation() and item:GetItemLocation():IsEquipmentSlot() then
-        -- This is meant to catch the character frame, to avoid rings/trinkets
-        -- you've already got equipped showing as an upgrade since they're
-        -- higher ilevel than your other ring/trinket
-        return
+    local minLevel = select(5, GetItemInfo(details.link))
+    if minLevel and minLevel > UnitLevel("player") then
+        button.simpleilvlup:SetVertexColor(1, 0, 0)
+    else
+        button.simpleilvlup:SetVertexColor(1, 1, 1)
     end
-    ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
-        if equippedItem:IsItemEmpty() and slot == SLOT_OFFHAND then
-            local mainhand = GetInventoryItemID("player", SLOT_MAINHAND)
-            if mainhand then
-                local invtype = select(4, GetItemInfoInstant(mainhand))
-                if invtype == "INVTYPE_2HWEAPON" then
-                    return
-                end
-            end
-        end
-        -- fallbacks for the item levels; saw complaints of this erroring during initial login for people using Bagnon and AdiBags
-        local equippedItemLevel = equippedItem:GetCurrentItemLevel() or 0
-        local itemLevel = item:GetCurrentItemLevel() or 0
-        if equippedItem:IsItemEmpty() or equippedItemLevel < itemLevel then
-            PrepareItemButton(button)
-            button.simpleilvlup:Show()
-            if minLevel and minLevel > UnitLevel("player") then
-                button.simpleilvlup:SetVertexColor(1, 0, 0)
-            else
-                button.simpleilvlup:SetVertexColor(1, 1, 1)
-            end
-        end
-    end)
+    button.simpleilvlup:Show()
 end
-local function AddMissingToButton(button, itemLink)
-    if not itemLink then
-        return button.simpleilvlmissing and button.simpleilvlmissing:Hide()
-    end
-    PrepareItemButton(button)
-    local missingGems = db.missinggems and ns.ItemHasEmptySlots(itemLink)
-    local missingEnchants =  db.missingenchants and ns.ItemIsMissingEnchants(itemLink)
-    -- print(itemLink, missingEnchants, missingGems)
+local function AddMissingToButton(button, details)
+    local missingGems = db.missinggems and details.missingGems
+    local missingEnchants =  db.missingenchants and details.missingEnchants
     button.simpleilvlmissing:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
     button.simpleilvlmissing:Show()
 end
-local function AddBoundToButton(button, item)
+local function AddBoundToButton(button, details)
     if not db.bound then
         return button.simpleilvlbound and button.simpleilvlbound:Hide()
     end
-    if item and item:IsItemInPlayersControl() then
-        local itemLocation = item:GetItemLocation()
-        if itemLocation and C_Item.IsBound(itemLocation) then
-            button.simpleilvlbound:Show()
-        end
+    if details.bound then
+        button.simpleilvlbound:Show()
     end
 end
 local function ShouldShowOnItem(item)
@@ -334,16 +294,13 @@ local function UpdateButtonFromItem(button, item, variant, suppress)
     suppress = suppress or blank
     item:ContinueOnItemLoad(function()
         if not ShouldShowOnItem(item) then return end
-        local itemID = item:GetItemID()
-        local link = item:GetItemLink()
-        local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
-        local minLevel = link and select(5, GetItemInfo(link or itemID))
         PrepareItemButton(button)
-        if not suppress.level then AddLevelToButton(button, item) end
-        if not suppress.upgrade then AddUpgradeToButton(button, item, equipLoc, minLevel) end
-        if not suppress.bound then AddBoundToButton(button, item) end
+        local details = DetailsFromItem(item)
+        if not suppress.level then AddLevelToButton(button, details) end
+        if not suppress.upgrade then AddUpgradeToButton(button, details) end
+        if not suppress.bound then AddBoundToButton(button, details) end
         if (variant == "character" or variant == "inspect" or not db.missingcharacter) then
-            if not suppress.missing then AddMissingToButton(button, link) end
+            if not suppress.missing then AddMissingToButton(button, details) end
         end
     end)
     return true
