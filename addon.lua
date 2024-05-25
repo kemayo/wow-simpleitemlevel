@@ -96,6 +96,9 @@ function ns:ADDON_LOADED(event, addon)
         })
         db = _G[myname.."DB"]
         ns.db = db
+
+        -- So our upgrade arrows can work reliably when opening inventories
+        ns.CacheEquippedItems()
     end
 end
 ns:RegisterEvent("ADDON_LOADED")
@@ -116,6 +119,9 @@ local function ItemIsUpgrade(item)
     local itemLevel = item:GetCurrentItemLevel() or 0
     local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
     ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
+        -- This *isn't* async, for flow reasons, so if the equipped items
+        -- aren't yet cached the item might get incorrectly flagged as an
+        -- upgrade.
         if equippedItem:IsItemEmpty() and slot == SLOT_OFFHAND then
             local mainhand = GetInventoryItemID("player", SLOT_MAINHAND)
             if mainhand then
@@ -124,6 +130,10 @@ local function ItemIsUpgrade(item)
                     return
                 end
             end
+        end
+        if not equippedItem:IsItemDataCached() then
+            -- don't claim an upgrade if we don't know
+            return
         end
         -- fallbacks for the item levels; saw complaints of this erroring during initial login for people using Bagnon and AdiBags
         local equippedItemLevel = equippedItem:GetCurrentItemLevel() or 0
@@ -787,6 +797,15 @@ do
     ns.ForEquippedItems = function(equipLoc, callback)
         ForEquippedItem(EquipLocToSlot1[equipLoc], callback)
         ForEquippedItem(EquipLocToSlot2[equipLoc], callback)
+    end
+end
+
+ns.CacheEquippedItems = function()
+    for slotID = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+        local itemID = GetInventoryItemID("player", slotID)
+        if itemID then
+            C_Item.RequestLoadItemDataByID(itemID)
+        end
     end
 end
 
