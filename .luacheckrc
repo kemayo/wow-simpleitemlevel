@@ -14,6 +14,7 @@ ignore = {
 }
 
 globals = {
+    "SimpleItemLevel",
     "SlashCmdList",
     "StaticPopupDialogs",
     "UpdateContainerFrameAnchors",
