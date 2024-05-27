@@ -173,7 +173,7 @@ local function DetailsFromItem(item)
         upgrade = ItemIsUpgrade(item),
     }
 end
-_G.DetailsFromItem = DetailsFromItem
+ns.DetailsFromItem = DetailsFromItem
 
 ns.frames = {} -- TODO: should I make this a FramePool now?
 local function PrepareItemButton(button)
