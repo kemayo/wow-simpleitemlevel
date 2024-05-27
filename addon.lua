@@ -4,6 +4,8 @@ local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 ns.DEBUG = GetAddOnMetadata(myname, "Version") == "@".."project-version@"
 
+_G.SimpleItemLevel = {}
+
 local SLOT_MAINHAND = GetInventorySlotInfo("MainHandSlot")
 local SLOT_OFFHAND = GetInventorySlotInfo("SecondaryHandSlot")
 
@@ -147,6 +149,7 @@ local function ItemIsUpgrade(item)
     end)
     return isUpgrade
 end
+ns.ItemIsUpgrade = ItemIsUpgrade
 
 local function DetailsFromItem(item)
     if not item or item:IsItemEmpty() then return {} end
