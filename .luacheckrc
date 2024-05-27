@@ -132,6 +132,7 @@ read_globals = {
     "ContainerFrameCombinedBags",
     "ContainerFrameContainer",
     "InterfaceOptionsFramePanelContainer",
+    "EquipmentFlyoutFrame",
 
     -- FrameXML API
     "Enum",

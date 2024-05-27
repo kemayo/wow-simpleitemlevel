@@ -58,6 +58,7 @@ ns.defaults = {
     inspect = true,
     bags = true,
     loot = true,
+    flyout = true,
     tooltip = isClassic,
     characteravg = isClassic,
     inspectavg = true,
@@ -449,27 +450,40 @@ end)
 -- Equipment flyout in character frame
 
 if _G.EquipmentFlyout_DisplayButton then
-    hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
-        -- print("EquipmentFlyout_DisplayButton", button, paperDollItemSlot)
-        CleanButton(button)
-        if not db.character then return end
-        local location = button.location
-        if not location then return end
-        if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
-        local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
-        local item
-        if bags then
-            item = Item:CreateFromBagAndSlot(bag, slot)
-        elseif not voidStorage then -- player or bank
-            item = Item:CreateFromEquipmentSlot(slot)
+    local function ItemFromEquipmentFlyoutDisplayButton(button)
+        local flyoutSettings = EquipmentFlyoutFrame.button:GetParent().flyoutSettings
+        if flyoutSettings.useItemLocation then
+            local itemLocation = button:GetItemLocation()
+            if itemLocation then
+                return Item:CreateFromItemLocation(itemLocation)
+            end
         else
-            local itemID = EquipmentManager_GetItemInfoByLocation(location)
-            if itemID then
-                item = Item:CreateFromItemID(itemID)
+            local location = button.location
+            if not location then return end
+            if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
+            local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
+            if bags then
+                return Item:CreateFromBagAndSlot(bag, slot)
+            elseif not voidStorage then -- player or bank
+                return Item:CreateFromEquipmentSlot(slot)
+            else
+                local itemID = EquipmentManager_GetItemInfoByLocation(location)
+                if itemID then
+                    return Item:CreateFromItemID(itemID)
+                end
             end
         end
-        if item then
-            UpdateButtonFromItem(button, item, "character")
+    end
+    hooksecurefunc("EquipmentFlyout_UpdateItems", function()
+        local flyoutSettings = EquipmentFlyoutFrame.button:GetParent().flyoutSettings
+        for i, button in ipairs(EquipmentFlyoutFrame.buttons) do
+            CleanButton(button)
+            if db.flyout and button:IsShown() then
+                local item = ItemFromEquipmentFlyoutDisplayButton(button)
+                if item then
+                    UpdateButtonFromItem(button, item, "character")
+                end
+            end
         end
     end)
 end

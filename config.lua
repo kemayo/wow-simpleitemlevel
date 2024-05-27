@@ -313,6 +313,7 @@ do
     local checkboxes = {
         {"bags", BAGSLOTTEXT},
         {"character", ORDER_HALL_EQUIPMENT_SLOTS},
+        {"flyout", "Equipment flyouts"},
         {"inspect", INSPECT},
         {"loot", LOOT},
         {"characteravg", "Character average item level"},
