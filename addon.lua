@@ -811,10 +811,10 @@ end
 
 do
     -- could arguably also do TooltipDataProcessor.AddLinePostCall(Enum.TooltipDataLineType.GemSocket, ...)
-    local t = {}
+    local GetItemStats = C_Item and C_Item.GetItemStats or _G.GetItemStats
     function ns.ItemHasEmptySlots(itemLink)
-        wipe(t)
-        local stats = GetItemStats(itemLink, t)
+        if not itemLink then return end
+        local stats = GetItemStats(itemLink)
         if not stats then return false end -- caged battle pets, mostly
         local slots = 0
         for label, stat in pairs(stats) do
