@@ -462,6 +462,10 @@ if _G.EquipmentFlyout_DisplayButton then
             if not location then return end
             if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
             local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
+            if type(voidStorage) ~= "boolean" then
+                -- classic compatibility: no voidStorage returns, so shuffle everything down by one
+                slot, bag, tab = voidStorage, slot, bag
+            end
             if bags then
                 return Item:CreateFromBagAndSlot(bag, slot)
             elseif not voidStorage then -- player or bank
