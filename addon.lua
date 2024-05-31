@@ -108,7 +108,7 @@ ns:RegisterEvent("ADDON_LOADED")
 
 
 local function ItemIsUpgrade(item)
-    if not LAI:IsAppropriate(item:GetItemID()) then
+    if not (item and LAI:IsAppropriate(item:GetItemID())) then
         return
     end
     -- Upgrade?
