@@ -41,25 +41,12 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
     frame.Slider.Thumb = frame.Slider:CreateTexture()
     frame.Slider:SetThumbTexture(frame.Slider.Thumb)
     frame.Slider:SetSize(200, 19)
-    if isClassic then
-        frame.Slider.Left:SetTexture([[Interface\Buttons\UI-SilverButtonLG-Left-Up]])
-        frame.Slider.Left:SetSize(11, 17)
-        frame.Slider.Left:SetPoint("TOP", 0, -4)
-        frame.Slider.Right:SetTexture([[Interface\Buttons\UI-SilverButtonLG-Right-Up]])
-        frame.Slider.Right:SetSize(11, 17)
-        frame.Slider.Right:SetPoint("TOP", 0, -4)
-        frame.Slider.Middle:SetTexture([[Interface\Buttons\UI-SilverButtonLG-Mid-Up]])
-        frame.Slider.Middle:SetHeight(17)
-        frame.Slider.Middle:SetPoint("TOP", 0, -4)
-        -- frame.Slider.Thumb:SetTexture([[Interface\Buttons\UI-SliderBar-Button-Horizontal]])
-        frame.Slider.Thumb:SetTexture([[Interface\COMMON\Indicator-Yellow]]) -- Gray, Red
-        frame.Slider.Thumb:SetSize(24, 24)
-    else
-        frame.Slider.Left:SetAtlas("Minimal_SliderBar_Left", true)
-        frame.Slider.Right:SetAtlas("Minimal_SliderBar_Right", true)
-        frame.Slider.Middle:SetAtlas("_Minimal_SliderBar_Middle", true)
-        frame.Slider.Thumb:SetAtlas("Minimal_SliderBar_Button", true)
-    end
+
+    frame.Slider.Left:SetAtlas("Minimal_SliderBar_Left", true)
+    frame.Slider.Right:SetAtlas("Minimal_SliderBar_Right", true)
+    frame.Slider.Middle:SetAtlas("_Minimal_SliderBar_Middle", true)
+    frame.Slider.Thumb:SetAtlas("Minimal_SliderBar_Button", true)
+
     -- frame.Slider:SetPoint("TOPLEFT", frame, 19)
     -- frame.Slider:SetPoint("BOTTOMRIGHT", frame, -19)
     formatter = formatter or function(value) return string.format("%.1f", value) end
@@ -78,7 +65,6 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
         end
     end)
     frame.OnStepperClicked = function(self, forward)
-        print("OnStepperClicked", forward)
         local value = self.Slider:GetValue()
         if forward then
             self.Slider:SetValue(value + self.Slider:GetValueStep())
@@ -102,14 +88,8 @@ local function makeSlider(parent, key, label, minValue, maxValue, step, formatte
     frame.Forward.Background:SetPoint("CENTER")
     frame.Forward:SetScript("OnClick", function() frame:OnStepperClicked(true) end)
 
-    if isClassic then
-        frame.Back.Background:SetAtlas("BackArrow-Brown", true)
-        frame.Forward.Background:SetAtlas("BackArrow-Brown", true)
-        frame.Forward.Background:SetRotation(math.pi)
-    else
-        frame.Back.Background:SetAtlas("Minimal_SliderBar_Button_Left", true)
-        frame.Forward.Background:SetAtlas("Minimal_SliderBar_Button_Right", true)
-    end
+    frame.Back.Background:SetAtlas("Minimal_SliderBar_Button_Left", true)
+    frame.Forward.Background:SetAtlas("Minimal_SliderBar_Button_Right", true)
 
     frame.RightText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     frame.RightText:SetPoint("LEFT", frame.Slider, "RIGHT", 25, 0)
@@ -267,29 +247,24 @@ end
 
 local function makeConfigPanel(id, name, parent, parentname)
     local frame
-    if _G.Settings and type(_G.Settings) == "table" and _G.Settings.RegisterAddOnCategory then
-        frame = CreateFrame("Frame")
-        frame.OnCommit = function() end
-        frame.OnDefault = function() end
-        frame.OnRefresh = function() end
 
-        local category, layout
-        if parent then
-            local parentcategory = Settings.GetCategory(parent)
-            category, layout = Settings.RegisterCanvasLayoutSubcategory(parentcategory, frame, name)
-        else
-            category, layout = Settings.RegisterCanvasLayoutCategory(frame, name)
-            Settings.RegisterAddOnCategory(category)
-        end
-        category.ID = id
-        layout:AddAnchorPoint("TOPLEFT", 10, -10)
-        layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
+    frame = CreateFrame("Frame")
+    frame.OnCommit = function() end
+    frame.OnDefault = function() end
+    frame.OnRefresh = function() end
+
+    local category, layout
+    if parent then
+        local parentcategory = Settings.GetCategory(parent)
+        category, layout = Settings.RegisterCanvasLayoutSubcategory(parentcategory, frame, name)
     else
-        frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
-        frame.name = name
-        frame.parent = parentname
-        InterfaceOptions_AddCategory(frame)
+        category, layout = Settings.RegisterCanvasLayoutCategory(frame, name)
+        Settings.RegisterAddOnCategory(category)
     end
+    category.ID = id
+    layout:AddAnchorPoint("TOPLEFT", 10, -10)
+    layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
+
     frame:Hide()
     return frame
 end
@@ -346,11 +321,8 @@ end
 do
     local frame = makeConfigPanel(myname.."_appearance", APPEARANCE_LABEL, myname, myfullname)
     local demo = CreateFrame("Frame", nil, frame)
-    if isClassic then
-        demo:SetPoint("TOPLEFT", frame, 0, -8)
-    else
-        demo:SetPoint("TOPLEFT", frame)
-    end
+
+    demo:SetPoint("TOPLEFT", frame)
     demo:SetPoint("RIGHT", frame)
     demo:SetHeight(43)
 
