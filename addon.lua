@@ -1,8 +1,8 @@
 local myname, ns = ...
-local myfullname = GetAddOnMetadata(myname, "Title")
+local myfullname = C_AddOns.GetAddOnMetadata(myname, "Title")
 local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
-ns.DEBUG = GetAddOnMetadata(myname, "Version") == "@".."project-version@"
+ns.DEBUG = C_AddOns.GetAddOnMetadata(myname, "Version") == "@".."project-version@"
 
 _G.SimpleItemLevel = {}
 
@@ -18,7 +18,7 @@ f:SetScript("OnEvent", function(self, event, ...) if ns[event] then return ns[ev
 function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((select(i, ...))) end end
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 function ns:RegisterAddonHook(addon, callback)
-    if IsAddOnLoaded(addon) then
+    if C_AddOns.IsAddOnLoaded(addon) then
         callback()
     else
         hooks[addon] = callback
@@ -120,7 +120,7 @@ local function ItemIsUpgrade(item)
     end
     local isUpgrade
     local itemLevel = item:GetCurrentItemLevel() or 0
-    local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
+    local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
     ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
         -- This *isn't* async, for flow reasons, so if the equipped items
         -- aren't yet cached the item might get incorrectly flagged as an
@@ -128,7 +128,7 @@ local function ItemIsUpgrade(item)
         if equippedItem:IsItemEmpty() and slot == SLOT_OFFHAND then
             local mainhand = GetInventoryItemID("player", SLOT_MAINHAND)
             if mainhand then
-                local invtype = select(4, GetItemInfoInstant(mainhand))
+                local invtype = select(4, C_Item.GetItemInfoInstant(mainhand))
                 if invtype == "INVTYPE_2HWEAPON" then
                     return
                 end
@@ -142,7 +142,7 @@ local function ItemIsUpgrade(item)
         local equippedItemLevel = equippedItem:GetCurrentItemLevel() or 0
         if equippedItem:IsItemEmpty() or equippedItemLevel < itemLevel then
             isUpgrade = true
-            local minLevel = select(5, GetItemInfo(item:GetItemLink() or item:GetItemID()))
+            local minLevel = select(5, C_Item.GetItemInfo(item:GetItemLink() or item:GetItemID()))
             if minLevel and minLevel > UnitLevel("player") then
                 -- not equipable yet
             end
@@ -248,7 +248,7 @@ local function AddLevelToButton(button, details)
     if not (db.itemlevel and details.level) then
         return button.simpleilvl:Hide()
     end
-    local r, g, b = GetItemQualityColor(db.color and details.quality or 1)
+    local r, g, b = C_Item.GetItemQualityColor(db.color and details.quality or 1)
     button.simpleilvl:SetText(details.level or '?')
     button.simpleilvl:SetTextColor(r, g, b)
     button.simpleilvl:Show()
@@ -257,7 +257,7 @@ local function AddUpgradeToButton(button, details)
     if not (db.upgrades and details.upgrade) then
         return button.simpleilvlup:Hide()
     end
-    local minLevel = select(5, GetItemInfo(details.link))
+    local minLevel = select(5, C_Item.GetItemInfo(details.link))
     if minLevel and minLevel > UnitLevel("player") then
         button.simpleilvlup:SetVertexColor(1, 0, 0)
     else
@@ -284,7 +284,7 @@ local function ShouldShowOnItem(item)
     if quality < db.quality then
         return false
     end
-    local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
+    local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
     if (
         itemClass == Enum.ItemClass.Weapon or
         itemClass == Enum.ItemClass.Armor or
@@ -296,7 +296,7 @@ local function ShouldShowOnItem(item)
         -- Pet Cage
         return db.battlepets
     end
-    if select(17, GetItemInfo(item:GetItemID())) then
+    if select(17, C_Item.GetItemInfo(item:GetItemID())) then
         return db.reagents
     end
     return db.misc
@@ -344,7 +344,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
                 continuableContainer:AddContinuable(item)
                 table.insert(items, item)
                 -- slot bookkeeping
-                local equipLoc = select(4, GetItemInfoInstant(itemLink or itemID))
+                local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink or itemID))
                 if slot == INVSLOT_MAINHAND then mainhandEquipLoc = equipLoc end
                 if slot == INVSLOT_OFFHAND then offhandEquipLoc = equipLoc end
             end
@@ -720,7 +720,7 @@ ns:RegisterAddonHook("Baganator", function()
         onUpdate(function(cornerFrame, item, data, details)
             cornerFrame:SetText(data.level)
             if db.color then
-                local r, g, b = GetItemQualityColor(data.quality)
+                local r, g, b = C_Item.GetItemQualityColor(data.quality)
                 cornerFrame:SetTextColor(r, g, b)
             else
                 cornerFrame:SetTextColor(1, 1, 1)
@@ -732,7 +732,7 @@ ns:RegisterAddonHook("Baganator", function()
     Baganator.API.RegisterCornerWidget("sIlvl: Upgrade", "simpleitemlevel-upgrade",
         onUpdate(function(cornerFrame, item, data, details)
             if data.upgrade then
-                local minLevel = select(5, GetItemInfo(item:GetItemLink() or item:GetItemID()))
+                local minLevel = select(5, C_Item.GetItemInfo(item:GetItemLink() or item:GetItemID()))
                 if minLevel and minLevel > UnitLevel("player") then
                     cornerFrame:SetVertexColor(1, 0, 0)
                 else
@@ -886,7 +886,7 @@ do
     }
     function ns.ItemIsMissingEnchants(itemLink)
         if not itemLink then return false end
-        local equipLoc = select(4, GetItemInfoInstant(itemLink))
+        local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
         local enchantID = select(3, strsplit(":", itemLink))
         if enchantID == "" then return true end

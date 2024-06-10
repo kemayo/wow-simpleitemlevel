@@ -1,5 +1,5 @@
 local myname, ns = ...
-local myfullname = GetAddOnMetadata(myname, "Title")
+local myfullname = C_AddOns.GetAddOnMetadata(myname, "Title")
 
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
