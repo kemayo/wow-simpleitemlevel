@@ -17,6 +17,34 @@ local function itemFromArg(item)
 end
 
 
+-- Finds the item level for an item
+--
+-- This is almost the same as item:GetCurrentItemLevel, but it handles
+-- giving caged battle pets a level as well.
+--
+-- `item` is an item link or an Item. Note: an Item created from
+--     an itemID may be inaccurate due to item scaling.
+-- Returns number or nil
+SimpleItemLevel.API.ItemLevel = function(item)
+    item = itemFromArg(item)
+    local details = ns.DetailsFromItemInstant(item)
+    return details.level
+end
+
+
+-- Colorizes an item's level
+--
+-- `item` is an item link or an Item. Note: an Item created from
+--     an itemID may be inaccurate due to item scaling.
+-- Returns string, will be "|cffffffff?|r" if an invalid item is given
+SimpleItemLevel.API.ItemLevelColorized = function(item)
+    item = itemFromArg(item)
+    local details = ns.DetailsFromItemInstant(item)
+    local color = ITEM_QUALITY_COLORS[details.quality or 1]
+    return color.hex .. (details.level or "?") .. "|r"
+end
+
+
 -- Tests whether an item is an upgrade compared to current equipment
 --
 -- `item` is an item link or an Item. Note: an Item created from

@@ -152,10 +152,10 @@ local function ItemIsUpgrade(item)
 end
 ns.ItemIsUpgrade = ItemIsUpgrade
 
-local function DetailsFromItem(item)
+-- TODO: this is a good candidate for caching results...
+local function DetailsFromItemInstant(item)
     if not item or item:IsItemEmpty() then return {} end
     -- print("DetailsFromItem", item:GetItemLink())
-    local itemLocation = item:GetItemLocation()
     local itemLevel = item:GetCurrentItemLevel()
     local quality = item:GetItemQuality()
     local itemLink = item:GetItemLink()
@@ -171,11 +171,21 @@ local function DetailsFromItem(item)
         level = itemLevel,
         quality = quality,
         link = itemLink,
-        missingGems = ns.ItemHasEmptySlots(itemLink),
-        missingEnchants = ns.ItemIsMissingEnchants(itemLink),
-        bound = itemLocation and item:IsItemInPlayersControl() and C_Item.IsBound(itemLocation),
-        upgrade = ItemIsUpgrade(item),
     }
+end
+ns.DetailsFromItemInstant = DetailsFromItemInstant
+
+local function DetailsFromItem(item)
+    if not item or item:IsItemEmpty() then return {} end
+    local details = DetailsFromItemInstant(item)
+    details.missingGems = ns.ItemHasEmptySlots(details.link)
+    details.missingEnchants = ns.ItemIsMissingEnchants(details.link)
+    details.upgrade = ItemIsUpgrade(item)
+
+    local itemLocation = item:GetItemLocation()
+    details.bound = itemLocation and item:IsItemInPlayersControl() and C_Item.IsBound(itemLocation)
+
+    return details
 end
 ns.DetailsFromItem = DetailsFromItem
 
