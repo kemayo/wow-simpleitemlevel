@@ -32,6 +32,8 @@ ns.upgradeAtlas = "poi-door-arrow-up"
 ns.upgradeString = CreateAtlasMarkup(ns.upgradeAtlas)
 ns.gemString = CreateAtlasMarkup(isClassic and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
 ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
+local prof1, prof2 = GetProfessions()
+ns.isPlayerEnchanter = (prof1 and GetProfessionInfo(prof1) == "Enchanting") or (prof2 and GetProfessionInfo(prof2) == "Enchanting")
 ns.Fonts = {
     HighlightSmall = GameFontHighlightSmall,
     Normal = GameFontNormalOutline,
@@ -898,6 +900,7 @@ do
         if not itemLink then return false end
         local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
+        if equipLoc == "INVTYPE_FINGER" and (not ns.isPlayerEnchanter) then return false end
         local enchantID = select(3, strsplit(":", itemLink))
         if enchantID == "" then return true end
         return false
