@@ -708,9 +708,13 @@ ns:RegisterAddonHook("Baganator", function()
         text.sizeFont = true
         return text
     end
+    -- Note to self: Baganator API update function returns are tri-state:
+    -- true: something to show
+    -- false: nothing to show
+    -- nil: call this again soon (probably because of item-caching)
     local function onUpdate(callback)
         return function(cornerFrame, details)
-            if not details.itemLink then return end
+            if not details.itemLink then return false end
             local button = cornerFrame:GetParent():GetParent()
             local item
             -- If we have a container-item, we should use that because it's needed for soulbound detection
@@ -721,7 +725,8 @@ ns:RegisterAddonHook("Baganator", function()
             elseif details.itemLink then
                 item = Item:CreateFromItemLink(details.itemLink)
             end
-            if not item then return end
+            if not item then return false end -- no item, go away
+            if not item:IsItemDataCached() then return nil end -- item isn't cached, come back in a second
             local data = DetailsFromItem(item)
             return callback(cornerFrame, item, data, details)
         end
@@ -750,6 +755,7 @@ ns:RegisterAddonHook("Baganator", function()
                 end
                 return true
             end
+            return false
         end),
         function (itemButton)
             local texture = itemButton:CreateTexture(nil, "ARTWORK")
@@ -764,6 +770,7 @@ ns:RegisterAddonHook("Baganator", function()
             if details.isBound then
                 return true
             end
+            return false
         end,
         function (itemButton)
             local texture = itemButton:CreateTexture(nil, "ARTWORK")
@@ -781,6 +788,7 @@ ns:RegisterAddonHook("Baganator", function()
                 cornerFrame:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
                 return true
             end
+            return false
         end),
         textInit, {default_position = "bottom_right", priority = 2}
     )
