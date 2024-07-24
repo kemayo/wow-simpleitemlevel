@@ -136,9 +136,6 @@ read_globals = {
     -- FrameXML API
     "Enum",
     "CreateFrame",
-    "InterfaceOptionsFrame_OpenToCategory",
-    "InterfaceOptionsFrame_Show",
-    "InterfaceOptions_AddCategory",
     "ToggleDropDownMenu",
     "UIDropDownMenu_AddButton",
     "UIDropDownMenu_CreateInfo",

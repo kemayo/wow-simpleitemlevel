@@ -413,11 +413,6 @@ SlashCmdList[myname:upper()] = function(msg)
         return ns.Print(msg, '=', ns.db[msg] and YES or NO)
     end
     if msg == "" then
-        if InterfaceOptionsFrame_Show then
-            InterfaceOptionsFrame_Show()
-            InterfaceOptionsFrame_OpenToCategory(myfullname)
-        else
-            Settings.OpenToCategory(myname)
-        end
+        Settings.OpenToCategory(myname)
     end
 end
