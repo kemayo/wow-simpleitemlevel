@@ -227,7 +227,7 @@ local function makeItemButton(parent)
     -- classic
     if not button.SetItem then
         function button:SetItem(item)
-            local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(item)
+            local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = C_Item.GetItemInfoInstant(item)
             if itemID then
                 self.itemID = itemID
                 SetItemButtonTexture(button, icon)
@@ -237,7 +237,7 @@ local function makeItemButton(parent)
             return self.itemID
         end
         function button:GetItemLink()
-            return select(2, GetItemInfo(self.itemID))
+            return select(2, C_Item.GetItemInfo(self.itemID))
         end
     end
     button:SetScript("OnEnter", button_onenter)

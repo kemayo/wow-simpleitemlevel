@@ -74,7 +74,7 @@ SimpleItemLevel.API.ItemIsUpgradeAsync = function(item, callback)
 
     continuableContainer:AddContinuable(item)
 
-    local _, _, _, equipLoc = GetItemInfoInstant(item:GetItemID())
+    local _, _, _, equipLoc = C_Item.GetItemInfoInstant(item:GetItemID())
     ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
         if not equippedItem:IsItemEmpty() then
             continuableContainer:AddContinuable(equippedItem)
