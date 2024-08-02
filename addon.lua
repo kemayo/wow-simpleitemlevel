@@ -734,7 +734,7 @@ ns:RegisterAddonHook("Baganator", function()
     Baganator.API.RegisterCornerWidget("sIlvl: Item Level", "simpleitemlevel-ilvl",
         onUpdate(function(cornerFrame, item, data, details)
             cornerFrame:SetText(data.level)
-            if db.color then
+            if db.color and data.quality then
                 local r, g, b = C_Item.GetItemQualityColor(data.quality)
                 cornerFrame:SetTextColor(r, g, b)
             else
