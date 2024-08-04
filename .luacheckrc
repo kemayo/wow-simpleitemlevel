@@ -106,6 +106,7 @@ read_globals = {
     "UseContainerItem",
 
     -- FrameXML frames
+    "AccountBankPanel",
     "BankFrame",
     "InspectFrame",
     "PaperDollFrame",

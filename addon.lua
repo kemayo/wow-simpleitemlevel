@@ -510,6 +510,10 @@ local function UpdateContainerButton(button, bag, slot)
     if not db.bags then
         return
     end
+    slot = slot or button:GetID()
+    if not (bag and slot) then
+        return
+    end
     local item = Item:CreateFromBagAndSlot(bag, slot or button:GetID())
     UpdateButtonFromItem(button, item, "bags")
 end
@@ -536,11 +540,25 @@ else
     end
 end
 
+-- Main bank frame, bankbags are covered by containerframe above
 hooksecurefunc("BankFrameItemButton_Update", function(button)
     if not button.isBag then
         UpdateContainerButton(button, button:GetParent():GetID())
     end
 end)
+
+if _G.AccountBankPanel then
+    -- Warband bank
+    local update = function(frame)
+        for itemButton in frame:EnumerateValidItems() do
+            UpdateContainerButton(itemButton, itemButton:GetBankTabID(), itemButton:GetContainerSlotID())
+        end
+    end
+    -- Initial load and switching tabs
+    hooksecurefunc(AccountBankPanel, "GenerateItemSlotsForSelectedTab", update)
+    -- Moving items
+    hooksecurefunc(AccountBankPanel, "RefreshAllItemsForSelectedTab", update)
+end
 
 -- Loot
 
