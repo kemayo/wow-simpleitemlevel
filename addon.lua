@@ -549,15 +549,31 @@ end)
 
 if _G.AccountBankPanel then
     -- Warband bank
+    local lastButtons = {} -- needed as of 11.0.0, see below for why
     local update = function(frame)
+        table.wipe(lastButtons)
         for itemButton in frame:EnumerateValidItems() do
             UpdateContainerButton(itemButton, itemButton:GetBankTabID(), itemButton:GetContainerSlotID())
+            table.insert(lastButtons, itemButton)
         end
     end
     -- Initial load and switching tabs
     hooksecurefunc(AccountBankPanel, "GenerateItemSlotsForSelectedTab", update)
     -- Moving items
     hooksecurefunc(AccountBankPanel, "RefreshAllItemsForSelectedTab", update)
+    hooksecurefunc(AccountBankPanel, "SetItemDisplayEnabled", function(_, state)
+        -- Papering over a Blizzard bug: when you open the "buy" tab, they
+        -- call this which releases the itembuttons from the pool... but
+        -- doesn't *hide* them, so they're all still there with the buy panel
+        -- sitting one layer above them.
+        -- I sadly need to remember the buttons, because once it released them
+        -- they're no longer available via EnumerateValidItems.
+        if state == false then
+            for _, itemButton in ipairs(lastButtons) do
+                CleanButton(itemButton)
+            end
+        end
+    end)
 end
 
 -- Loot
