@@ -45,6 +45,7 @@ read_globals = {
 
     -- API functions
     "C_AddOns",
+    "C_Bank",
     "C_Item",
     "hooksecurefunc",
     "BankButtonIDToInvSlotID",

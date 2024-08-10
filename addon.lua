@@ -182,8 +182,25 @@ local function DetailsFromItem(item)
     details.missingEnchants = ns.ItemIsMissingEnchants(details.link)
     details.upgrade = ItemIsUpgrade(item)
 
-    local itemLocation = item:GetItemLocation()
-    details.bound = itemLocation and item:IsItemInPlayersControl() and C_Item.IsBound(itemLocation)
+    if C_Item.IsItemBindToAccountUntilEquip then
+        -- 11.0.2 adds this, which works on any item:
+        details.warboundUntilEquip = C_Item.IsItemBindToAccountUntilEquip(item.link)
+    end
+    if item:IsItemInPlayersControl() then
+        local itemLocation = item:GetItemLocation()
+        -- this only works on items in our control:
+        details.warboundUntilEquip = C_Item.IsBoundToAccountUntilEquip(itemLocation)
+        details.bound = C_Item.IsBound(itemLocation)
+        if details.bound then
+            -- As of 11.0.0 blizzard has created Enum.ItemBind entries for
+            -- warbound, but never uses them. Zepto worked out that we can
+            -- use "can I put it in the warbank?" as a proxy to distinguish,
+            -- even when we're not at the bank.
+            -- TODO: occasionally check whether the bindTypes start getting
+            -- returned via `select (14, C_Item.GetItemInfo(details.link)) == 7/8/9`
+            details.warbound = C_Bank and C_Bank.IsItemAllowedInBankType and C_Bank.IsItemAllowedInBankType(Enum.BankType.Account, itemLocation)
+        end
+    end
 
     return details
 end
@@ -281,11 +298,28 @@ local function AddMissingToButton(button, details)
     button.simpleilvlmissing:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
     button.simpleilvlmissing:Show()
 end
+
+local function ColorFrameByBinding(frame, details)
+    -- returns bool, whether is bound in some way
+    if details.bound then
+        if details.warbound then
+            frame:SetVertexColor(0.5, 1, 0) -- green
+        else
+            frame:SetVertexColor(1, 1, 1) -- blue
+        end
+        return true
+    elseif details.warboundUntilEquip then
+        -- once you equip it the label changes to soulbound, but this property remains
+        frame:SetVertexColor(1, 0.5, 1) -- pale purple
+        return true
+    end
+    return false
+end
 local function AddBoundToButton(button, details)
     if not db.bound then
         return button.simpleilvlbound and button.simpleilvlbound:Hide()
     end
-    if details.bound then
+    if ColorFrameByBinding(button.simpleilvlbound, details) then
         button.simpleilvlbound:Show()
     end
 end
@@ -800,12 +834,9 @@ ns:RegisterAddonHook("Baganator", function()
         {default_position = "top_left", priority = 1}
     )
     Baganator.API.RegisterCornerWidget("sIlvl: Soulbound", "simpleitemlevel-bound",
-        function(cornerFrame, details)
-            if details.isBound then
-                return true
-            end
-            return false
-        end,
+        onUpdate(function(cornerFrame, item, data, details)
+            return ColorFrameByBinding(cornerFrame, data)
+        end),
         function (itemButton)
             local texture = itemButton:CreateTexture(nil, "ARTWORK")
             texture:SetAtlas(ns.soulboundAtlas)
