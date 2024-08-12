@@ -182,9 +182,9 @@ local function DetailsFromItem(item)
     details.missingEnchants = ns.ItemIsMissingEnchants(details.link)
     details.upgrade = ItemIsUpgrade(item)
 
-    if C_Item.IsItemBindToAccountUntilEquip then
+    if C_Item.IsItemBindToAccountUntilEquip and details.link then
         -- 11.0.2 adds this, which works on any item:
-        details.warboundUntilEquip = C_Item.IsItemBindToAccountUntilEquip(item.link)
+        details.warboundUntilEquip = C_Item.IsItemBindToAccountUntilEquip(details.link)
     end
     if item:IsItemInPlayersControl() then
         local itemLocation = item:GetItemLocation()
