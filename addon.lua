@@ -759,7 +759,7 @@ do
             return
         end
         local bag = button:GetBag()
-        if type(bag) ~= "number" or button:GetClassName() ~= "BagnonGuildItem" then
+        if type(bag) ~= "number" or button:GetClassName() ~= "BagnonContainerItem" then
             local info = button:GetInfo()
             if info and info.hyperlink then
                 local item = Item:CreateFromItemLink(info.hyperlink)
