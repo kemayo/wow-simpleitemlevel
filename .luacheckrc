@@ -109,6 +109,7 @@ read_globals = {
     -- FrameXML frames
     "AccountBankPanel",
     "BankFrame",
+    "GuildBankFrame",
     "InspectFrame",
     "PaperDollFrame",
     "CharacterLevelText",

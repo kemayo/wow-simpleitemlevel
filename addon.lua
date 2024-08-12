@@ -690,6 +690,25 @@ ns:RegisterAddonHook("Blizzard_VoidStorageUI", function()
     end)
 end)
 
+-- Guild Bank
+
+ns:RegisterAddonHook("Blizzard_GuildBankUI", function()
+    hooksecurefunc(GuildBankFrame, "Update", function(self)
+        if self.mode ~= "bank" then return end
+        local tab = GetCurrentGuildBankTab()
+        for _, column in ipairs(self.Columns) do
+            for _, button in ipairs(column.Buttons) do
+                CleanButton(button)
+                local link = GetGuildBankItemLink(tab, button:GetID())
+                if link then
+                    local item = Item:CreateFromItemLink(link)
+                    UpdateButtonFromItem(button, item, "bags")
+                end
+            end
+        end
+    end)
+end)
+
 -- Inventorian
 ns:RegisterAddonHook("Inventorian", function()
     local inv = LibStub("AceAddon-3.0", true):GetAddon("Inventorian", true)
