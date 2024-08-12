@@ -189,7 +189,7 @@ local function DetailsFromItem(item)
     if item:IsItemInPlayersControl() then
         local itemLocation = item:GetItemLocation()
         -- this only works on items in our control:
-        details.warboundUntilEquip = C_Item.IsBoundToAccountUntilEquip(itemLocation)
+        details.warboundUntilEquip = C_Item.IsBoundToAccountUntilEquip and C_Item.IsBoundToAccountUntilEquip(itemLocation)
         details.bound = C_Item.IsBound(itemLocation)
         if details.bound then
             -- As of 11.0.0 blizzard has created Enum.ItemBind entries for
