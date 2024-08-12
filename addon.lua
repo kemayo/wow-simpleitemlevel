@@ -740,11 +740,10 @@ do
             return
         end
         local bag = button:GetBag()
-        if type(bag) ~= "number" then
-            -- try to fall back on item links, mostly for void storage which would be "vault" here
-            local itemLink = button:GetItem()
-            if itemLink then
-                local item = Item:CreateFromItemLink(itemLink)
+        if type(bag) ~= "number" or button:GetClassName() ~= "BagnonGuildItem" then
+            local info = button:GetInfo()
+            if info and info.hyperlink then
+                local item = Item:CreateFromItemLink(info.hyperlink)
                 UpdateButtonFromItem(button, item, "bags")
             end
             return
