@@ -649,10 +649,18 @@ end
 
 local OnTooltipSetItem = function(self)
     if not db.tooltip then return end
-    local _, itemLink = self:GetItem()
-    if not itemLink then return end
-    local item = Item:CreateFromItemLink(itemLink)
-    if item:IsItemEmpty() then return end
+    local item
+    if self.GetItem then
+        local _, itemLink =  self:GetItem()
+        if not itemLink then return end
+        item = Item:CreateFromItemLink(itemLink)
+    elseif self.GetPrimaryTooltipData then
+        local data = self:GetPrimaryTooltipData()
+        if data and data.guid and data.type == Enum.TooltipDataType.Item then
+            item = Item:CreateFromItemGUID(data.guid)
+        end
+    end
+    if not item or item:IsItemEmpty() then return end
     item:ContinueOnItemLoad(function()
         self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
     end)
