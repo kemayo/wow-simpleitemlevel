@@ -100,6 +100,8 @@ function ns:ADDON_LOADED(event, addon)
         db = _G[myname.."DB"]
         ns.db = db
 
+        ns:SetupConfig()
+
         -- So our upgrade arrows can work reliably when opening inventories
         ns.CacheEquippedItems()
     end
