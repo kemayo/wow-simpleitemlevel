@@ -347,7 +347,7 @@ local function ShouldShowOnItem(item)
     end
     return db.misc
 end
-local function UpdateButtonFromItem(button, item, variant, suppress)
+local function UpdateButtonFromItem(button, item, variant, suppress, extradetails)
     if not item or item:IsItemEmpty() then
         return
     end
@@ -356,6 +356,7 @@ local function UpdateButtonFromItem(button, item, variant, suppress)
         if not ShouldShowOnItem(item) then return end
         PrepareItemButton(button)
         local details = DetailsFromItem(item)
+        if extradetails then MergeTable(details, extradetails) end
         if not suppress.level then AddLevelToButton(button, details) end
         if not suppress.upgrade then AddUpgradeToButton(button, details) end
         if not suppress.bound then AddBoundToButton(button, details) end
@@ -631,6 +632,21 @@ if _G.LootFrame_UpdateButton then
     end)
 else
     -- Dragonflight
+    local ITEM_LEVEL_PATTERN = ITEM_LEVEL:gsub("%%d", "(%%d+)")
+    local function itemLevelFromLootTooltip(slot)
+        -- GetLootSlotLink doesn't give a link for the scaled item you'll
+        -- actually loot. As such, we can fall back on tooltip scanning to
+        -- extract the real level. This is only going to work on
+        -- weapons/armor, but conveniently that's the things that get scaled!
+        if not _G.C_TooltipInfo then return end -- in case we get a weird Classic update...
+        local info = C_TooltipInfo.GetLootItem(slot)
+        _G.tinfo = info
+        if info and info.lines and info.lines[2] and info.lines[2].type == Enum.TooltipDataLineType.None then
+            return tonumber(info.lines[2].leftText:match(ITEM_LEVEL_PATTERN))
+        end
+    end
+    _G.lootlevel = itemLevelFromLootTooltip
+
     local function handleSlot(frame)
         if not frame.Item then return end
         CleanButton(frame.Item)
@@ -639,7 +655,9 @@ else
         if not (data and data.slotIndex) then return end
         local link = GetLootSlotLink(data.slotIndex)
         if link then
-            UpdateButtonFromItem(frame.Item, Item:CreateFromItemLink(link), "loot")
+            UpdateButtonFromItem(frame.Item, Item:CreateFromItemLink(link), "loot", nil, {
+                level = itemLevelFromLootTooltip(data.slotIndex),
+            })
         end
     end
     LootFrame.ScrollBox:RegisterCallback("OnUpdate", function(...)

@@ -47,6 +47,7 @@ read_globals = {
     "C_AddOns",
     "C_Bank",
     "C_Item",
+    "C_TooltipInfo",
     "hooksecurefunc",
     "BankButtonIDToInvSlotID",
     "ContainerIDToInventoryID",
@@ -157,6 +158,7 @@ read_globals = {
     "Settings",
     "TooltipDataProcessor",
     "ContinuableContainer",
+    "MergeTable",
 
     -- FrameXML Constants
     "APPEARANCE_LABEL",
