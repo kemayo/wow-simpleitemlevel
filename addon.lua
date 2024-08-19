@@ -640,12 +640,10 @@ else
         -- weapons/armor, but conveniently that's the things that get scaled!
         if not _G.C_TooltipInfo then return end -- in case we get a weird Classic update...
         local info = C_TooltipInfo.GetLootItem(slot)
-        _G.tinfo = info
         if info and info.lines and info.lines[2] and info.lines[2].type == Enum.TooltipDataLineType.None then
             return tonumber(info.lines[2].leftText:match(ITEM_LEVEL_PATTERN))
         end
     end
-    _G.lootlevel = itemLevelFromLootTooltip
 
     local function handleSlot(frame)
         if not frame.Item then return end
