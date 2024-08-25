@@ -752,6 +752,7 @@ ns:RegisterAddonHook("Inventorian", function()
             elseif itemID then
                 item = Item:CreateFromItemID(itemID)
             end
+            CleanButton(button)
             UpdateButtonFromItem(button, item, "bags")
         else
             UpdateContainerButton(button, bag, slot)
