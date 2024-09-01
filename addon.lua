@@ -326,7 +326,7 @@ local function AddBoundToButton(button, details)
     end
 end
 local function ShouldShowOnItem(item)
-    local quality = item:GetItemQuality()
+    local quality = item:GetItemQuality() or -1
     if quality < db.quality then
         return false
     end
