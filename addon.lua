@@ -19,7 +19,7 @@ function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((sele
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 function ns:RegisterAddonHook(addon, callback)
     if C_AddOns.IsAddOnLoaded(addon) then
-        callback()
+        xpcall(callback, geterrorhandler())
     else
         hooks[addon] = callback
     end
@@ -90,7 +90,7 @@ ns.defaults = {
 
 function ns:ADDON_LOADED(event, addon)
     if hooks[addon] then
-        hooks[addon]()
+        xpcall(hooks[addon], geterrorhandler())
         hooks[addon] = nil
     end
     if addon == myname then
