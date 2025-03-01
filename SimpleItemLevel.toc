@@ -1,10 +1,23 @@
-## Interface: 110007, 11505, 40401
+## Interface: 110100, 11506, 40402
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
 ## OptionalDeps: LibAppropriateItems-1.0
 ## SavedVariables: SimpleItemLevelDB
 ## Version: @project-version@
+## IconAtlas: poi-door-arrow-up
+
+## Category-enUS: Inventory
+## Category-deDE: Inventar
+## Category-esES: Inventario
+## Category-esMX: Inventario
+## Category-frFR: Inventaire
+## Category-itIT: Inventario
+## Category-koKR: 소지품
+## Category-ptBR: Inventário
+## Category-ruRU: Предметы
+## Category-zhCN: 物品栏
+## Category-zhTW: 物品欄
 
 ## X-Website: https://www.wowace.com/projects/simple-item-level
 ## X-License: BSD
