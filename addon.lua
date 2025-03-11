@@ -1016,6 +1016,7 @@ do
         if not itemLink then return false end
         local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
+        if select(3, GetItemInfoInstant(itemLink)) == "Wands" then return false end
         local enchantID = select(3, strsplit(":", itemLink))
         if enchantID == "" then return true end
         return false
