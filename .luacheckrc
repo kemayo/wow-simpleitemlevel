@@ -160,6 +160,7 @@ read_globals = {
     "TooltipDataProcessor",
     "ContinuableContainer",
     "MergeTable",
+    "LinkUtil",
 
     -- FrameXML Constants
     "APPEARANCE_LABEL",

@@ -163,7 +163,7 @@ local function DetailsFromItemInstant(item)
     local itemLink = item:GetItemLink()
     if itemLink and itemLink:match("battlepet:") then
         -- special case for caged battle pets
-        local _, speciesID, level, breedQuality = strsplit(":", itemLink)
+        local _, speciesID, level, breedQuality = ns.GetLinkValues(itemLink)
         if speciesID and level and breedQuality then
             itemLevel = tonumber(level)
             quality = tonumber(breedQuality)
@@ -973,7 +973,7 @@ do
             end
         end
         if slots == 0 then return false end
-        local gem1, gem2, gem3, gem4 = select(4, strsplit(":", itemLink))
+        local gem1, gem2, gem3, gem4 = select(4, ns.GetLinkValues(itemLink))
         local gems = (gem1 ~= "" and 1 or 0) + (gem2 ~= "" and 1 or 0) + (gem3 ~= "" and 1 or 0) + (gem4 ~= "" and 1 or 0)
         return slots > gems
     end
@@ -1016,8 +1016,13 @@ do
         if not itemLink then return false end
         local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
-        local enchantID = select(3, strsplit(":", itemLink))
+        local enchantID = select(3, ns.GetLinkValues(itemLink))
         if enchantID == "" then return true end
         return false
     end
+end
+
+ns.GetLinkValues = function(link)
+    local linkType, linkOptions, displayText = LinkUtil.ExtractLink(link)
+    return linkType, strsplit(":", linkOptions)
 end
