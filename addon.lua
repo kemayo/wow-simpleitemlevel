@@ -416,7 +416,10 @@ local function AddAverageLevelToFontString(unit, fontstring)
             (equippedLocation == "INVTYPE_2HWEAPON" and isFuryWarrior)
         ) and 16 or 15
     end
-    if isClassic then numSlots = numSlots + 1 end -- ranged slot exists in classic
+    if pcall(GetInventorySlotInfo, "RANGEDSLOT") then
+         -- ranged slot exists until Pandaria
+        numSlots = numSlots + 1
+    end
     continuableContainer:ContinueOnLoad(function()
         local totalLevel = 0
         for _, item in ipairs(items) do
