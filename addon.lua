@@ -803,6 +803,11 @@ do
         hooksecurefunc(Bagnon.Item, "Update", bagbrother_button)
     end)
 
+    --Bagnonium (exactly same internals as Bagnon):
+    ns:RegisterAddonHook("Bagnonium", function()
+        hooksecurefunc(Bagnonium.Item, "Update", bagbrother_button)
+    end)
+
     --Combuctor (exactly same internals as Bagnon):
     ns:RegisterAddonHook("Combuctor", function()
         hooksecurefunc(Combuctor.Item, "Update", bagbrother_button)

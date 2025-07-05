@@ -22,6 +22,7 @@ globals = {
     "Baggins",
     "Bagnon",
     "Combuctor",
+    "Bagnonium",
     "Baganator",
     "Baganator_SingleViewBackpackViewFrame",
     "Baganator_SingleViewBankViewFrame",
