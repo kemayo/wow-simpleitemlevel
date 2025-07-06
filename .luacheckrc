@@ -153,6 +153,7 @@ read_globals = {
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
     "InspectPaperDollFrame_OnShow",
+    "InspectPaperDollFrame_UpdateButtons",
     "EquipmentManager_UnpackLocation",
     "EquipmentManager_GetItemInfoByLocation",
     "ContainerFrameItemButton_CalculateItemTooltipAnchors",
