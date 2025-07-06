@@ -418,8 +418,12 @@ local function AddAverageLevelToFontString(unit, fontstring)
     end
     if pcall(GetInventorySlotInfo, "RANGEDSLOT") then
          -- ranged slot exists until Pandaria
+         -- C_PaperDollInfo.IsRangedSlotShown(), but that doesn't actually exist in classic...
         numSlots = numSlots + 1
     end
+    -- if UnitHasRelicSlot("target") then
+    --     numSlots = numSlots + 1
+    -- end
     continuableContainer:ContinueOnLoad(function()
         local totalLevel = 0
         for _, item in ipairs(items) do
