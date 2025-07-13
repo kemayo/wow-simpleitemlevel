@@ -500,7 +500,10 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
         if self.elapsed > 1.5 then
             self.elapsed = 0
             self:Hide()
-            InspectPaperDollFrame_UpdateButtons()
+            if InspectFrame.unit then
+                -- Classic Era Anniversary specifically seems to trigger this with timings that cause an error here
+                InspectPaperDollFrame_UpdateButtons()
+            end
         end
     end)
 
