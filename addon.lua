@@ -520,7 +520,8 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
         if not avglevel then
             avglevel = InspectModelFrame:CreateFontString(nil, "OVERLAY")
             avglevel:SetFontObject(NumberFontNormal)
-            avglevel:SetPoint("BOTTOM", 0, isClassic and 0 or 20)
+            -- Classic has a different frame structure until Mists:
+            avglevel:SetPoint("BOTTOM", 0, (isClassic and LE_EXPANSION_LEVEL_CURRENT < LE_EXPANSION_MISTS_OF_PANDARIA) and 0 or 20)
         end
         AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
     end)
