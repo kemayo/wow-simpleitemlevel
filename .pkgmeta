@@ -7,4 +7,4 @@ externals:
     lib/LibStub:
         url: svn://svn.wowace.com/wow/libstub/mainline/trunk
         tag: latest
-    lib/LibAppropriateitems-1.0: git://git.wowace.com/wow/libappropriateitems-1-0/mainline.git
+    lib/LibAppropriateItems-1.0: git://git.wowace.com/wow/libappropriateitems-1-0/mainline.git
