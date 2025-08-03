@@ -156,6 +156,7 @@ read_globals = {
     "InspectPaperDollFrame_UpdateButtons",
     "EquipmentManager_UnpackLocation",
     "EquipmentManager_GetItemInfoByLocation",
+    "EquipmentManager_GetLocationData",
     "ContainerFrameItemButton_CalculateItemTooltipAnchors",
     "GameTooltip_Hide",
     "Settings",

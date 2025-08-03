@@ -541,21 +541,33 @@ if _G.EquipmentFlyout_DisplayButton then
             local location = button.location
             if not location then return end
             if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
-            local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
-            if type(voidStorage) ~= "boolean" then
-                -- classic compatibility: no voidStorage returns, so shuffle everything down by one
-                -- returns either `player, bank, bags (true), slot, bag` or `player, bank, bags (false), location`
-                slot, bag = voidStorage, slot
-            end
-            if bags then
-                return Item:CreateFromBagAndSlot(bag, slot)
-            elseif not voidStorage then -- player or bank
-                return Item:CreateFromEquipmentSlot(slot)
-            else
-                local itemID = EquipmentManager_GetItemInfoByLocation(location)
-                if itemID then
-                    return Item:CreateFromItemID(itemID)
+            if EquipmentManager_GetLocationData then
+                -- 11.2.0
+                local locationData = EquipmentManager_GetLocationData(location)
+                if locationData.isBags then
+                    return Item:CreateFromBagAndSlot(locationData.bag, locationData.slot)
                 end
+                if locationData.isPlayer then
+                    return Item:CreateFromEquipmentSlot(locationData.slot)
+                end
+            else
+                local player, bank, bags, voidStorage, slot, bag = EquipmentManager_UnpackLocation(location)
+                if type(voidStorage) ~= "boolean" then
+                    -- classic compatibility: no voidStorage returns, so shuffle everything down by one
+                    -- returns either `player, bank, bags (true), slot, bag` or `player, bank, bags (false), location`
+                    slot, bag = voidStorage, slot
+                end
+                if bags then
+                    return Item:CreateFromBagAndSlot(bag, slot)
+                end
+                if not voidStorage then -- player or bank
+                    return Item:CreateFromEquipmentSlot(slot)
+                end
+            end
+            local itemID = EquipmentManager_GetItemInfoByLocation(location)
+            if itemID then
+                print("fell back to itemid", location)
+                return Item:CreateFromItemID(itemID)
             end
         end
     end
@@ -611,39 +623,30 @@ else
 end
 
 -- Main bank frame, bankbags are covered by containerframe above
-hooksecurefunc("BankFrameItemButton_Update", function(button)
-    if not button.isBag then
-        UpdateContainerButton(button, button:GetParent():GetID())
-    end
-end)
-
-if _G.AccountBankPanel then
-    -- Warband bank
-    local lastButtons = {} -- needed as of 11.0.0, see below for why
-    local update = function(frame)
-        table.wipe(lastButtons)
-        for itemButton in frame:EnumerateValidItems() do
-            UpdateContainerButton(itemButton, itemButton:GetBankTabID(), itemButton:GetContainerSlotID())
-            table.insert(lastButtons, itemButton)
-        end
-    end
-    -- Initial load and switching tabs
-    hooksecurefunc(AccountBankPanel, "GenerateItemSlotsForSelectedTab", update)
-    -- Moving items
-    hooksecurefunc(AccountBankPanel, "RefreshAllItemsForSelectedTab", update)
-    hooksecurefunc(AccountBankPanel, "SetItemDisplayEnabled", function(_, state)
-        -- Papering over a Blizzard bug: when you open the "buy" tab, they
-        -- call this which releases the itembuttons from the pool... but
-        -- doesn't *hide* them, so they're all still there with the buy panel
-        -- sitting one layer above them.
-        -- I sadly need to remember the buttons, because once it released them
-        -- they're no longer available via EnumerateValidItems.
-        if state == false then
-            for _, itemButton in ipairs(lastButtons) do
-                CleanButton(itemButton)
-            end
+if _G.BankFrameItemButton_Update then
+    -- pre-11.2.0 bank
+    hooksecurefunc("BankFrameItemButton_Update", function(button)
+        if not button.isBag then
+            UpdateContainerButton(button, button:GetParent():GetID())
         end
     end)
+end
+
+do
+    local function hookBankPanel(panel)
+        if not panel then return end
+        local update = function(frame)
+            for itemButton in frame:EnumerateValidItems() do
+                UpdateContainerButton(itemButton, itemButton:GetBankTabID(), itemButton:GetContainerSlotID())
+            end
+        end
+        -- Initial load and switching tabs
+        hooksecurefunc(panel, "GenerateItemSlotsForSelectedTab", update)
+        -- Moving items
+        hooksecurefunc(panel, "RefreshAllItemsForSelectedTab", update)
+    end
+    hookBankPanel(_G.BankPanel)
+    hookBankPanel(_G.AccountBankPanel)
 end
 
 -- Loot
