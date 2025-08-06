@@ -645,8 +645,8 @@ do
         -- Moving items
         hooksecurefunc(panel, "RefreshAllItemsForSelectedTab", update)
     end
-    hookBankPanel(_G.BankPanel)
-    hookBankPanel(_G.AccountBankPanel)
+    hookBankPanel(_G.BankPanel) -- added in 11.2.0
+    hookBankPanel(_G.AccountBankPanel) -- removed in 11.2.0
 end
 
 -- Loot
