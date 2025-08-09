@@ -28,7 +28,7 @@ end
 local LAI = LibStub("LibAppropriateItems-1.0")
 
 ns.soulboundAtlas = isClassic and "AzeriteReady" or "Soulbind-32x32" -- UF-SoulShard-Icon-2x
-ns.upgradeAtlas = "poi-door-arrow-up"
+ns.upgradeAtlas = "poi-door-arrow-up" -- MiniMap-PositionArrowUp?
 ns.upgradeString = CreateAtlasMarkup(ns.upgradeAtlas)
 ns.gemString = CreateAtlasMarkup(isClassic and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
 ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
@@ -221,8 +221,7 @@ local function PrepareItemButton(button)
 
         button.simpleilvlup = overlayFrame:CreateTexture(nil, "OVERLAY")
         button.simpleilvlup:SetSize(10, 10)
-        -- MiniMap-PositionArrowUp?
-        button.simpleilvlup:SetAtlas("poi-door-arrow-up")
+        button.simpleilvlup:SetAtlas(ns.upgradeAtlas)
         button.simpleilvlup:Hide()
 
         button.simpleilvlmissing = overlayFrame:CreateFontString(nil, "OVERLAY")
