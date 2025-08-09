@@ -668,15 +668,22 @@ if _G.LootFrame_UpdateButton then
 else
     -- Dragonflight
     local ITEM_LEVEL_PATTERN = ITEM_LEVEL:gsub("%%d", "(%%d+)")
+    local nope = {lines={}}
+    local lineType = Enum.TooltipDataLineType.ItemLevel or Enum.TooltipDataLineType.None
     local function itemLevelFromLootTooltip(slot)
         -- GetLootSlotLink doesn't give a link for the scaled item you'll
         -- actually loot. As such, we can fall back on tooltip scanning to
         -- extract the real level. This is only going to work on
         -- weapons/armor, but conveniently that's the things that get scaled!
         if not _G.C_TooltipInfo then return end -- in case we get a weird Classic update...
-        local info = C_TooltipInfo.GetLootItem(slot)
-        if info and info.lines and info.lines[2] and info.lines[2].type == Enum.TooltipDataLineType.None then
-            return tonumber(info.lines[2].leftText:match(ITEM_LEVEL_PATTERN))
+        local info = C_TooltipInfo.GetLootItem(slot) or nope
+        for _, line in ipairs(info.lines) do
+            if line.type == lineType then
+                local levelMatch = line.leftText:match(ITEM_LEVEL_PATTERN)
+                if levelMatch then
+                    return tonumber(levelMatch)
+                end
+            end
         end
     end
 
