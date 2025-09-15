@@ -565,7 +565,7 @@ if _G.EquipmentFlyout_DisplayButton then
             end
             local itemID = EquipmentManager_GetItemInfoByLocation(location)
             if itemID then
-                print("fell back to itemid", location)
+                -- print("fell back to itemid", location)
                 return Item:CreateFromItemID(itemID)
             end
         end
