@@ -1,4 +1,4 @@
-## Interface: 110200, 110107, 50500, 30404, 11507
+## Interface: 110207, 50500, 30404, 11507
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
