@@ -635,8 +635,13 @@ do
     local function hookBankPanel(panel)
         if not panel then return end
         local update = function(frame)
+            local canUseBank = C_Bank.CanUseBank(frame:GetActiveBankType())
             for itemButton in frame:EnumerateValidItems() do
-                UpdateContainerButton(itemButton, itemButton:GetBankTabID(), itemButton:GetContainerSlotID())
+                if canUseBank then
+                    UpdateContainerButton(itemButton, itemButton:GetBankTabID(), itemButton:GetContainerSlotID())
+                else
+                    CleanButton(itemButton)
+                end
             end
         end
         -- Initial load and switching tabs
