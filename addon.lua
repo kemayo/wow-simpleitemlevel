@@ -1030,7 +1030,7 @@ do
         return slots > gems
     end
     local enchantable = isClassic and {
-        INVTYPE_HEAD = true,
+        INVTYPE_HEAD = LE_EXPANSION_LEVEL_CURRENT < LE_EXPANSION_MISTS_OF_PANDARIA,
         INVTYPE_SHOULDER = true,
         INVTYPE_CHEST = true,
         INVTYPE_ROBE = true,
