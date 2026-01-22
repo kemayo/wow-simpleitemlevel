@@ -261,15 +261,15 @@ local function makeConfigPanel(id, name, parent, parentname)
         category, layout = Settings.RegisterCanvasLayoutCategory(frame, name)
         Settings.RegisterAddOnCategory(category)
     end
-    category.ID = id
     layout:AddAnchorPoint("TOPLEFT", 10, -10)
     layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
 
     frame:Hide()
-    return frame
+    return frame, category
 end
 
 -- actual config panel:
+local categoryID
 function ns:SetupConfig()
     local demoButtons = {}
     local function refresh(_, value)
@@ -281,7 +281,8 @@ function ns:SetupConfig()
     end
 
     do
-        local frame = makeConfigPanel(myname, myfullname)
+        local frame, category = makeConfigPanel(myname, myfullname)
+        categoryID = category:GetID()
         local title = makeTitle(frame, SHOW_ITEM_LEVEL)
         title:SetPoint("TOPLEFT", frame)
 
@@ -319,7 +320,7 @@ function ns:SetupConfig()
     end
 
     do
-        local frame = makeConfigPanel(myname.."_appearance", APPEARANCE_LABEL, myname, myfullname)
+        local frame = makeConfigPanel(myname.."_appearance", APPEARANCE_LABEL, categoryID, myfullname)
         local demo = CreateFrame("Frame", nil, frame)
 
         demo:SetPoint("TOPLEFT", frame)
@@ -413,7 +414,7 @@ SlashCmdList[myname:upper()] = function(msg)
         ns.db[msg] = not ns.db[msg]
         return ns.Print(msg, '=', ns.db[msg] and YES or NO)
     end
-    if msg == "" then
-        Settings.OpenToCategory(myname)
+    if msg == "" and categoryID then
+        Settings.OpenToCategory(categoryID)
     end
 end
