@@ -109,6 +109,17 @@ end
 ns:RegisterEvent("ADDON_LOADED")
 
 
+local function ItemFromUnitSlot(unit, slotID)
+    if unit == "player" then
+        return Item:CreateFromEquipmentSlot(slotID)
+    else
+        local itemLink = GetInventoryItemLink(unit, slotID)
+        if itemLink then return Item:CreateFromItemLink(itemLink) end
+        local itemID = GetInventoryItemID(unit, slotID)
+        if itemID then return Item:CreateFromItemID(itemID) end
+    end
+end
+
 local function ItemIsUpgrade(item)
     if not (item and LAI:IsAppropriate(item:GetItemID())) then
         return
@@ -385,19 +396,17 @@ local function AddAverageLevelToFontString(unit, fontstring)
     end
     local mainhandEquipLoc, offhandEquipLoc
     local items = {}
-    for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+    for slotID = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
         -- shirt and tabard don't count
-        if slot ~= INVSLOT_BODY and slot ~= INVSLOT_TABARD then
-            local itemID = GetInventoryItemID(unit, slot)
-            local itemLink = GetInventoryItemLink(unit, slot)
-            if itemLink or itemID then
-                local item = itemLink and Item:CreateFromItemLink(itemLink) or Item:CreateFromItemID(itemID)
+        if slotID ~= INVSLOT_BODY and slotID ~= INVSLOT_TABARD then
+            local item = ItemFromUnitSlot(unit, slotID)
+            if item and not item:IsItemEmpty() then
                 continuableContainer:AddContinuable(item)
                 table.insert(items, item)
                 -- slot bookkeeping
-                local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink or itemID))
-                if slot == INVSLOT_MAINHAND then mainhandEquipLoc = equipLoc end
-                if slot == INVSLOT_OFFHAND then offhandEquipLoc = equipLoc end
+                local equipLoc = select(4, C_Item.GetItemInfoInstant(item:GetItemLink() or item:GetItemID()))
+                if slotID == INVSLOT_MAINHAND then mainhandEquipLoc = equipLoc end
+                if slotID == INVSLOT_OFFHAND then offhandEquipLoc = equipLoc end
             end
         end
     end
@@ -432,7 +441,9 @@ local function AddAverageLevelToFontString(unit, fontstring)
         local totalLevel = 0
         for _, item in ipairs(items) do
             totalLevel = totalLevel + item:GetCurrentItemLevel()
+            -- print("item", item:GetItemLink(), item:GetCurrentItemLevel())
         end
+        -- print("total", totalLevel, "/", numSlots, "=", totalLevel / numSlots)
         fontstring:SetFormattedText(ITEM_LEVEL, totalLevel / numSlots)
         fontstring:Show()
     end)
@@ -449,16 +460,7 @@ local function UpdateItemSlotButton(button, unit)
     local slotID = button:GetID()
 
     if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) then
-        local item
-        if unit == "player" then
-            item = Item:CreateFromEquipmentSlot(slotID)
-        else
-            local itemID = GetInventoryItemID(unit, slotID)
-            local itemLink = GetInventoryItemLink(unit, slotID)
-            if itemLink or itemID then
-                item = itemLink and Item:CreateFromItemLink(itemLink) or Item:CreateFromItemID(itemID)
-            end
-        end
+        local item = ItemFromUnitSlot(unit, slotID)
         UpdateButtonFromItem(button, item, key)
         return item
     end
