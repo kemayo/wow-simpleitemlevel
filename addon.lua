@@ -132,6 +132,26 @@ end
 ns:RegisterEvent("ADDON_LOADED")
 
 
+local ItemLevelFromTooltip
+do
+    local empty = {lines={}}
+    local lineType = Enum.TooltipDataLineType.ItemLevel or Enum.TooltipDataLineType.None
+    local ITEM_LEVEL_PATTERN = ITEM_LEVEL:gsub("%%d", "(%%d+)")
+    function ItemLevelFromTooltip(info)
+        for _, line in ipairs((info or empty).lines) do
+            if line.type == lineType then
+                if line.itemLevel then
+                    return line.itemLevel
+                end
+                local levelMatch = line.leftText:match(ITEM_LEVEL_PATTERN)
+                if levelMatch then
+                    return tonumber(levelMatch)
+                end
+            end
+        end
+    end
+end
+
 local function ItemFromUnitSlot(unit, slotID)
     if unit == "player" then
         return Item:CreateFromEquipmentSlot(slotID)
@@ -143,7 +163,7 @@ local function ItemFromUnitSlot(unit, slotID)
     end
 end
 
-local function ItemIsUpgrade(item)
+local function ItemIsUpgrade(item, levelOverride)
     if not (item and LAI:IsAppropriate(item:GetItemID())) then
         return
     end
@@ -155,7 +175,7 @@ local function ItemIsUpgrade(item)
         return
     end
     local isUpgrade
-    local itemLevel = item:GetCurrentItemLevel() or 0
+    local itemLevel = levelOverride or item:GetCurrentItemLevel() or 0
     local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
     ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
         -- This *isn't* async, for flow reasons, so if the equipped items
@@ -397,8 +417,13 @@ local function UpdateButtonFromItem(button, item, variant, suppress, extradetail
     item:ContinueOnItemLoad(function()
         if not ShouldShowOnItem(item) then return end
         PrepareItemButton(button, variant)
-        local details = DetailsFromItem(item)
-        if extradetails then MergeTable(details, extradetails) end
+        local details = DetailsFromItem(item, extradetails and extradetails.level)
+        if extradetails then
+            MergeTable(details, extradetails)
+            if extradetails.level then
+                details.upgrade = ItemIsUpgrade(item, extradetails.level)
+            end
+        end
         if not suppress.level then AddLevelToButton(button, details) end
         if not suppress.upgrade then AddUpgradeToButton(button, details) end
         if not suppress.bound then AddBoundToButton(button, details) end
@@ -493,7 +518,9 @@ local function UpdateItemSlotButton(button, unit)
 
     if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) then
         local item = ItemFromUnitSlot(unit, slotID)
-        UpdateButtonFromItem(button, item, key)
+        UpdateButtonFromItem(button, item, key, nil, {
+            level = ItemLevelFromTooltip(_G.C_TooltipInfo and C_TooltipInfo.GetInventoryItem(unit, slotID))
+        })
         return item
     end
 end
@@ -706,26 +733,6 @@ if _G.LootFrame_UpdateButton then
     end)
 else
     -- Dragonflight
-    local ITEM_LEVEL_PATTERN = ITEM_LEVEL:gsub("%%d", "(%%d+)")
-    local nope = {lines={}}
-    local lineType = Enum.TooltipDataLineType.ItemLevel or Enum.TooltipDataLineType.None
-    local function itemLevelFromLootTooltip(slot)
-        -- GetLootSlotLink doesn't give a link for the scaled item you'll
-        -- actually loot. As such, we can fall back on tooltip scanning to
-        -- extract the real level. This is only going to work on
-        -- weapons/armor, but conveniently that's the things that get scaled!
-        if not _G.C_TooltipInfo then return end -- in case we get a weird Classic update...
-        local info = C_TooltipInfo.GetLootItem(slot) or nope
-        for _, line in ipairs(info.lines) do
-            if line.type == lineType then
-                local levelMatch = line.leftText:match(ITEM_LEVEL_PATTERN)
-                if levelMatch then
-                    return tonumber(levelMatch)
-                end
-            end
-        end
-    end
-
     local function handleSlot(frame)
         if not frame.Item then return end
         CleanButton(frame.Item)
@@ -735,7 +742,11 @@ else
         local link = GetLootSlotLink(data.slotIndex)
         if link then
             UpdateButtonFromItem(frame.Item, Item:CreateFromItemLink(link), "loot", nil, {
-                level = itemLevelFromLootTooltip(data.slotIndex),
+            -- GetLootSlotLink doesn't give a link for the scaled item you'll
+            -- actually loot. As such, we can fall back on tooltip scanning to
+            -- extract the real level. This is only going to work on
+            -- weapons/armor, but conveniently that's the things that get scaled!
+                level = ItemLevelFromTooltip(_G.C_TooltipInfo and C_TooltipInfo.GetLootItem(data.slotIndex)),
             })
         end
     end
