@@ -197,14 +197,16 @@ do
 end
 local function makeCheckboxList(parent, checkboxes, previous, callback)
     for _, data in ipairs(checkboxes) do
-        local control
-        if data[1] then
-            control = makeCheckbox(parent, data[1], data[2], data[3], callback)
-        else
-            control = makeTitle(parent, data[2])
+        if data then
+            local control
+            if data[1] then
+                control = makeCheckbox(parent, data[1], data[2], data[3], callback)
+            else
+                control = makeTitle(parent, data[2])
+            end
+            control:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
+            previous = control
         end
-        control:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -4)
-        previous = control
     end
     return previous
 end
@@ -286,11 +288,14 @@ function ns:SetupConfig()
         local title = makeTitle(frame, SHOW_ITEM_LEVEL)
         title:SetPoint("TOPLEFT", frame)
 
+        local biggerCharacterSheet = LE_EXPANSION_LEVEL_CURRENT >= LE_EXPANSION_WRATH_OF_THE_LICH_KING
         local checkboxes = {
             {"bags", BAGSLOTTEXT},
             {"character", ORDER_HALL_EQUIPMENT_SLOTS},
+            biggerCharacterSheet and {"character_inset", "   show levels inside the frame", "Instead of being overlaid on the item"},
             {"flyout", "Equipment flyouts"},
             {"inspect", INSPECT},
+            biggerCharacterSheet and {"inspect_inset", "   show levels inside the frame", "Instead of being overlaid on the item"},
             {"loot", LOOT},
             {"characteravg", "Character average item level"},
             {"inspectavg", "Inspect average item level"},

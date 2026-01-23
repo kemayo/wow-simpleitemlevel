@@ -51,11 +51,34 @@ ns.PositionOffsets = {
     RIGHT = {-2, 0},
     CENTER = {0, 0},
 }
+if LE_EXPANSION_LEVEL_CURRENT >= LE_EXPANSION_WRATH_OF_THE_LICH_KING then
+    -- A lot of space on the character sheet freed up here
+    local ONRIGHT = {"LEFT", "RIGHT", 8, 0}
+    local ONLEFT = {"RIGHT", "LEFT", -8, 0}
+    ns.CharacterButtonInsetPositions = {
+        CharacterMainHandSlot = {"TOPRIGHT", "TOPLEFT", -8, 0},
+        InspectMainHandSlot = {"TOPRIGHT", "TOPLEFT", -8, 0},
+        CharacterSecondaryHandSlot = {"TOPLEFT", "TOPRIGHT", 4, 0},
+        InspectSecondaryHandSlot = {"TOPLEFT", "TOPRIGHT", 4, 0},
+    }
+    for _, slot in ipairs({"Head", "Neck", "Shoulder", "Back", "Chest", "Shirt", "Tabard", "Wrist"}) do
+        ns.CharacterButtonInsetPositions["Character"..slot.."Slot"] = ONRIGHT
+        ns.CharacterButtonInsetPositions["Inspect"..slot.."Slot"] = ONRIGHT
+    end
+    for _, slot in ipairs({"Hands", "Waist", "Legs", "Feet", "Finger0", "Finger1", "Trinket0", "Trinket1"}) do
+        ns.CharacterButtonInsetPositions["Character"..slot.."Slot"] = ONLEFT
+        ns.CharacterButtonInsetPositions["Inspect"..slot.."Slot"] = ONLEFT
+    end
+else
+    ns.CharacterButtonInsetPositions = {}
+end
 
 ns.defaults = {
     -- places
     character = true,
+    character_inset = false,
     inspect = true,
+    inspect_inset = false,
     bags = true,
     loot = true,
     flyout = true,
@@ -220,7 +243,7 @@ end
 ns.DetailsFromItem = DetailsFromItem
 
 ns.frames = {} -- TODO: should I make this a FramePool now?
-local function PrepareItemButton(button)
+local function PrepareItemButton(button, variant)
     if not button.simpleilvl then
         local overlayFrame = CreateFrame("FRAME", nil, button)
         overlayFrame:SetAllPoints()
@@ -245,11 +268,20 @@ local function PrepareItemButton(button)
 
         ns.frames[button] = overlayFrame
     end
+    button.simpleilvloverlay.variant = variant or button.simpleilvloverlay.variant
+    variant = button.simpleilvloverlay.variant
+
     button.simpleilvloverlay:SetFrameLevel(button:GetFrameLevel() + 1)
 
     -- Apply appearance config:
     button.simpleilvl:ClearAllPoints()
-    button.simpleilvl:SetPoint(db.position, unpack(ns.PositionOffsets[db.position]))
+    local position, positionOffsets = db.position, ns.PositionOffsets[db.position]
+    if (variant == "character" and db.character_inset) or (variant == "inspect" and db.inspect_inset) and ns.CharacterButtonInsetPositions[button:GetName()] then
+        local point, relativePoint, x, y = unpack(ns.CharacterButtonInsetPositions[button:GetName()])
+        button.simpleilvl:SetPoint(point, button.simpleilvloverlay, relativePoint, x, y)
+    else
+        button.simpleilvl:SetPoint(db.position, unpack(ns.PositionOffsets[db.position]))
+    end
     button.simpleilvl:SetFontObject(ns.Fonts[db.font] or NumberFontNormal)
     -- button.simpleilvl:SetJustifyH('RIGHT')
 
@@ -364,7 +396,7 @@ local function UpdateButtonFromItem(button, item, variant, suppress, extradetail
     suppress = suppress or blank
     item:ContinueOnItemLoad(function()
         if not ShouldShowOnItem(item) then return end
-        PrepareItemButton(button)
+        PrepareItemButton(button, variant)
         local details = DetailsFromItem(item)
         if extradetails then MergeTable(details, extradetails) end
         if not suppress.level then AddLevelToButton(button, details) end
