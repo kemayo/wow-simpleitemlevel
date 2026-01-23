@@ -1029,6 +1029,20 @@ do
         local gems = (gem1 ~= "" and 1 or 0) + (gem2 ~= "" and 1 or 0) + (gem3 ~= "" and 1 or 0) + (gem4 ~= "" and 1 or 0)
         return slots > gems
     end
+    local enchantableRings = true
+    if isClassic and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_MISTS_OF_PANDARIA then
+        -- MoP specifically only allows you to enchant your own rings
+        local MISTS_ENCHANTING_ID = 2489
+        local prof1, prof2 = GetProfessions()
+        if prof1 then
+            local skillName, _, skillLevel, maxSkillLevel, _, _, skillLineID, _, _, _, displayName = GetProfessionInfo(prof1)
+            enchantableRings = skillLineID == MISTS_ENCHANTING_ID
+        end
+        if prof2 and not enchantableRings then
+            local skillName, _, skillLevel, maxSkillLevel, _, _, skillLineID, _, _, _, displayName = GetProfessionInfo(prof2)
+            enchantableRings = skillLineID == MISTS_ENCHANTING_ID
+        end
+    end
     local enchantable = isClassic and {
         INVTYPE_HEAD = LE_EXPANSION_LEVEL_CURRENT < LE_EXPANSION_MISTS_OF_PANDARIA,
         INVTYPE_SHOULDER = true,
@@ -1038,7 +1052,7 @@ do
         INVTYPE_FEET = true,
         INVTYPE_WRIST = true,
         INVTYPE_HAND = true,
-        INVTYPE_FINGER = true,
+        INVTYPE_FINGER = enchantableRings,
         INVTYPE_CLOAK = true,
         INVTYPE_WEAPON = true,
         INVTYPE_SHIELD = true,
@@ -1055,7 +1069,7 @@ do
         INVTYPE_LEGS = true,
         INVTYPE_FEET = true,
         INVTYPE_WRIST = true,
-        INVTYPE_FINGER = true,
+        INVTYPE_FINGER = enchantableRings,
         INVTYPE_CLOAK = true,
         INVTYPE_WEAPON = true,
         INVTYPE_2HWEAPON = true,

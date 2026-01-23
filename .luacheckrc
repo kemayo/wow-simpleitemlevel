@@ -86,6 +86,8 @@ read_globals = {
     "GetItemInfoInstant",
     "GetItemStats",
     "GetLootSlotLink",
+    "GetProfessions",
+    "GetProfessionInfo",
     "GetTime",
     "GetVoidItemHyperlinkString",
     "GetVoidItemInfo",
