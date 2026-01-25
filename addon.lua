@@ -459,7 +459,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
             local item = ItemFromUnitSlot(unit, slotID)
             if item and not item:IsItemEmpty() then
                 continuableContainer:AddContinuable(item)
-                table.insert(items, item)
+                items[slotID] = item
                 -- slot bookkeeping
                 local equipLoc = select(4, C_Item.GetItemInfoInstant(item:GetItemLink() or item:GetItemID()))
                 if slotID == INVSLOT_MAINHAND then mainhandEquipLoc = equipLoc end
@@ -496,8 +496,9 @@ local function AddAverageLevelToFontString(unit, fontstring)
     -- end
     continuableContainer:ContinueOnLoad(function()
         local totalLevel = 0
-        for _, item in ipairs(items) do
-            totalLevel = totalLevel + item:GetCurrentItemLevel()
+        for slotID, item in pairs(items) do
+            local level = unit ~= "player" and ItemLevelFromTooltip(_G.C_TooltipInfo and C_TooltipInfo.GetInventoryItem(unit, slotID)) or item:GetCurrentItemLevel()
+            totalLevel = totalLevel + level
             -- print("item", item:GetItemLink(), item:GetCurrentItemLevel())
         end
         -- print("total", totalLevel, "/", numSlots, "=", totalLevel / numSlots)
