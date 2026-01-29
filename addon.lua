@@ -1136,5 +1136,9 @@ end
 
 ns.GetLinkValues = function(link)
     local linkType, linkOptions, displayText = LinkUtil.ExtractLink(link)
-    return linkType, strsplit(":", linkOptions)
+    if linkOptions then
+        -- If this was given a sparse link (`item:12345`) linkOptions will be nil
+        return linkType, strsplit(":", linkOptions)
+    end
+    return linkType
 end
