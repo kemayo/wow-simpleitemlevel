@@ -178,7 +178,7 @@ local function ItemIsUpgrade(item, itemLevelOverride)
     if itemLevelOverride == true and _G.C_TooltipInfo and item:GetItemLink() then
         itemLevelOverride = ItemLevelFromTooltip(C_TooltipInfo.GetHyperlink(item:GetItemLink()))
     end
-    local itemLevel = itemLevelOverride or item:GetCurrentItemLevel() or 0
+    local itemLevel = type(itemLevelOverride) == "number" and itemLevelOverride or item:GetCurrentItemLevel() or 0
     local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
     ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
         -- This *isn't* async, for flow reasons, so if the equipped items
@@ -218,7 +218,7 @@ local function DetailsFromItemInstant(item, itemLevelOverride)
     if itemLevelOverride == true and _G.C_TooltipInfo and item:GetItemLink() then
         itemLevelOverride = ItemLevelFromTooltip(C_TooltipInfo.GetHyperlink(item:GetItemLink()))
     end
-    local itemLevel = itemLevelOverride or item:GetCurrentItemLevel()
+    local itemLevel = type(itemLevelOverride) == "number" and itemLevelOverride or item:GetCurrentItemLevel() or 0
     local quality = item:GetItemQuality()
     local itemLink = item:GetItemLink()
     if itemLink and itemLink:match("battlepet:") then
