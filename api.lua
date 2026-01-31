@@ -52,7 +52,7 @@ end
 -- Returns boolean
 SimpleItemLevel.API.ItemIsUpgrade = function(item)
     item = itemFromArg(item)
-    return ns.ItemIsUpgrade(item)
+    return ns.ItemIsUpgrade(item, true)
 end
 
 -- Tests whether an item is an upgrade compared to current equipment

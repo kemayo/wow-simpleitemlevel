@@ -163,7 +163,7 @@ local function ItemFromUnitSlot(unit, slotID)
     end
 end
 
-local function ItemIsUpgrade(item, levelOverride)
+local function ItemIsUpgrade(item, itemLevelOverride)
     if not (item and LAI:IsAppropriate(item:GetItemID())) then
         return
     end
@@ -175,7 +175,10 @@ local function ItemIsUpgrade(item, levelOverride)
         return
     end
     local isUpgrade
-    local itemLevel = levelOverride or item:GetCurrentItemLevel() or 0
+    if itemLevelOverride == true and _G.C_TooltipInfo and item:GetItemLink() then
+        itemLevelOverride = ItemLevelFromTooltip(C_TooltipInfo.GetHyperlink(item:GetItemLink()))
+    end
+    local itemLevel = itemLevelOverride or item:GetCurrentItemLevel() or 0
     local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
     ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
         -- This *isn't* async, for flow reasons, so if the equipped items
@@ -209,10 +212,13 @@ end
 ns.ItemIsUpgrade = ItemIsUpgrade
 
 -- TODO: this is a good candidate for caching results...
-local function DetailsFromItemInstant(item)
+local function DetailsFromItemInstant(item, itemLevelOverride)
     if not item or item:IsItemEmpty() then return {} end
     -- print("DetailsFromItem", item:GetItemLink())
-    local itemLevel = item:GetCurrentItemLevel()
+    if itemLevelOverride == true and _G.C_TooltipInfo and item:GetItemLink() then
+        itemLevelOverride = ItemLevelFromTooltip(C_TooltipInfo.GetHyperlink(item:GetItemLink()))
+    end
+    local itemLevel = itemLevelOverride or item:GetCurrentItemLevel()
     local quality = item:GetItemQuality()
     local itemLink = item:GetItemLink()
     if itemLink and itemLink:match("battlepet:") then
@@ -231,9 +237,9 @@ local function DetailsFromItemInstant(item)
 end
 ns.DetailsFromItemInstant = DetailsFromItemInstant
 
-local function DetailsFromItem(item)
+local function DetailsFromItem(item, itemLevelOverride)
     if not item or item:IsItemEmpty() then return {} end
-    local details = DetailsFromItemInstant(item)
+    local details = DetailsFromItemInstant(item, itemLevelOverride)
     details.missingGems = ns.ItemHasEmptySlots(details.link)
     details.missingEnchants = ns.ItemIsMissingEnchants(details.link)
     details.upgrade = ItemIsUpgrade(item)
@@ -931,14 +937,15 @@ ns:RegisterAddonHook("Baganator", function()
             -- If we have a container-item, we should use that because it's needed for soulbound detection
             local bag, slot = button:GetParent():GetID(), button:GetID()
             -- print("SetItemDetails", details.itemLink, bag, slot)
-            if bag and slot and slot ~= 0 then
+            local fromBagslot = bag and slot and slot ~= 0
+            if fromBagslot then
                 item = Item:CreateFromBagAndSlot(bag, slot)
             elseif details.itemLink then
                 item = Item:CreateFromItemLink(details.itemLink)
             end
             if not item then return false end -- no item, go away
             if not item:IsItemDataCached() then return nil end -- item isn't cached, come back in a second
-            local data = DetailsFromItem(item)
+            local data = DetailsFromItem(item, not fromBagslot) -- if not from bagslot, forcibly acquire the level from the tooltip
             return callback(cornerFrame, item, data, details)
         end
     end
