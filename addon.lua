@@ -302,7 +302,7 @@ local function PrepareItemButton(button, variant)
     -- Apply appearance config:
     button.simpleilvl:ClearAllPoints()
     local position, positionOffsets = db.position, ns.PositionOffsets[db.position]
-    if (variant == "character" and db.character_inset) or (variant == "inspect" and db.inspect_inset) and ns.CharacterButtonInsetPositions[button:GetName()] then
+    if ((variant == "character" and db.character_inset) or (variant == "inspect" and db.inspect_inset)) and ns.CharacterButtonInsetPositions[button:GetName()] then
         local point, relativePoint, x, y = unpack(ns.CharacterButtonInsetPositions[button:GetName()])
         button.simpleilvl:SetPoint(point, button.simpleilvloverlay, relativePoint, x, y)
     else
