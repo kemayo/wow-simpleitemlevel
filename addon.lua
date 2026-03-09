@@ -1117,13 +1117,13 @@ do
         INVTYPE_HOLDABLE = true,
     } or {
         -- retail
+        INVTYPE_HEAD = true,
+        INVTYPE_SHOULDER = true,
         INVTYPE_CHEST = true,
         INVTYPE_ROBE = true,
         INVTYPE_LEGS = true,
         INVTYPE_FEET = true,
-        INVTYPE_WRIST = true,
         INVTYPE_FINGER = enchantableRings,
-        INVTYPE_CLOAK = true,
         INVTYPE_WEAPON = true,
         INVTYPE_2HWEAPON = true,
         INVTYPE_WEAPONMAINHAND = true,
