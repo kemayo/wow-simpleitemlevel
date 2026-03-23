@@ -945,6 +945,7 @@ ns:RegisterAddonHook("Baganator", function()
             end
             if not item then return false end -- no item, go away
             if not item:IsItemDataCached() then return nil end -- item isn't cached, come back in a second
+            if not ShouldShowOnItem(item) then return false end
             local data = DetailsFromItem(item, not fromBagslot) -- if not from bagslot, forcibly acquire the level from the tooltip
             return callback(cornerFrame, item, data, details)
         end
@@ -998,7 +999,7 @@ ns:RegisterAddonHook("Baganator", function()
         onUpdate(function(cornerFrame, item, data, details)
             if db.missingcharacter then return false end
             local missingGems = db.missinggems and data.missingGems
-            local missingEnchants =  db.missingenchants and data.missingEnchants
+            local missingEnchants = db.missingenchants and data.missingEnchants
             if missingGems or missingEnchants then
                 cornerFrame:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
                 return true
