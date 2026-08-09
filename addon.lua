@@ -500,9 +500,8 @@ local function AddAverageLevelToFontString(unit, fontstring)
             (equippedLocation == "INVTYPE_2HWEAPON" and isFuryWarrior)
         ) and 16 or 15
     end
-    if pcall(GetInventorySlotInfo, "RANGEDSLOT") then
-         -- ranged slot exists until Pandaria
-         -- C_PaperDollInfo.IsRangedSlotShown(), but that doesn't actually exist in classic...
+    -- ranged slot exists until Pandaria
+    if C_PaperDollInfo.IsRangedSlotShown() then
         numSlots = numSlots + 1
     end
     -- if UnitHasRelicSlot("target") then
