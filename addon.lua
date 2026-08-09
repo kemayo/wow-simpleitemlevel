@@ -1138,6 +1138,7 @@ do
         INVTYPE_RANGED = true,
         INVTYPE_RANGEDRIGHT = true,
         INVTYPE_WEAPONOFFHAND = true,
+        INVTYPE_PROFESSION_TOOL = true,
     }
     function ns.ItemIsMissingEnchants(itemLink)
         if not itemLink then return false end
