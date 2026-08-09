@@ -49,6 +49,8 @@ read_globals = {
     "C_AddOns",
     "C_Bank",
     "C_Item",
+    "C_PaperDollInfo",
+    "C_SpecializationInfo",
     "C_TooltipInfo",
     "hooksecurefunc",
     "BankButtonIDToInvSlotID",

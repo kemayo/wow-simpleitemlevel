@@ -5,6 +5,9 @@ local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 ns.DEBUG = C_AddOns.GetAddOnMetadata(myname, "Version") == "@".."project-version@"
 
 local issecretvalue = _G.issecretvalue or function() return false end
+-- the bare globals only survive behind the loadDeprecationFallbacks cvar
+local GetInventorySlotInfo = C_PaperDollInfo and C_PaperDollInfo.GetInventorySlotInfo or _G.GetInventorySlotInfo
+local GetInspectSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetInspectSpecialization or _G.GetInspectSpecialization
 
 _G.SimpleItemLevel = {}
 
@@ -485,7 +488,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
         if unit == "player" then
             isFuryWarrior = isFuryWarrior and IsSpellKnown(46917) -- knows titan's grip
         else
-            local spec = _G.GetInspectSpecialization and GetInspectSpecialization(unit)
+            local spec = GetInspectSpecialization and GetInspectSpecialization(unit)
             isFuryWarrior = isFuryWarrior and not issecretvalue(spec) and spec == 72
         end
         -- unit is holding a one-handed weapon, a main-handed weapon, or a 2h weapon while Fury: 16 slots
