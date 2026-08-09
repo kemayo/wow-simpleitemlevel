@@ -1107,59 +1107,79 @@ do
         local prof1, prof2 = GetProfessions()
         return IsEnchanting(prof1) or IsEnchanting(prof2)
     end
-    -- Blizzard revisits the classic expansions, so ask which one this client is
-    -- rather than assuming it is the newest. Head enchants ran until Mists, and
-    -- rings arrived in Burning Crusade and stayed enchanter-only throughout.
-    local classicSlots = {
-        [LE_EXPANSION_CLASSIC] = {head = true},
-        [LE_EXPANSION_BURNING_CRUSADE] = {head = true, rings = true},
-        [LE_EXPANSION_WRATH_OF_THE_LICH_KING] = {head = true, rings = true},
-        [LE_EXPANSION_CATACLYSM] = {head = true, rings = true},
-        [LE_EXPANSION_MISTS_OF_PANDARIA] = {rings = true},
+    -- Groups that have always moved together
+    local WEAPONS = {
+        "INVTYPE_WEAPON", "INVTYPE_2HWEAPON", "INVTYPE_WEAPONMAINHAND",
+        "INVTYPE_WEAPONOFFHAND", "INVTYPE_RANGED", "INVTYPE_RANGEDRIGHT",
     }
-    local classic = classicSlots[LE_EXPANSION_LEVEL_CURRENT] or classicSlots[LE_EXPANSION_MISTS_OF_PANDARIA]
-    local enchantable = isClassic and {
-        INVTYPE_HEAD = classic.head,
-        INVTYPE_SHOULDER = true,
-        INVTYPE_CHEST = true,
-        INVTYPE_ROBE = true,
-        INVTYPE_LEGS = true,
-        INVTYPE_FEET = true,
-        INVTYPE_WRIST = true,
-        INVTYPE_HAND = true,
-        INVTYPE_FINGER = classic.rings,
-        INVTYPE_CLOAK = true,
-        INVTYPE_WEAPON = true,
-        INVTYPE_SHIELD = true,
-        INVTYPE_2HWEAPON = true,
-        INVTYPE_WEAPONMAINHAND = true,
-        INVTYPE_RANGED = true,
-        INVTYPE_RANGEDRIGHT = true,
-        INVTYPE_WEAPONOFFHAND = true,
-        INVTYPE_HOLDABLE = true,
-    } or {
-        -- retail
-        INVTYPE_HEAD = true,
-        INVTYPE_SHOULDER = true,
-        INVTYPE_CHEST = true,
-        INVTYPE_ROBE = true,
-        INVTYPE_LEGS = true,
-        INVTYPE_FEET = true,
-        INVTYPE_FINGER = true,
-        INVTYPE_WEAPON = true,
-        INVTYPE_2HWEAPON = true,
-        INVTYPE_WEAPONMAINHAND = true,
-        INVTYPE_RANGED = true,
-        INVTYPE_RANGEDRIGHT = true,
-        INVTYPE_WEAPONOFFHAND = true,
-        INVTYPE_PROFESSION_TOOL = true,
+    local BODY = {"INVTYPE_CHEST", "INVTYPE_ROBE", "INVTYPE_LEGS", "INVTYPE_FEET"}
+    -- armor that took enchants throughout the classic expansions
+    local OLD_ARMOR = {
+        "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_CLOAK", "INVTYPE_SHIELD",
+        "INVTYPE_HOLDABLE",
     }
+    local function Slots(...)
+        local set = {}
+        local function add(item)
+            if type(item) == "table" then
+                for _, sub in ipairs(item) do add(sub) end
+            else
+                set[item] = true
+            end
+        end
+        for i = 1, select("#", ...) do add((select(i, ...))) end
+        return set
+    end
+    -- One row per expansion, because Classic keeps rolling forward through them
+    -- and retail is simply the newest of them. A new expansion needs a row here,
+    -- on either flavour. Head enchants ran until Mists and came back in Midnight,
+    -- rings arrived in Burning Crusade and were enchanter-only until Cataclysm.
+    local expansions = {
+        [LE_EXPANSION_CLASSIC] = {
+            slots = Slots(WEAPONS, BODY, OLD_ARMOR, "INVTYPE_HEAD", "INVTYPE_SHOULDER"),
+        },
+        [LE_EXPANSION_BURNING_CRUSADE] = {
+            ringsNeedEnchanter = true,
+            slots = Slots(WEAPONS, BODY, OLD_ARMOR, "INVTYPE_HEAD", "INVTYPE_SHOULDER", "INVTYPE_FINGER"),
+        },
+        [LE_EXPANSION_WRATH_OF_THE_LICH_KING] = {
+            ringsNeedEnchanter = true,
+            slots = Slots(WEAPONS, BODY, OLD_ARMOR, "INVTYPE_HEAD", "INVTYPE_SHOULDER", "INVTYPE_FINGER"),
+        },
+        [LE_EXPANSION_CATACLYSM] = {
+            ringsNeedEnchanter = true,
+            slots = Slots(WEAPONS, BODY, OLD_ARMOR, "INVTYPE_HEAD", "INVTYPE_SHOULDER", "INVTYPE_FINGER"),
+        },
+        [LE_EXPANSION_MISTS_OF_PANDARIA] = {
+            ringsNeedEnchanter = true,
+            slots = Slots(WEAPONS, BODY, OLD_ARMOR, "INVTYPE_SHOULDER", "INVTYPE_FINGER"),
+        },
+        [LE_EXPANSION_MIDNIGHT or math.huge] = {
+            slots = Slots(WEAPONS, BODY, "INVTYPE_HEAD", "INVTYPE_SHOULDER",
+                "INVTYPE_FINGER", "INVTYPE_PROFESSION_TOOL"),
+        },
+    }
+    local current = expansions[LE_EXPANSION_LEVEL_CURRENT]
+    if not current then
+        -- an expansion we have no row for yet: use the newest one below it
+        local newest = -1
+        for expansion in pairs(expansions) do
+            if expansion <= LE_EXPANSION_LEVEL_CURRENT and expansion > newest then
+                newest = expansion
+            end
+        end
+        if ns.DEBUG then
+            ns.Print("No slot data for current expansion, fell back to", newest)
+        end
+        current = expansions[newest]
+    end
+    local enchantable = current.slots
     function ns.ItemIsMissingEnchants(itemLink)
         if not itemLink then return false end
         local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
         -- professions aren't known yet when this file loads, so ask at call time
-        if isClassic and equipLoc == "INVTYPE_FINGER" and not PlayerIsEnchanter() then
+        if current.ringsNeedEnchanter and equipLoc == "INVTYPE_FINGER" and not PlayerIsEnchanter() then
             return false
         end
         local enchantID = select(3, ns.GetLinkValues(itemLink))
