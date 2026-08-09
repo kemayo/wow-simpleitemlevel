@@ -1090,22 +1090,36 @@ do
         local gems = (gem1 ~= "" and 1 or 0) + (gem2 ~= "" and 1 or 0) + (gem3 ~= "" and 1 or 0) + (gem4 ~= "" and 1 or 0)
         return slots > gems
     end
-    local enchantableRings = true
-    if isClassic and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_MISTS_OF_PANDARIA then
-        -- MoP specifically only allows you to enchant your own rings
-        local MISTS_ENCHANTING_ID = 2489
-        local prof1, prof2 = GetProfessions()
-        if prof1 then
-            local skillName, _, skillLevel, maxSkillLevel, _, _, skillLineID, _, _, _, displayName = GetProfessionInfo(prof1)
-            enchantableRings = skillLineID == MISTS_ENCHANTING_ID
-        end
-        if prof2 and not enchantableRings then
-            local skillName, _, skillLevel, maxSkillLevel, _, _, skillLineID, _, _, _, displayName = GetProfessionInfo(prof2)
-            enchantableRings = skillLineID == MISTS_ENCHANTING_ID
-        end
+    -- Enchanting reports a skill line per expansion, and older clients report
+    -- the base one, so accept any of them
+    local ENCHANTING_SKILL_LINES = {
+        [333] = true, -- base
+        [2494] = true, -- Classic
+        [2493] = true, -- Burning Crusade
+        [2492] = true, -- Wrath
+        [2491] = true, -- Cataclysm
+        [2489] = true, -- Mists
+    }
+    local function IsEnchanting(index)
+        return index and ENCHANTING_SKILL_LINES[select(7, GetProfessionInfo(index))] or false
     end
+    local function PlayerIsEnchanter()
+        local prof1, prof2 = GetProfessions()
+        return IsEnchanting(prof1) or IsEnchanting(prof2)
+    end
+    -- Blizzard revisits the classic expansions, so ask which one this client is
+    -- rather than assuming it is the newest. Head enchants ran until Mists, and
+    -- rings arrived in Burning Crusade and stayed enchanter-only throughout.
+    local classicSlots = {
+        [LE_EXPANSION_CLASSIC] = {head = true},
+        [LE_EXPANSION_BURNING_CRUSADE] = {head = true, rings = true},
+        [LE_EXPANSION_WRATH_OF_THE_LICH_KING] = {head = true, rings = true},
+        [LE_EXPANSION_CATACLYSM] = {head = true, rings = true},
+        [LE_EXPANSION_MISTS_OF_PANDARIA] = {rings = true},
+    }
+    local classic = classicSlots[LE_EXPANSION_LEVEL_CURRENT] or classicSlots[LE_EXPANSION_MISTS_OF_PANDARIA]
     local enchantable = isClassic and {
-        INVTYPE_HEAD = LE_EXPANSION_LEVEL_CURRENT < LE_EXPANSION_MISTS_OF_PANDARIA,
+        INVTYPE_HEAD = classic.head,
         INVTYPE_SHOULDER = true,
         INVTYPE_CHEST = true,
         INVTYPE_ROBE = true,
@@ -1113,7 +1127,7 @@ do
         INVTYPE_FEET = true,
         INVTYPE_WRIST = true,
         INVTYPE_HAND = true,
-        INVTYPE_FINGER = enchantableRings,
+        INVTYPE_FINGER = classic.rings,
         INVTYPE_CLOAK = true,
         INVTYPE_WEAPON = true,
         INVTYPE_SHIELD = true,
@@ -1131,7 +1145,7 @@ do
         INVTYPE_ROBE = true,
         INVTYPE_LEGS = true,
         INVTYPE_FEET = true,
-        INVTYPE_FINGER = enchantableRings,
+        INVTYPE_FINGER = true,
         INVTYPE_WEAPON = true,
         INVTYPE_2HWEAPON = true,
         INVTYPE_WEAPONMAINHAND = true,
@@ -1144,6 +1158,10 @@ do
         if not itemLink then return false end
         local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
+        -- professions aren't known yet when this file loads, so ask at call time
+        if isClassic and equipLoc == "INVTYPE_FINGER" and not PlayerIsEnchanter() then
+            return false
+        end
         local enchantID = select(3, ns.GetLinkValues(itemLink))
         if enchantID == "" then return true end
         return false
