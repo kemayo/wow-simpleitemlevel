@@ -4,6 +4,8 @@ local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 ns.DEBUG = C_AddOns.GetAddOnMetadata(myname, "Version") == "@".."project-version@"
 
+local issecretvalue = _G.issecretvalue or function() return false end
+
 _G.SimpleItemLevel = {}
 
 local SLOT_MAINHAND = GetInventorySlotInfo("MainHandSlot")
@@ -477,11 +479,14 @@ local function AddAverageLevelToFontString(unit, fontstring)
     if mainhandEquipLoc and offhandEquipLoc then
         numSlots = 16
     else
-        local isFuryWarrior = select(2, UnitClass(unit)) == "WARRIOR"
+        -- comparing a secret errors, so treat an unknown class or spec as not fury
+        local class = select(2, UnitClass(unit))
+        local isFuryWarrior = not issecretvalue(class) and class == "WARRIOR"
         if unit == "player" then
             isFuryWarrior = isFuryWarrior and IsSpellKnown(46917) -- knows titan's grip
         else
-            isFuryWarrior = isFuryWarrior and _G.GetInspectSpecialization and GetInspectSpecialization(unit) == 72
+            local spec = _G.GetInspectSpecialization and GetInspectSpecialization(unit)
+            isFuryWarrior = isFuryWarrior and not issecretvalue(spec) and spec == 72
         end
         -- unit is holding a one-handed weapon, a main-handed weapon, or a 2h weapon while Fury: 16 slots
         -- otherwise 15 slots
