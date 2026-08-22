@@ -90,6 +90,7 @@ ns.defaults = {
     tooltip = isClassic,
     characteravg = isClassic,
     inspectavg = true,
+    colorborders = isClassic,
     -- equipmentonly = true,
     equipment = true,
     battlepets = true,
@@ -520,6 +521,27 @@ local function AddAverageLevelToFontString(unit, fontstring)
     end)
 end
 
+local function ApplyBorderColor(button, quality)
+    if quality then
+        if quality >= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality] then
+            button.IconBorder:Show()
+            button.IconBorder:SetVertexColor(BAG_ITEM_QUALITY_COLORS[quality].r, BAG_ITEM_QUALITY_COLORS[quality].g, BAG_ITEM_QUALITY_COLORS[quality].b)
+        else
+            button.IconBorder:Hide()
+        end
+    else
+        button.IconBorder:Hide()
+    end
+end
+
+if isClassic then
+    hooksecurefunc("SetItemButtonQuality", function(button, quality, itemIDOrLink, suppressOverlays)
+        -- base SetItemButtonQuality will have hidden IconBorder
+        if not db.colorborders then return end
+        ApplyBorderColor(button, quality)
+    end)
+end
+
 -- Character frame:
 
 local function UpdateItemSlotButton(button, unit)
@@ -535,6 +557,9 @@ local function UpdateItemSlotButton(button, unit)
         UpdateButtonFromItem(button, item, key, nil, {
             level = ItemLevelFromTooltip(_G.C_TooltipInfo and C_TooltipInfo.GetInventoryItem(unit, slotID))
         })
+        if db.colorborders then
+            ApplyBorderColor(button, item and item:GetItemQuality())
+        end
         return item
     end
 end

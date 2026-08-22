@@ -233,6 +233,7 @@ local function makeItemButton(parent)
             if itemID then
                 self.itemID = itemID
                 SetItemButtonTexture(button, icon)
+                SetItemButtonQuality(button, select(3, C_Item.GetItemInfo(item)))
             end
         end
         function button:GetItemID()
@@ -278,6 +279,7 @@ function ns:SetupConfig()
         ns.RefreshOverlayFrames()
         for itemID, button in pairs(demoButtons) do
             ns.CleanButton(button)
+            button:SetItem(itemID)
             ns.UpdateButtonFromItem(button, Item:CreateFromItemID(itemID), "character")
         end
     end
@@ -388,6 +390,7 @@ function ns:SetupConfig()
             {"missingcharacter", "...missing gems/enchants on the character frame only?"},
             {"bound", ("Flag items that are %s (%s)"):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), "Only on items you control; bags and character"},
             {"color", "Color item level by item quality"},
+            isClassic and {"colorborders", "Color item border by item quality"},
         }, scalebound, refresh)
     end
 end
