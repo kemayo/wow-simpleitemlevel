@@ -459,7 +459,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
     end
     fontstring:Hide()
     local key = unit == "player" and "character" or "inspect"
-    if not db[key .. "avg"] then
+    if not db[key .. "avg"] then -- characteravg / inspectavg
         return
     end
     local mainhandEquipLoc, offhandEquipLoc
@@ -594,8 +594,8 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
         if not avglevel then
             avglevel = InspectModelFrame:CreateFontString(nil, "OVERLAY")
             avglevel:SetFontObject(NumberFontNormal)
-            -- Classic has a different frame structure until Mists:
-            avglevel:SetPoint("BOTTOM", 0, (isClassic and LE_EXPANSION_LEVEL_CURRENT < LE_EXPANSION_MISTS_OF_PANDARIA) and 0 or 20)
+            -- Classic used to have a different structure, but 1.15.9 unified it
+            avglevel:SetPoint("BOTTOM", 0, 20)
         end
         AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
     end)
