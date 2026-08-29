@@ -28,6 +28,9 @@
 embeds.xml
 #@end-no-lib-strip@
 
+Locales/Locales.lua
+Locales/zhTW.lua
+
 addon.lua
 config.lua
 api.lua
