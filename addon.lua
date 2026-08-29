@@ -522,13 +522,9 @@ local function AddAverageLevelToFontString(unit, fontstring)
 end
 
 local function ApplyBorderColor(button, quality)
-    if quality then
-        if quality >= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality] then
-            button.IconBorder:Show()
-            button.IconBorder:SetVertexColor(BAG_ITEM_QUALITY_COLORS[quality].r, BAG_ITEM_QUALITY_COLORS[quality].g, BAG_ITEM_QUALITY_COLORS[quality].b)
-        else
-            button.IconBorder:Hide()
-        end
+    if quality and BAG_ITEM_QUALITY_COLORS[quality] then
+        button.IconBorder:Show()
+        button.IconBorder:SetVertexColor(BAG_ITEM_QUALITY_COLORS[quality].r, BAG_ITEM_QUALITY_COLORS[quality].g, BAG_ITEM_QUALITY_COLORS[quality].b)
     else
         button.IconBorder:Hide()
     end
