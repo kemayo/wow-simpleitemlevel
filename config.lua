@@ -1,12 +1,14 @@
 local myname, ns = ...
 local myfullname = C_AddOns.GetAddOnMetadata(myname, "Title")
 
+local L = ns.L
+
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
 local function makeFontString(frame, label, indented)
     local text = frame:CreateFontString(nil, "OVERLAY", indented and "GameFontNormalSmall" or "GameFontNormal")
     text:SetJustifyH("LEFT")
-    text:SetText(label)
+    text:SetText(L[label])
     if indented then
         text:SetPoint("LEFT", frame, (15 + 37), 0) -- indent variant
     else
@@ -181,8 +183,8 @@ do
         check:SetScript("OnClick", checkboxOnClick)
         check:SetScript("OnEnter", checkboxOnEnter)
         check:SetScript("OnLeave", GameTooltip_Hide)
-        check.tooltipText = label
-        check.tooltipRequirement = description
+        check.tooltipText = L[label]
+        check.tooltipRequirement = description and L[description]
         check:SetPoint("LEFT", frame, "CENTER", -90, 0)
         frame.Check = check
 
@@ -318,7 +320,7 @@ function ns:SetupConfig()
 
         local values = {}
         for label, value in pairs(Enum.ItemQuality) do
-            values[value] = label
+            values[value] = L[label]
         end
         local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
         quality:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -4)
@@ -357,14 +359,14 @@ function ns:SetupConfig()
 
         local fonts = {}
         for k,v in pairs(ns.Fonts) do
-            fonts[k] = k
+            fonts[k] = L[k]
         end
         local font = makeDropdown(frame, "font", "Font", fonts, refresh)
         font:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
 
         local positions = {}
         for k,v in pairs(ns.PositionOffsets) do
-            positions[k] = k
+            positions[k] = L[k]
         end
         local position = makeDropdown(frame, "position", "Position of item level", positions, refresh)
         position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
@@ -383,12 +385,12 @@ function ns:SetupConfig()
 
         makeCheckboxList(frame, {
             {false, DISPLAY_HEADER},
-            {"itemlevel", SHOW_ITEM_LEVEL, "Do you want to disable the core feature of this addon? Maybe."},
-            {"upgrades", ("Flag upgrade items (%s)"):format(ns.upgradeString)},
-            {"missinggems", ("Flag items missing gems (%s)"):format(ns.gemString)},
-            {"missingenchants", ("Flag items missing enchants (%s)"):format(ns.enchantString)},
-            {"missingcharacter", "...missing gems/enchants on the character frame only?"},
-            {"bound", ("Flag items that are %s (%s)"):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), "Only on items you control; bags and character"},
+            {"itemlevel", SHOW_ITEM_LEVEL, L["Do you want to disable the core feature of this addon? Maybe."]},
+            {"upgrades", (L["Flag upgrade items (%s)"]):format(ns.upgradeString)},
+            {"missinggems", (L["Flag items missing gems (%s)"]):format(ns.gemString)},
+            {"missingenchants", (L["Flag items missing enchants (%s)"]):format(ns.enchantString)},
+            {"missingcharacter", L["...missing gems/enchants on the character frame only?"]},
+            {"bound", (L["Flag items that are %s (%s)"]):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), L["Only on items you control; bags and character"]},
             {"color", "Color item level by item quality"},
             isClassic and {"colorborders", "Color item border by item quality"},
         }, scalebound, refresh)
@@ -413,7 +415,7 @@ SlashCmdList[myname:upper()] = function(msg)
             end
         end
         if type(quality) ~= "number" then
-            return ns.Print("Invalid item quality provided, should be a name or a number 0-8")
+            return ns.Print(L["Invalid item quality provided, should be a name or a number 0-8"])
         end
         ns.db.quality = quality
         return ns.Print("quality = ", _G["ITEM_QUALITY" .. ns.db.quality .. "_DESC"])
