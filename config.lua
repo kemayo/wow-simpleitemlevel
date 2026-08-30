@@ -124,10 +124,10 @@ local function makeDropdown(parent, key, label, values, callback)
     frame.Dropdown:HookScript("OnShow", function()
         if frame.initialize then return end
         UIDropDownMenu_Initialize(frame.Dropdown, function()
-            for k, v in pairs(values) do
+            for _, value in pairs(values) do
                 local info = UIDropDownMenu_CreateInfo()
-                info.text = v
-                info.value = k
+                info.text = value[2]
+                info.value = value[1]
                 info.func = function(self)
                     ns.db[key] = self.value
                     UIDropDownMenu_SetSelectedValue(frame.Dropdown, self.value)
@@ -286,6 +286,14 @@ function ns:SetupConfig()
         end
     end
 
+    local function GetQualityFilterString(itemQuality)
+        local hex = select(4, C_Item.GetItemQualityColor(itemQuality))
+        local text = _G["ITEM_QUALITY"..itemQuality.."_DESC"]
+        if hex and text then
+            return "|c"..hex..text.."|r"
+        end
+    end
+
     do
         local frame, category = makeConfigPanel(myname, myfullname)
         categoryID = category:GetID()
@@ -320,8 +328,10 @@ function ns:SetupConfig()
 
         local values = {}
         for label, value in pairs(Enum.ItemQuality) do
-            values[value] = L[label]
+            -- {"Poor": 0} etc
+            table.insert(values, {value, GetQualityFilterString(value) or label})
         end
+        table.sort(values, function(a, b) return a[1] < b[1] end)
         local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
         quality:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -4)
 
@@ -359,15 +369,17 @@ function ns:SetupConfig()
 
         local fonts = {}
         for k,v in pairs(ns.Fonts) do
-            fonts[k] = L[k]
+            table.insert(fonts, {k, L[k]})
         end
+        table.sort(fonts, function(a, b) return a[1] < b[1] end)
         local font = makeDropdown(frame, "font", "Font", fonts, refresh)
         font:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
 
         local positions = {}
         for k,v in pairs(ns.PositionOffsets) do
-            positions[k] = L[k]
+            table.insert(positions, {k, L[k]})
         end
+        table.sort(positions, function(a, b) return a[1] < b[1] end)
         local position = makeDropdown(frame, "position", "Position of item level", positions, refresh)
         position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
         local positionup = makeDropdown(frame, "positionup", "Position of upgrade indicator", positions, refresh)
