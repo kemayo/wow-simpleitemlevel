@@ -2,8 +2,8 @@
 -- http://www.wowace.com/projects/simple-item-level/localization/
 
 local myname, ns = ...
-if GetLocale() ~= "zhTW" then return end
+if GetLocale() ~= "zhCN" then return end
 
 local L = ns.L
 
---@localization(locale="zhTW", format="lua_additive_table", handle-unlocalized="ignore")@
+--@localization(locale="zhCN", format="lua_additive_table", handle-unlocalized="ignore")@

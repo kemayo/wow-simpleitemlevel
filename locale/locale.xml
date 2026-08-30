@@ -1,5 +1,13 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
   <Script file="locale.lua"/>
+  <Script file="deDE.lua [AllowLoadTextLocale deDE]"/>
+  <Script file="esES.lua [AllowLoadTextLocale esES]"/>
+  <Script file="frFR.lua [AllowLoadTextLocale frFR]"/>
+  <Script file="itIT.lua [AllowLoadTextLocale itIT]"/>
+  <Script file="koKR.lua [AllowLoadTextLocale koKR]"/>
+  <Script file="ptBR.lua [AllowLoadTextLocale ptBR]"/>
+  <Script file="ruRU.lua [AllowLoadTextLocale ruRU]"/>
+  <Script file="zhCN.lua [AllowLoadTextLocale zhCN]"/>
   <Script file="zhTW.lua [AllowLoadTextLocale zhTW]"/>
 </Ui>
