@@ -14,8 +14,25 @@ jobs:
         uses: lunarmodules/luacheck@v1
         with:
           args: . --no-color -q
-  build:
+
+  locale:
     needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: leafo/gh-actions-lua@v13
+        with:
+          luaVersion: "5.1.5"
+
+      - name: Update locales
+        run: bash ./bin/wowace-locale-import.sh
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          LOCALE_MISSING_PHRASE_HANDLING: ${{ startsWith(github.ref, 'refs/tags/') && 'DeletePhrase' || 'DoNothing' }}
+
+  build:
+    needs: [ lint, locale ]
     runs-on: ubuntu-latest
 
     steps:

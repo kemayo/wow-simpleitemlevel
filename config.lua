@@ -371,6 +371,8 @@ function ns:SetupConfig()
         title:SetPoint("TOPLEFT", demo, "BOTTOMLEFT", 0, -4)
 
         local fonts = {}
+        -- L[k] below is keyed off ns.Fonts; list the keys so the locale scraper sees them:
+        -- L["HighlightSmall"] L["Normal"] L["Large"] L["Huge"] L["NumberNormal"] L["NumberNormalSmall"]
         for k,v in pairs(ns.Fonts) do
             table.insert(fonts, {k, L[k]})
         end
@@ -379,6 +381,8 @@ function ns:SetupConfig()
         font:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
 
         local positions = {}
+        -- L[k] below is keyed off ns.PositionOffsets; list the keys so the locale scraper sees them:
+        -- L["TOPLEFT"] L["TOPRIGHT"] L["BOTTOMLEFT"] L["BOTTOMRIGHT"] L["BOTTOM"] L["TOP"] L["LEFT"] L["RIGHT"] L["CENTER"]
         for k,v in pairs(ns.PositionOffsets) do
             table.insert(positions, {k, L[k]})
         end

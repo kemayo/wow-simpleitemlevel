@@ -2,6 +2,7 @@ package-as: SimpleItemLevel
 
 ignore:
     - lib/.gitkeep
+    - bin
 
 externals:
     lib/LibStub:
