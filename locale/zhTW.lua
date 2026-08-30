@@ -4,7 +4,7 @@ if GetLocale() ~= "zhTW" then return end
 local L = ns.L
 
 -- Where to show item levels
-L["   show levels inside the frame"] = "   在框內顯示等級"
+L["show levels inside the frame"] = "   在框內顯示等級"
 L["Equipment flyouts"] = "裝備飛出選單"
 L["Character average item level"] = "角色平均物品等級"
 L["Inspect average item level"] = "觀察平均物品等級"
@@ -39,7 +39,7 @@ L["Flag items that are %s (%s)"] = "標記為%s (%s) 的物品"
 L["Instead of being overlaid on the item"] = "而非覆蓋在物品上"
 L["Add the item level to tooltips"] = "在提示中加入物品等級"
 L["Do you want to disable the core feature of this addon? Maybe."] = "你確定要停用本插件的核心功能嗎？也許吧。"
-L["...missing gems/enchants on the character frame only?"] = "…只在角色裝備框顯示缺失的寶石／附魔？"
+L["on the character frame only?"] = "還是只在角色框架上？"
 L["Only on items you control; bags and character"] = "僅限你擁有的物品；背包與角色"
 
 -- Slash command

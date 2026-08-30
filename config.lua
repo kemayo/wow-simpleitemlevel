@@ -172,7 +172,7 @@ do
             GameTooltip:Show()
         end
     end
-    function makeCheckbox(parent, key, label, description, callback)
+    function makeCheckbox(parent, key, label, description, indented, callback)
         local frame = CreateFrame("Frame", nil, parent)
         local check = CreateFrame("CheckButton", nil, frame, "InterfaceOptionsCheckButtonTemplate")
         check.key = key
@@ -189,6 +189,9 @@ do
         frame.Check = check
 
         frame.Text = makeFontString(frame, label, true)
+        if indented then
+            frame.Text:SetPoint("LEFT", frame, (15 + 37 + 15), 0)
+        end
 
         frame:SetPoint("RIGHT", parent)
 
@@ -202,7 +205,7 @@ local function makeCheckboxList(parent, checkboxes, previous, callback)
         if data then
             local control
             if data[1] then
-                control = makeCheckbox(parent, data[1], data[2], data[3], callback)
+                control = makeCheckbox(parent, data[1], data[2], data[3], data[4], callback)
             else
                 control = makeTitle(parent, data[2])
             end
@@ -304,10 +307,9 @@ function ns:SetupConfig()
         local checkboxes = {
             {"bags", BAGSLOTTEXT},
             {"character", ORDER_HALL_EQUIPMENT_SLOTS},
-            biggerCharacterSheet and {"character_inset", "   show levels inside the frame", "Instead of being overlaid on the item"},
-            {"flyout", "Equipment flyouts"},
+            biggerCharacterSheet and {"character_inset", "show levels inside the frame", "Instead of being overlaid on the item", true},
             {"inspect", INSPECT},
-            biggerCharacterSheet and {"inspect_inset", "   show levels inside the frame", "Instead of being overlaid on the item"},
+            biggerCharacterSheet and {"inspect_inset", "show levels inside the frame", "Instead of being overlaid on the item", true},
             {"loot", LOOT},
             {"characteravg", "Character average item level"},
             {"inspectavg", "Inspect average item level"},
@@ -401,7 +403,7 @@ function ns:SetupConfig()
             {"upgrades", (L["Flag upgrade items (%s)"]):format(ns.upgradeString)},
             {"missinggems", (L["Flag items missing gems (%s)"]):format(ns.gemString)},
             {"missingenchants", (L["Flag items missing enchants (%s)"]):format(ns.enchantString)},
-            {"missingcharacter", L["...missing gems/enchants on the character frame only?"]},
+            {"missingcharacter", L["on the character frame only?"], nil, true},
             {"bound", (L["Flag items that are %s (%s)"]):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), L["Only on items you control; bags and character"]},
             {"color", "Color item level by item quality"},
             isClassic and {"colorborders", "Color item border by item quality"},
