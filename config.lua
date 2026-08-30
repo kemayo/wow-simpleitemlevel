@@ -8,7 +8,7 @@ local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 local function makeFontString(frame, label, indented)
     local text = frame:CreateFontString(nil, "OVERLAY", indented and "GameFontNormalSmall" or "GameFontNormal")
     text:SetJustifyH("LEFT")
-    text:SetText(L[label])
+    text:SetText(label)
     if indented then
         text:SetPoint("LEFT", frame, (15 + 37), 0) -- indent variant
     else
@@ -183,8 +183,8 @@ do
         check:SetScript("OnClick", checkboxOnClick)
         check:SetScript("OnEnter", checkboxOnEnter)
         check:SetScript("OnLeave", GameTooltip_Hide)
-        check.tooltipText = L[label]
-        check.tooltipRequirement = description and L[description]
+        check.tooltipText = label
+        check.tooltipRequirement = description and description
         check:SetPoint("LEFT", frame, "CENTER", -90, 0)
         frame.Check = check
 
@@ -307,25 +307,26 @@ function ns:SetupConfig()
         local checkboxes = {
             {"bags", BAGSLOTTEXT},
             {"character", ORDER_HALL_EQUIPMENT_SLOTS},
-            biggerCharacterSheet and {"character_inset", "show levels inside the frame", "Instead of being overlaid on the item", true},
+            biggerCharacterSheet and {"character_inset", L["show levels inside the frame"], L["Instead of being overlaid on the item"], true},
+            {"flyout", L["Equipment flyouts"]},
             {"inspect", INSPECT},
-            biggerCharacterSheet and {"inspect_inset", "show levels inside the frame", "Instead of being overlaid on the item", true},
+            biggerCharacterSheet and {"inspect_inset", L["show levels inside the frame"], L["Instead of being overlaid on the item"], true},
             {"loot", LOOT},
-            {"characteravg", "Character average item level"},
-            {"inspectavg", "Inspect average item level"},
+            {"characteravg", L["Character average item level"]},
+            {"inspectavg", L["Inspect average item level"]},
         }
         if isClassic or ns.db.tooltip then
-            table.insert(checkboxes, {"tooltip", "Item tooltips", "Add the item level to tooltips"})
+            table.insert(checkboxes, {"tooltip", L["Item tooltips"], L["Add the item level to tooltips"]})
         end
 
         local last = makeCheckboxList(frame, checkboxes, title, refresh)
 
         last = makeCheckboxList(frame, {
-            {false, "Selectiveness"},
-            {"equipment", "Show on equippable items"},
-            {"battlepets", "Show on battle pets"},
-            {"reagents", "Show on crafting reagents"},
-            {"misc", "Show on anything else"},
+            {false, L["Selectiveness"]},
+            {"equipment", L["Show on equippable items"]},
+            {"battlepets", L["Show on battle pets"]},
+            {"reagents", L["Show on crafting reagents"]},
+            {"misc", L["Show on anything else"]},
         }, last, refresh)
 
         local values = {}
@@ -334,7 +335,7 @@ function ns:SetupConfig()
             table.insert(values, {value, GetQualityFilterString(value) or label})
         end
         table.sort(values, function(a, b) return a[1] < b[1] end)
-        local quality = makeDropdown(frame, "quality", "Minimum item quality to show", values, refresh)
+        local quality = makeDropdown(frame, "quality", L["Minimum item quality to show"], values, refresh)
         quality:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -4)
 
         -- Settings.OpenToCategory(myname)
@@ -374,7 +375,7 @@ function ns:SetupConfig()
             table.insert(fonts, {k, L[k]})
         end
         table.sort(fonts, function(a, b) return a[1] < b[1] end)
-        local font = makeDropdown(frame, "font", "Font", fonts, refresh)
+        local font = makeDropdown(frame, "font", L["Font"], fonts, refresh)
         font:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
 
         local positions = {}
@@ -382,19 +383,19 @@ function ns:SetupConfig()
             table.insert(positions, {k, L[k]})
         end
         table.sort(positions, function(a, b) return a[1] < b[1] end)
-        local position = makeDropdown(frame, "position", "Position of item level", positions, refresh)
+        local position = makeDropdown(frame, "position", L["Position of item level"], positions, refresh)
         position:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -4)
-        local positionup = makeDropdown(frame, "positionup", "Position of upgrade indicator", positions, refresh)
+        local positionup = makeDropdown(frame, "positionup", L["Position of upgrade indicator"], positions, refresh)
         positionup:SetPoint("TOPLEFT", position, "BOTTOMLEFT", 0, -4)
 
-        local positionmissing = makeDropdown(frame, "positionmissing", "Position of missing indicator", positions, refresh)
+        local positionmissing = makeDropdown(frame, "positionmissing", L["Position of missing indicator"], positions, refresh)
         positionmissing:SetPoint("TOPLEFT", positionup, "BOTTOMLEFT", 0, -4)
-        local scaleup = makeSlider(frame, "scaleup", "Size of upgrade indicator", 0.5, 3, 0.1, nil, refresh, true)
+        local scaleup = makeSlider(frame, "scaleup", L["Size of upgrade indicator"], 0.5, 3, 0.1, nil, refresh, true)
         scaleup:SetPoint("TOPLEFT", positionmissing, "BOTTOMLEFT", 0, -4)
 
-        local positionbound = makeDropdown(frame, "positionbound", "Position of soulbound indicator", positions, refresh)
+        local positionbound = makeDropdown(frame, "positionbound", L["Position of soulbound indicator"], positions, refresh)
         positionbound:SetPoint("TOPLEFT", scaleup, "BOTTOMLEFT", 0, -4)
-        local scalebound = makeSlider(frame, "scalebound", "Size of soulbound indicator", 0.5, 3, 0.1, nil, refresh, true)
+        local scalebound = makeSlider(frame, "scalebound", L["Size of soulbound indicator"], 0.5, 3, 0.1, nil, refresh, true)
         scalebound:SetPoint("TOPLEFT", positionbound, "BOTTOMLEFT", 0, -4)
 
         makeCheckboxList(frame, {
@@ -405,8 +406,8 @@ function ns:SetupConfig()
             {"missingenchants", (L["Flag items missing enchants (%s)"]):format(ns.enchantString)},
             {"missingcharacter", L["on the character frame only?"], nil, true},
             {"bound", (L["Flag items that are %s (%s)"]):format(ITEM_SOULBOUND, CreateAtlasMarkup(ns.soulboundAtlas)), L["Only on items you control; bags and character"]},
-            {"color", "Color item level by item quality"},
-            isClassic and {"colorborders", "Color item border by item quality"},
+            {"color", L["Color item level by item quality"]},
+            isClassic and {"colorborders", L["Color item border by item quality"]},
         }, scalebound, refresh)
     end
 end
