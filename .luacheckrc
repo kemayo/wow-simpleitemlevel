@@ -158,6 +158,7 @@ read_globals = {
     "UISpecialFrames",
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
+    "InspectPaperDollFrame",
     "InspectPaperDollFrame_OnShow",
     "InspectPaperDollFrame_UpdateButtons",
     "EquipmentManager_UnpackLocation",

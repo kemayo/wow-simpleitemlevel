@@ -588,6 +588,14 @@ end
 
 -- and the inspect frame
 ns:RegisterAddonHook("Blizzard_InspectUI", function()
+    -- Forever moved this onto InspectPaperDollFrameMixin
+    local function UpdateButtons()
+        if InspectPaperDollFrame.UpdateButtons then
+            InspectPaperDollFrame:UpdateButtons()
+        else
+            InspectPaperDollFrame_UpdateButtons()
+        end
+    end
     local refresh = CreateFrame("Frame")
     refresh.elapsed = 0
     refresh:SetScript("OnUpdate", function(self, elapsed)
@@ -597,7 +605,7 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
             self:Hide()
             if InspectFrame.unit then
                 -- Classic Era Anniversary specifically seems to trigger this with timings that cause an error here
-                InspectPaperDollFrame_UpdateButtons()
+                UpdateButtons()
             end
         end
     end)
@@ -611,7 +619,7 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
         -- print("updating button", button:GetName(), item and not item.itemLink and "incomplete" or item.itemLink or "X")
     end)
     local avglevel
-    hooksecurefunc("InspectPaperDollFrame_UpdateButtons", function()
+    local function OnUpdateButtons()
         if not avglevel then
             avglevel = InspectModelFrame:CreateFontString(nil, "OVERLAY")
             avglevel:SetFontObject(NumberFontNormal)
@@ -619,7 +627,12 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
             avglevel:SetPoint("BOTTOM", 0, 20)
         end
         AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
-    end)
+    end
+    if InspectPaperDollFrame.UpdateButtons then
+        hooksecurefunc(InspectPaperDollFrame, "UpdateButtons", OnUpdateButtons)
+    else
+        hooksecurefunc("InspectPaperDollFrame_UpdateButtons", OnUpdateButtons)
+    end
 end)
 
 -- Equipment flyout in character frame
