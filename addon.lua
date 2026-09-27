@@ -408,6 +408,7 @@ local function ShouldShowOnItem(item)
     if (
         itemClass == Enum.ItemClass.Weapon or
         itemClass == Enum.ItemClass.Armor or
+        itemClass == Enum.ItemClass.Profession or
         (itemClass == Enum.ItemClass.Gem and itemSubClass == Enum.ItemGemSubclass.Artifactrelic)
     ) then
         return db.equipment
@@ -546,6 +547,21 @@ end
 
 -- Character frame:
 
+-- The professions frame's gear slots reuse the character slot buttons. Look
+-- the IDs up by name, because on classic the same numbers are bag slots.
+local professionSlots = {}
+for _, name in ipairs({
+    "Prof0ToolSlot", "Prof0Gear0Slot", "Prof0Gear1Slot",
+    "Prof1ToolSlot", "Prof1Gear0Slot", "Prof1Gear1Slot",
+    "CookingToolSlot", "CookingGear0Slot",
+    "FishingToolSlot", "FishingGear0Slot", "FishingGear1Slot",
+}) do
+    local ok, slotID = pcall(GetInventorySlotInfo, name)
+    if ok and slotID then
+        professionSlots[slotID] = true
+    end
+end
+
 local function UpdateItemSlotButton(button, unit)
     CleanButton(button)
     local key = unit == "player" and "character" or "inspect"
@@ -554,7 +570,7 @@ local function UpdateItemSlotButton(button, unit)
     end
     local slotID = button:GetID()
 
-    if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) then
+    if (slotID >= INVSLOT_FIRST_EQUIPPED and slotID <= INVSLOT_LAST_EQUIPPED) or professionSlots[slotID] then
         local item = ItemFromUnitSlot(unit, slotID)
         UpdateButtonFromItem(button, item, key, nil, {
             level = ItemLevelFromTooltip(_G.C_TooltipInfo and C_TooltipInfo.GetInventoryItem(unit, slotID))
