@@ -121,8 +121,8 @@ local function makeDropdown(parent, key, label, values, callback)
     local frame = CreateFrame("Frame", nil, parent)
     frame.Dropdown = CreateFrame("Frame", myname .. "Options" .. key .. "Dropdown", frame, "UIDropDownMenuTemplate")
     frame.Dropdown:SetPoint("LEFT", frame, "CENTER", -110, 3)
+    -- Initialize on every show so the selection matches db after slash command changes
     frame.Dropdown:HookScript("OnShow", function()
-        if frame.initialize then return end
         UIDropDownMenu_Initialize(frame.Dropdown, function()
             for _, value in pairs(values) do
                 local info = UIDropDownMenu_CreateInfo()
