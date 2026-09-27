@@ -1,5 +1,4 @@
 local myname, ns = ...
-local continuableContainer
 
 _G.SimpleItemLevel.API = {}
 
@@ -64,14 +63,13 @@ end
 --     an itemID may be inaccurate due to item scaling.
 -- `callback` is a function which will be passed a boolean `isUpgrade`
 SimpleItemLevel.API.ItemIsUpgradeAsync = function(item, callback)
-    if not continuableContainer then
-        continuableContainer = ContinuableContainer:Create()
-    end
     item = itemFromArg(item)
     if not item then
         return callback(false)
     end
 
+    -- A container keeps only its latest callback, so each call needs its own
+    local continuableContainer = ContinuableContainer:Create()
     continuableContainer:AddContinuable(item)
 
     local _, _, _, equipLoc = C_Item.GetItemInfoInstant(item:GetItemID())

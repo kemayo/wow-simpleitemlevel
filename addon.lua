@@ -452,14 +452,20 @@ local function UpdateButtonFromItem(button, item, variant, suppress, extradetail
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
 
-local continuableContainer
+-- One per frame: a container keeps only its latest callback, so sharing one
+-- would drop the other frame's result
+local continuableContainers = {}
 local function AddAverageLevelToFontString(unit, fontstring)
     if not fontstring then return end
-    if not continuableContainer then
-        continuableContainer = ContinuableContainer:Create()
-    end
     fontstring:Hide()
     local key = unit == "player" and "character" or "inspect"
+    local continuableContainer = continuableContainers[key]
+    if continuableContainer then
+        continuableContainer:Cancel()
+    else
+        continuableContainer = ContinuableContainer:Create()
+        continuableContainers[key] = continuableContainer
+    end
     if not db[key .. "avg"] then -- characteravg / inspectavg
         return
     end
