@@ -439,7 +439,7 @@ SlashCmdList[myname:upper()] = function(msg)
         ns.db.quality = quality
         return ns.Print("quality = ", _G["ITEM_QUALITY" .. ns.db.quality .. "_DESC"])
     end
-    if ns.db[msg] ~= nil then
+    if type(ns.defaults[msg]) == "boolean" then
         ns.db[msg] = not ns.db[msg]
         return ns.Print(msg, '=', ns.db[msg] and YES or NO)
     end
