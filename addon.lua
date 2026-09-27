@@ -1090,6 +1090,13 @@ do
         INVTYPE_TRINKET = 14,
         INVTYPE_WEAPON = 17,
     }
+    if C_PaperDollInfo.IsRangedSlotShown() then
+        -- ranged slot exists until Pandaria
+        EquipLocToSlot1.INVTYPE_RANGED = INVSLOT_RANGED
+        EquipLocToSlot1.INVTYPE_RANGEDRIGHT = INVSLOT_RANGED
+        EquipLocToSlot1.INVTYPE_THROWN = INVSLOT_RANGED
+        EquipLocToSlot1.INVTYPE_RELIC = INVSLOT_RANGED
+    end
     local ForEquippedItem = function(slot, callback)
         if not slot then
             return
