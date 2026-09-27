@@ -871,7 +871,7 @@ ns:RegisterAddonHook("Blizzard_GuildBankUI", function()
         for _, column in ipairs(self.Columns) do
             for _, button in ipairs(column.Buttons) do
                 CleanButton(button)
-                local link = GetGuildBankItemLink(tab, button:GetID())
+                local link = db.bags and GetGuildBankItemLink(tab, button:GetID())
                 if link then
                     local item = Item:CreateFromItemLink(link)
                     UpdateButtonFromItem(button, item, "bags")
@@ -891,6 +891,8 @@ ns:RegisterAddonHook("Inventorian", function()
         local button = self.items[ToIndex(bag, slot)]
         if not button then return end
         if button:IsCached() then
+            CleanButton(button)
+            if not db.bags then return end
             local item
             local icon, count, locked, quality, readable, lootable, link, noValue, itemID, isBound = button:GetInfo()
             if link then
@@ -898,7 +900,6 @@ ns:RegisterAddonHook("Inventorian", function()
             elseif itemID then
                 item = Item:CreateFromItemID(itemID)
             end
-            CleanButton(button)
             UpdateButtonFromItem(button, item, "bags")
         else
             UpdateContainerButton(button, bag, slot)
