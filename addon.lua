@@ -519,6 +519,10 @@ local function AddAverageLevelToFontString(unit, fontstring)
         local totalLevel = 0
         for slotID, item in pairs(items) do
             local level = unit ~= "player" and ItemLevelFromTooltip(_G.C_TooltipInfo and C_TooltipInfo.GetInventoryItem(unit, slotID)) or item:GetCurrentItemLevel()
+            if not level then
+                -- Inspect data is incomplete, and the slot buttons will queue a refresh. A partial average would be wrong.
+                return
+            end
             totalLevel = totalLevel + level
             -- print("item", item:GetItemLink(), item:GetCurrentItemLevel())
         end
