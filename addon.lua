@@ -34,10 +34,10 @@ end
 
 local LAI = LibStub("LibAppropriateItems-1.0")
 
-ns.soulboundAtlas = isClassic and "AzeriteReady" or "Soulbind-32x32" -- UF-SoulShard-Icon-2x
+ns.soulboundAtlas = isClassicNotForever and "AzeriteReady" or "Soulbind-32x32" -- UF-SoulShard-Icon-2x
 ns.upgradeAtlas = "poi-door-arrow-up" -- MiniMap-PositionArrowUp?
 ns.upgradeString = CreateAtlasMarkup(ns.upgradeAtlas)
-ns.gemString = CreateAtlasMarkup(isClassic and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
+ns.gemString = CreateAtlasMarkup(isClassicNotForever and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
 ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
 ns.Fonts = {
     HighlightSmall = GameFontHighlightSmall,
@@ -92,7 +92,7 @@ ns.defaults = {
     tooltip = isClassic,
     characteravg = isClassic,
     inspectavg = true,
-    colorborders = isClassic,
+    colorborders = isClassicNotForever,
     -- equipmentonly = true,
     equipment = true,
     battlepets = true,
@@ -543,7 +543,7 @@ local function ApplyBorderColor(button, quality)
     end
 end
 
-if isClassic then
+if isClassicNotForever then
     hooksecurefunc("SetItemButtonQuality", function(button, quality, itemIDOrLink, suppressOverlays)
         -- base SetItemButtonQuality will have hidden IconBorder
         if not db.colorborders then return end
