@@ -2,6 +2,8 @@ local myname, ns = ...
 local myfullname = C_AddOns.GetAddOnMetadata(myname, "Title")
 local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
+local isForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT
+local isClassicNotForever = isClassic and not isForever
 ns.DEBUG = C_AddOns.GetAddOnMetadata(myname, "Version") == "@".."project-version@"
 
 local issecretvalue = _G.issecretvalue or function() return false end
@@ -595,7 +597,7 @@ do
                 self.avglevel:SetPoint("BOTTOMLEFT", 5, 35)
             elseif _G.CharacterModelScene then
                 self.avglevel = CharacterModelScene:CreateFontString(nil, "OVERLAY")
-                self.avglevel:SetPoint("BOTTOM", 0, 20)
+                self.avglevel:SetPoint("BOTTOM", 0, isForever and 8 or 20)
             end
             if self.avglevel then
                 self.avglevel:SetFontObject(NumberFontNormal) -- GameFontHighlightSmall isn't bad
@@ -650,7 +652,7 @@ ns:RegisterAddonHook("Blizzard_InspectUI", function()
             avglevel = InspectModelFrame:CreateFontString(nil, "OVERLAY")
             avglevel:SetFontObject(NumberFontNormal)
             -- Classic used to have a different structure, but 1.15.9 unified it
-            avglevel:SetPoint("BOTTOM", 0, 20)
+            avglevel:SetPoint("BOTTOM", 0, isForever and 24 or 20)
         end
         AddAverageLevelToFontString(InspectFrame.unit or "target", avglevel)
     end

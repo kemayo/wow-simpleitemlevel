@@ -252,5 +252,6 @@ read_globals = {
     "UIDROPDOWNMENU_MENU_VALUE",
     "WOW_PROJECT_ID",
     "WOW_PROJECT_MAINLINE",
+    "WOW_PROJECT_CAMELOT",
     "YES",
 }
