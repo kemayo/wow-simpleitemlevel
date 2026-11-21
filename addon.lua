@@ -171,8 +171,11 @@ local function ItemFromUnitSlot(unit, slotID)
     end
 end
 
+-- Returns isUpgrade, and whether the player hasn't learned to wear it yet
 local function ItemIsUpgrade(item, itemLevelOverride)
-    if not (item and LAI:IsAppropriate(item:GetItemID())) then
+    if not item then return end
+    local appropriate, unlockLevel = LAI:IsAppropriateForPlayer(item:GetItemID())
+    if not (appropriate or unlockLevel) then
         return
     end
     -- Upgrade?
@@ -215,9 +218,15 @@ local function ItemIsUpgrade(item, itemLevelOverride)
             end
         end
     end)
-    return isUpgrade
+    return isUpgrade, isUpgrade and not appropriate
 end
 ns.ItemIsUpgrade = ItemIsUpgrade
+
+local function UpgradeIsUsableNow(details)
+    if details.upgradeLater then return false end
+    local minLevel = details.link and select(5, C_Item.GetItemInfo(details.link))
+    return not (minLevel and minLevel > UnitLevel("player"))
+end
 
 -- TODO: this is a good candidate for caching results...
 local function DetailsFromItemInstant(item, itemLevelOverride)
@@ -250,7 +259,7 @@ local function DetailsFromItem(item, itemLevelOverride)
     local details = DetailsFromItemInstant(item, itemLevelOverride)
     details.missingGems = ns.ItemHasEmptySlots(details.link)
     details.missingEnchants = ns.ItemIsMissingEnchants(details.link)
-    details.upgrade = ItemIsUpgrade(item)
+    details.upgrade, details.upgradeLater = ItemIsUpgrade(item)
 
     if C_Item.IsItemBindToAccountUntilEquip and details.link then
         -- 11.0.2 adds this, which works on any item:
@@ -362,11 +371,10 @@ local function AddUpgradeToButton(button, details)
     if not (db.upgrades and details.upgrade) then
         return button.simpleilvlup:Hide()
     end
-    local minLevel = select(5, C_Item.GetItemInfo(details.link))
-    if minLevel and minLevel > UnitLevel("player") then
-        button.simpleilvlup:SetVertexColor(1, 0, 0)
-    else
+    if UpgradeIsUsableNow(details) then
         button.simpleilvlup:SetVertexColor(1, 1, 1)
+    else
+        button.simpleilvlup:SetVertexColor(1, 0, 0)
     end
     button.simpleilvlup:Show()
 end
@@ -436,7 +444,7 @@ local function UpdateButtonFromItem(button, item, variant, suppress, extradetail
         if extradetails then
             MergeTable(details, extradetails)
             if extradetails.level then
-                details.upgrade = ItemIsUpgrade(item, extradetails.level)
+                details.upgrade, details.upgradeLater = ItemIsUpgrade(item, extradetails.level)
             end
         end
         if not suppress.level then AddLevelToButton(button, details) end
@@ -1036,11 +1044,10 @@ ns:RegisterAddonHook("Baganator", function()
     Baganator.API.RegisterCornerWidget("sIlvl: Upgrade", "simpleitemlevel-upgrade",
         onUpdate(function(cornerFrame, item, data, details)
             if data.upgrade then
-                local minLevel = select(5, C_Item.GetItemInfo(item:GetItemLink() or item:GetItemID()))
-                if minLevel and minLevel > UnitLevel("player") then
-                    cornerFrame:SetVertexColor(1, 0, 0)
-                else
+                if UpgradeIsUsableNow(data) then
                     cornerFrame:SetVertexColor(1, 1, 1)
+                else
+                    cornerFrame:SetVertexColor(1, 0, 0)
                 end
                 return true
             end
