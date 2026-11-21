@@ -229,8 +229,10 @@ local function button_onenter(self)
 
     GameTooltip:Show()
 end
+-- Forever has no ItemButtonTemplate
+local hasItemButtonTemplate = C_XMLUtil.GetTemplateInfo("ItemButtonTemplate") ~= nil
 local function makeItemButton(parent)
-    local button = CreateFrame(isClassic and "BUTTON" or "ItemButton", nil, parent, isClassic and "ItemButtonTemplate" or nil)
+    local button = CreateFrame(hasItemButtonTemplate and "BUTTON" or "ItemButton", nil, parent, hasItemButtonTemplate and "ItemButtonTemplate" or nil)
     -- classic
     if not button.SetItem then
         function button:SetItem(item)

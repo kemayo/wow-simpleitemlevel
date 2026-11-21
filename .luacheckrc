@@ -52,6 +52,7 @@ read_globals = {
     "C_PaperDollInfo",
     "C_SpecializationInfo",
     "C_TooltipInfo",
+    "C_XMLUtil",
     "hooksecurefunc",
     "BankButtonIDToInvSlotID",
     "ContainerIDToInventoryID",
