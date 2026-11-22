@@ -1136,6 +1136,7 @@ do
     end
     ns.ForEquippedItems = function(equipLoc, callback)
         ForEquippedItem(EquipLocToSlot1[equipLoc], callback)
+        if equipLoc == "INVTYPE_WEAPON" and not CanDualWield() then return end
         ForEquippedItem(EquipLocToSlot2[equipLoc], callback)
     end
 end

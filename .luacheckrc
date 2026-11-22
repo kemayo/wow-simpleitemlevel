@@ -58,6 +58,7 @@ read_globals = {
     "ContainerIDToInventoryID",
     "ReagentBankButtonIDToInvSlotID",
     "CreateAtlasMarkup",
+    "CanDualWield",
     "CursorHasItem",
     "DeleteCursorItem",
     "GetAuctionItemSubClasses",
